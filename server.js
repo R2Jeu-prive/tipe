@@ -16,6 +16,8 @@ routes.push(["/tracks.js","/www/js/tracks.js"]);
 routes.push(["/trajClass.js","/www/js/trajClass.js"]);
 routes.push(["/uiManager.js","/www/js/uiManager.js"]);
 
+routes.push(["/style.css","/www/style.css"]);
+
 for (let route of routes) {
 	router.get(route[0], function(req, res){
 		res.set('Content-Type', mime.getType(route[1].split(".")[1]));
