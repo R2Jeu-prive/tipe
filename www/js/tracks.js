@@ -17,6 +17,18 @@ function funTrack(dist) {
     if (dist < 10) {
         return 0;
     }
+    if (dist < 10 + (0.5*pi)) {
+        return -1;
+    }
+    if (dist < 10 + pi) {
+        return 1;
+    }
+    if (dist < 10 + (2*pi)) {
+        return 0.5;
+    }
+    if (dist < 20) {
+        return 0;
+    }
     return NaN;
 }
 
