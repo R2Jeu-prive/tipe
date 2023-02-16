@@ -11,3 +11,9 @@ J'aimerai résoudre ce problème en utilisant un algorithme génétique :
 
 La difficulté réside dans la programmation des deux fonctions : "faire évoluer" et "évaluer" une trajectoire donné
 La modélisation de la voiture se limite pour le moment à un objet de vitesse constante et sera modifié dans un second temps.
+
+# Comment installer ?
+
+1) Installer Node (npm inclus) : https://nodejs.org/fr/download/
+2) Démarrer le serveur node.js ```node server.js```
+3) Ouvrir un navigateur à l'adresse ```localhost```
