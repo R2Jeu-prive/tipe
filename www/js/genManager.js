@@ -9,7 +9,8 @@ function GenReset() {
     DrawAll(false);
 }
 
-function GenForward() {
+function GenForward(recall) {
+    console.log("GenForward !");
     let mutateForce = parseFloat(document.getElementById('mutateForce').value);
     let mutateWL = parseInt(document.getElementById('mutateWL').value);
     let childCountPetParent = parseInt(document.getElementById('childCountPerParent').value);
@@ -63,4 +64,9 @@ function GenForward() {
     parentIds = bestTimesIds;
     UpdateTimeBoard(bestTimes);
     DrawAll(false);
+    if(recall){
+        setTimeout(() => {
+            GenForward(true)
+        }, "500")
+    }
 }

@@ -29,7 +29,8 @@
             <label>Mutate Every x Points : <input id="mutateWL" type="number" min="1" max="32" value="16" step="1" /></label><br>
             <label>Child Count Per Parent<input id="childCountPerParent" type="number" min="1" max="500" value="20" step="1" /></label><br>
             <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="10" step="1" /></label><br>
-            <button onclick="GenForward()">Next Gen</button>
+            <button onclick="GenForward(false)">Next Gen</button>
+            <button onclick="GenForward(true)">Run Gen (NO STOP)</button>
         </form>
     </div>
     <p>Best Times</p>
