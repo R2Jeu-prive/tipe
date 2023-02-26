@@ -1,9 +1,23 @@
 html, body {
-    height: 100%;
-    width: 100%;
+    background-color: #eee;
+    margin: 0px;
+    padding: 0px;;
 }
 
-#canvas {
-    border: 5px solid black;
+#title{
+    font-size: 30px;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 10px 20px;
+}
+
+#track-window{
+    display: flex;
+    margin-top: 15px;
+}
+
+#track-canvas{
+    background-color: #68c168;
+    border: 1px solid black;
     border-radius: 4px;
+    margin: 0px 15px;
 }

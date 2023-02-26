@@ -20,7 +20,7 @@ function DrawAll(updateFrame) {
         }
     }
     for (let i = 0; i < parentIds.length; i++) {
-        DrawTraj(childs[parentIds[i]], 2, "green");
+        DrawTraj(childs[parentIds[i]], 2, "blue");
     }
 }
 
