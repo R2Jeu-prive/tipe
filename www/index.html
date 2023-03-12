@@ -9,10 +9,11 @@
     <script src="js/constants.js"></script>
     <script src="js/tracks.js"></script>
     <script src="js/pointClass.js"></script>
-    <script src="js/canvasManager.js"></script>
+    <script src="js/trackClass.js"></script>
+    <script src="js/uiClass.js"></script>
     <script src="js/uiManager.js"></script>
-    <script src="js/carManager.js"></script>
-    <script src="js/genManager.js"></script>
+    <script src="js/carClass.js"></script>
+    <script src="js/familyClass.js"></script>
     <script src="js/trajClass.js"></script>
 </head>
 
@@ -21,16 +22,16 @@
     <div id="track-window">
         <canvas id="track-canvas" width="1000" height="500"></canvas>
         <form action="javascript:void(0);" id="track-inputs">
-            <label>Scale : <input id="scale" type="number" min="1" max="100" value="70" step="1" onchange="DrawAll(true)" /></label>
-            <label>Offset X : <input id="offsetX" type="number" min="-1000" max="1000" value="-300" step="25" onchange="DrawAll(true)" /></label>
-            <label>Offset Y : <input id="offsetY" type="number" min="-1000" max="1000" value="100" step="25" onchange="DrawAll(true)" /></label>
+            <label>Scale : <input id="scale" type="number" min="1" max="100" value="70" step="1" onchange="ui.DrawAll()" /></label>
+            <label>Offset X : <input id="offsetX" type="number" min="-1000" max="1000" value="0" step="25" onchange="ui.DrawAll()" /></label>
+            <label>Offset Y : <input id="offsetY" type="number" min="-1000" max="1000" value="-75" step="25" onchange="ui.DrawAll()" /></label>
 
-            <label>Mutate Force : <input id="mutateForce" type="number" min="0" max="2" value="0.1" step="0.01" /></label><br>
-            <label>Mutate Every x Points : <input id="mutateWL" type="number" min="1" max="32" value="16" step="1" /></label><br>
-            <label>Child Count Per Parent<input id="childCountPerParent" type="number" min="1" max="500" value="20" step="1" /></label><br>
+            <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.2" step="0.05" /></label><br>
+            <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="50" value="20" step="1" /></label><br>
+            <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="50" step="1" /></label><br>
             <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="10" step="1" /></label><br>
-            <button onclick="GenForward(false)">Next Gen</button>
-            <button onclick="GenForward(true)">Run Gen (NO STOP)</button>
+            <button onclick="family.GenForward()">Gen Start</button>
+            <button onclick="family.StopGen()">Gen Stop</button>
         </form>
     </div>
     <p>Best Times</p>

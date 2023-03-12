@@ -1,9 +1,8 @@
 class Point {
-    constructor(x, y, dir = 0, id = 0) {
+    constructor(x, y, dir = 0) {
         this.x = x;
         this.y = y;
         this.dir = dir;
-        this.id = id;
     }
 
     IsNearPoint(trackPoint, dist = trackSemiWidthSquared) {

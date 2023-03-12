@@ -6,14 +6,15 @@ const mime = require('mime');
 
 let routes = [];
 routes.push(["/","/www/index.html"]);
-routes.push(["/js/canvasManager.js","/www/js/canvasManager.js"]);
-routes.push(["/js/carManager.js","/www/js/carManager.js"]);
+routes.push(["/js/uiClass.js","/www/js/uiClass.js"]);
+routes.push(["/js/carClass.js","/www/js/carClass.js"]);
 routes.push(["/js/constants.js","/www/js/constants.js"]);
-routes.push(["/js/genManager.js","/www/js/genManager.js"]);
+routes.push(["/js/familyClass.js","/www/js/familyClass.js"]);
 routes.push(["/js/main.js","/www/js/main.js"]);
 routes.push(["/js/pointClass.js","/www/js/pointClass.js"]);
 routes.push(["/js/tracks.js","/www/js/tracks.js"]);
 routes.push(["/js/trajClass.js","/www/js/trajClass.js"]);
+routes.push(["/js/trackClass.js","/www/js/trackClass.js"]);
 routes.push(["/js/uiManager.js","/www/js/uiManager.js"]);
 
 routes.push(["/css/style.css","/www/css/style.css"]);

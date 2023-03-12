@@ -1,9 +1,12 @@
-trackTraj = new Traj(MakeDiscrete(funTrack), new Point(0, 0, pi / 2, 0));
+track = new Track();
+car  = new Car();
+ui = new UI();
+family = new Family()
+
 
 window.onload = () => {
+    track.BuildFromCurveFunction(funTrack, pi / 2, 0);
     canvas = document.getElementById('track-canvas');
     ctx = canvas.getContext('2d');
-
-    GenReset();
-    DrawAll(true);
+    family.Reset();
 };

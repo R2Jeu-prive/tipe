@@ -1,3 +1,17 @@
+function MakeDiscrete(curveFunction) {
+    let curveArray = [];
+    let i = 0;
+    while (true) {
+        let curve = curveFunction(i * ds);
+        if (isNaN(curve)) {
+            break;
+        }
+        curveArray.push(curve);
+        i++;
+    }
+    return curveArray;
+}
+
 function funTrack(dist) {
     if (dist < 2) {
         return 0;
