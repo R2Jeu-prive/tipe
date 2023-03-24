@@ -82,55 +82,55 @@ class Track{
     //[TODO]BuildFromCenteredPoints(curveFunction){}
 
     Draw(style = 3, color = "black", img = false) {
-        ui.ctx.strokeStyle = color;
-        ui.ctx.fillStyle = color;
+        ui.fixedCtx.strokeStyle = color;
+        ui.fixedCtx.fillStyle = color;
         let canvasOffsetX = ui.GetIntParam('offsetX');
         let canvasOffsetY = ui.GetIntParam('offsetY');
         let canvasScale = 0.01*ui.GetIntParam('scale');
 
         if(img){
-            ui.ctx.drawImage(img,canvasOffsetX,canvasOffsetY,17403*canvasScale,9057*canvasScale);
+            ui.fixedCtx.drawImage(img,canvasOffsetX,canvasOffsetY,17403*canvasScale,9057*canvasScale);
         }
     
         if (style == 0) {//FULL CONCRETE TRACK
             for (let i = 0; i < this.points.length; i++) {
-                ui.ctx.beginPath();
-                ui.ctx.arc(this.points[i].x * canvasScale + canvasOffsetX, this.points[i].y * canvasScale + canvasOffsetY, trackSemiWidth * canvasScale, 0, 2 * pi, false);
-                ui.ctx.fill();
+                ui.fixedCtx.beginPath();
+                ui.fixedCtx.arc(this.points[i].x * canvasScale + canvasOffsetX, this.points[i].y * canvasScale + canvasOffsetY, trackSemiWidth * canvasScale, 0, 2 * pi, false);
+                ui.fixedCtx.fill();
             }
             return;
         }
     
         if (style == 1) {//PERP TRACK LINES
-            ui.ctx.beginPath();
+            ui.fixedCtx.beginPath();
             for (let i = 0; i < this.points.length; i++) {
                 let x1 = this.leftPoints[i].x * canvasScale + canvasOffsetX;
                 let y1 = this.leftPoints[i].y * canvasScale + canvasOffsetY;
                 let x2 = this.rightPoints[i].x * canvasScale + canvasOffsetX;
                 let y2 = this.rightPoints[i].y * canvasScale + canvasOffsetY;
-                ui.ctx.moveTo(x1, y1);
-                ui.ctx.lineTo(x2, y2);
+                ui.fixedCtx.moveTo(x1, y1);
+                ui.fixedCtx.lineTo(x2, y2);
             }
-            ui.ctx.stroke();
+            ui.fixedCtx.stroke();
             return;
         }
     
         if (style == 2) {//SIMPLE LINE
-            ui.ctx.beginPath();
+            ui.fixedCtx.beginPath();
             for (let i = 1; i < this.points.length; i++) {
                 let x1 = this.points[i - 1].x * canvasScale + canvasOffsetX;
                 let y1 = this.points[i - 1].y * canvasScale + canvasOffsetY;
                 let x2 = this.points[i].x * canvasScale + canvasOffsetX;
                 let y2 = this.points[i].y * canvasScale + canvasOffsetY;
-                ui.ctx.moveTo(x1, y1);
-                ui.ctx.lineTo(x2, y2);
+                ui.fixedCtx.moveTo(x1, y1);
+                ui.fixedCtx.lineTo(x2, y2);
             }
-            ui.ctx.stroke();
+            ui.fixedCtx.stroke();
             return;
         }
     
         if (style == 3) {//TRACK LIMIT LINES
-            ui.ctx.beginPath();
+            ui.fixedCtx.beginPath();
             for (let i = 1; i < this.points.length; i++) {
                 let x1 = this.leftPoints[i - 1].x * canvasScale + canvasOffsetX;
                 let y1 = this.leftPoints[i - 1].y * canvasScale + canvasOffsetY;
@@ -140,12 +140,12 @@ class Track{
                 let y3 = this.rightPoints[i - 1].y * canvasScale + canvasOffsetY;
                 let x4 = this.rightPoints[i].x * canvasScale + canvasOffsetX;
                 let y4 = this.rightPoints[i].y * canvasScale + canvasOffsetY;
-                ui.ctx.moveTo(x1, y1);
-                ui.ctx.lineTo(x2, y2);
-                ui.ctx.moveTo(x3, y3);
-                ui.ctx.lineTo(x4, y4);
+                ui.fixedCtx.moveTo(x1, y1);
+                ui.fixedCtx.lineTo(x2, y2);
+                ui.fixedCtx.moveTo(x3, y3);
+                ui.fixedCtx.lineTo(x4, y4);
             }
-            ui.ctx.stroke();
+            ui.fixedCtx.stroke();
             return;
         }
     }

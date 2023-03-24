@@ -20,4 +20,13 @@ html, body {
     border: 1px solid black;
     border-radius: 4px;
     margin: 0px 15px;
+    position: absolute;
+}
+
+#traj-canvas{
+    background-color: #00000000;
+    border: 1px solid black;
+    border-radius: 4px;
+    margin: 0px 15px;
+    z-index: 1;
 }
