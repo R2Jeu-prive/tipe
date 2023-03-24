@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width">
     <title>replit</title>
     <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <script src="data/imola.js"></script>
     <script src="js/constants.js"></script>
     <script src="js/tracks.js"></script>
     <script src="js/pointClass.js"></script>
@@ -15,6 +16,7 @@
     <script src="js/carClass.js"></script>
     <script src="js/familyClass.js"></script>
     <script src="js/trajClass.js"></script>
+    <img id="trackImage" src="img/UHD imola cropped.jpg" style="display:none;"/>
 </head>
 
 <body>
@@ -22,9 +24,9 @@
     <div id="track-window">
         <canvas id="track-canvas" width="1000" height="500"></canvas>
         <form action="javascript:void(0);" id="track-inputs">
-            <label>Scale : <input id="scale" type="number" min="1" max="100" value="70" step="1" onchange="ui.DrawAll()" /></label>
-            <label>Offset X : <input id="offsetX" type="number" min="-1000" max="1000" value="0" step="25" onchange="ui.DrawAll()" /></label>
-            <label>Offset Y : <input id="offsetY" type="number" min="-1000" max="1000" value="-75" step="25" onchange="ui.DrawAll()" /></label>
+            <label>Scale : <input id="scale" type="number"value="100" onchange="ui.DrawAll()" /></label>
+            <label>Offset X : <input id="offsetX" type="number" value="-4000" onchange="ui.DrawAll()" /></label>
+            <label>Offset Y : <input id="offsetY" type="number" value="-1100" onchange="ui.DrawAll()" /></label>
 
             <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.2" step="0.05" /></label><br>
             <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="50" value="20" step="1" /></label><br>

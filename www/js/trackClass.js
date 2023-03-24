@@ -43,6 +43,18 @@ class Track{
         this.BuildSidePoints();
     }
 
+    BuildFromRightPoints(points){
+        this.leftPoints = [];
+        this.rightPoints = [];
+        let nbOfPoints = points.length/2;
+        for(let i = 0; i < nbOfPoints-1; i++){
+            let dir = Math.atan2(points[i*2 + 3] - points[i*2 + 1], points[i*2 + 2] - points[i*2]);
+            this.rightPoints.push(new Point(points[i*2],points[i*2+1], dir));
+            this.leftPoints.push(new Point(points[i*2] + 2*trackSemiWidth*Math.cos(dir+pi/2),points[i*2+1] + 2*trackSemiWidth*Math.sin(dir+pi/2)));
+            this.points.push(new Point(points[i*2] + trackSemiWidth*Math.cos(dir+pi/2),points[i*2+1] + trackSemiWidth*Math.sin(dir+pi/2)));
+        }
+    }
+
     MoveToCenter(){
         let averageX = 0;
         let averageY = 0;
@@ -69,12 +81,16 @@ class Track{
 
     //[TODO]BuildFromCenteredPoints(curveFunction){}
 
-    Draw(style = 1, color = "black") {
+    Draw(style = 3, color = "black", img = false) {
         ui.ctx.strokeStyle = color;
         ui.ctx.fillStyle = color;
-        let canvasOffsetX = 500 + ui.GetIntParam('offsetX');
-        let canvasOffsetY = 250 + ui.GetIntParam('offsetY');
-        let canvasScale = ui.GetIntParam('scale');
+        let canvasOffsetX = ui.GetIntParam('offsetX');
+        let canvasOffsetY = ui.GetIntParam('offsetY');
+        let canvasScale = 0.01*ui.GetIntParam('scale');
+
+        if(img){
+            ui.ctx.drawImage(img,canvasOffsetX,canvasOffsetY,17403*canvasScale,9057*canvasScale);
+        }
     
         if (style == 0) {//FULL CONCRETE TRACK
             for (let i = 0; i < this.points.length; i++) {

@@ -2,14 +2,15 @@ class UI{
     constructor(){
         this.canvas = document.getElementById('track-canvas');
         this.ctx = this.canvas.getContext('2d');
+        this.trackImage = document.getElementById("trackImage")
     }
 
     DrawAll(){
         //clear canvas and updateFrame if requested
-        this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         //draw track
-        track.Draw(1, 'black');
+        track.Draw(3, 'black',this.trackImage);
 
         //draw trajs and show times
         let timeboard = document.getElementById("timeboard");

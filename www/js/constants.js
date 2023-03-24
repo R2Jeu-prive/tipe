@@ -1,6 +1,5 @@
 pi = Math.PI;
-trackSemiWidth = 0.5;
-trackSemiWidthSquared = trackSemiWidth * trackSemiWidth;
+trackSemiWidth = 47;
 ds = pi / 64;
 
 function rand() {
