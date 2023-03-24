@@ -4,7 +4,7 @@ class Traj {
         this.points = []; //array of Points
         this.dists = []; //array of Points all same dist from on another
         this.absCurves = []; //array of curvuture values
-        this.time = 0;
+        this.time = -1;
         for (let i = 0; i < track.points.length; i++) {
             this.laterals.push(0.5);
             this.points.push(new Point(0,0));
@@ -105,23 +105,25 @@ class Traj {
         ui.ctx.stroke();
     }
 
+    CopyLateralsFrom(parentTraj, copyStart, copyEnd){
+        for (let i = copyStart; i <= copyEnd; i++) {
+            this.laterals[i] = parentTraj.laterals[i];
+        }
+    }
 
-    CreateMutation(force = 0.2, width = 20) {
+
+    Mutate(force = 0.2, width = 20) {
         //force : force at which mutationPoint if pushed towards mutationValue (must be in [0,1])
         //width : number of points effected on each side of the mutationPoint (first and last aren't actually effected but start the cos interpolation)
-        let newTraj = new Traj();
-        let mutationPoint = Math.floor(rand()*this.points.length);
+        let mutationPoint = Math.floor(rand()*this.laterals.length);
+        let mutateStart = Math.max(mutationPoint - width, 0)
+        let mutateEnd = Math.min(mutationPoint + width, this.laterals.length-1);
         let mutationValue = rand();
 
-        for (let i = 0; i < this.points.length; i++) {
-            if(Math.abs(mutationPoint - i) <= width){
-                let blend = force*0.5*(Math.cos(pi*(mutationPoint - i)/width) + 1);
-                newTraj.laterals[i] = blend*mutationValue + (1-blend)*this.laterals[i];
-            }else{
-                newTraj.laterals[i] = this.laterals[i]
-            }
+        for (let i = mutateStart; i <= mutateEnd; i++) {
+            let blend = force*0.5*(Math.cos(pi*(mutationPoint - i)/width) + 1);
+            this.laterals[i] = blend*mutationValue + (1-blend)*this.laterals[i];
         }
-        newTraj.BuildPoints();
-        return newTraj;
+        return [mutateStart, mutateEnd];
     }
 }

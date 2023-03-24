@@ -21,6 +21,7 @@ html, body {
     border-radius: 4px;
     margin: 0px 15px;
     position: absolute;
+    filter: contrast(0.2) brightness(1.5);
 }
 
 #traj-canvas{
