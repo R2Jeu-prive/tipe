@@ -6,6 +6,14 @@ class UI{
         this.fixedCanvas = document.getElementById('track-canvas');
         this.fixedCtx = this.fixedCanvas.getContext('2d');
         this.trackImage = document.getElementById("trackImage")
+
+        this.canvas.addEventListener("mousedown", this.PanStart.bind(this));
+        document.addEventListener("mousemove", this.Pan.bind(this));
+        document.addEventListener("mouseup", this.PanStop.bind(this));
+        this.canvas.addEventListener("mousewheel", this.Zoom.bind(this));
+
+        this.panning = false;
+        this.panCoords = [NaN,NaN];
     }
 
     DrawAll(refreshFixed = false){
@@ -40,5 +48,35 @@ class UI{
 
     GetIntParam(string){
         return parseInt(document.getElementById(string).value);
+    }
+
+    SetParam(string, val){
+        return document.getElementById(string).value = val;
+    }
+
+    PanStart(e){
+        this.panning = true;
+        this.panCoords = [e.pageX, e.pageY];
+    }
+    Pan(e){
+        if(!this.panning){return;}
+        if(e.pageX != this.panCoords[0] || e.pageY != this.panCoords[1]){
+            this.SetParam("offsetX", this.GetFloatParam("offsetX") - this.panCoords[0] + e.pageX);
+            this.SetParam("offsetY", this.GetFloatParam("offsetY") - this.panCoords[1] + e.pageY);
+            this.panCoords = [e.pageX, e.pageY];
+            this.DrawAll(true);
+        }
+    }
+    PanStop(){
+        this.panning = false;
+        this.panCoords = [NaN, NaN];
+    }
+
+    Zoom(e){
+        let oldScale = this.GetFloatParam("scale");
+        this.SetParam("scale", this.GetFloatParam("scale") * Math.pow(1.1,-e.deltaY/100));
+        this.SetParam("offsetX", e.offsetX - (e.offsetX - this.GetFloatParam("offsetX"))*this.GetFloatParam("scale")/oldScale);
+        this.SetParam("offsetY", e.offsetY - (e.offsetY - this.GetFloatParam("offsetY"))*this.GetFloatParam("scale")/oldScale);
+        this.DrawAll(true);
     }
 }

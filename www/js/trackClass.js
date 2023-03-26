@@ -84,9 +84,9 @@ class Track{
     Draw(style = 3, color = "black", img = false) {
         ui.fixedCtx.strokeStyle = color;
         ui.fixedCtx.fillStyle = color;
-        let canvasOffsetX = ui.GetIntParam('offsetX');
-        let canvasOffsetY = ui.GetIntParam('offsetY');
-        let canvasScale = 0.01*ui.GetIntParam('scale');
+        let canvasOffsetX = ui.GetFloatParam('offsetX');
+        let canvasOffsetY = ui.GetFloatParam('offsetY');
+        let canvasScale = 0.01*ui.GetFloatParam('scale');
 
         if(img){
             ui.fixedCtx.drawImage(img,canvasOffsetX,canvasOffsetY,17403*canvasScale,9057*canvasScale);

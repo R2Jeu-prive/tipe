@@ -90,9 +90,9 @@ class Traj {
     Draw(color = "blue"){
         ui.ctx.strokeStyle = color;
         ui.ctx.fillStyle = color;
-        let canvasOffsetX = ui.GetIntParam('offsetX');
-        let canvasOffsetY = ui.GetIntParam('offsetY');
-        let canvasScale = 0.01*ui.GetIntParam('scale');
+        let canvasOffsetX = ui.GetFloatParam('offsetX');
+        let canvasOffsetY = ui.GetFloatParam('offsetY');
+        let canvasScale = 0.01*ui.GetFloatParam('scale');
         ui.ctx.beginPath();
         for (let i = 1; i < this.points.length; i++) {
             let x1 = this.points[i - 1].x * canvasScale + canvasOffsetX;
