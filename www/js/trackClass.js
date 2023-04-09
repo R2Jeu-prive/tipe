@@ -4,6 +4,7 @@ class Track{
         this.curve = [];//curve of center line;
         this.leftPoints = [];
         this.rightPoints = [];
+        this.trackSemiWidth = null;
     }
 
     BuildFromCurveFunction(curveFunction, rotation = 0){
@@ -43,15 +44,43 @@ class Track{
         this.BuildSidePoints();
     }
 
-    BuildFromRightPoints(points){
+    BuildFromRealData(data){
+        this.trackRawData = data;
+        this.points = [];
         this.leftPoints = [];
         this.rightPoints = [];
-        let nbOfPoints = points.length/2;
-        for(let i = 0; i < nbOfPoints-1; i++){
-            let dir = Math.atan2(points[i*2 + 3] - points[i*2 + 1], points[i*2 + 2] - points[i*2]);
-            this.rightPoints.push(new Point(points[i*2],points[i*2+1], dir));
-            this.leftPoints.push(new Point(points[i*2] + 2*trackSemiWidth*Math.cos(dir+pi/2),points[i*2+1] + 2*trackSemiWidth*Math.sin(dir+pi/2)));
-            this.points.push(new Point(points[i*2] + trackSemiWidth*Math.cos(dir+pi/2),points[i*2+1] + trackSemiWidth*Math.sin(dir+pi/2)));
+
+        //APPLY MODIFICATIONS TO POINTS TO FIT IMAGE & FIT CLOCKWISE & HAVE CORRECT TRACKWIDTH
+        let dataExtXY = data.points.map(function(val,i){return i%2 == 0 ? (val + data.deltaX)/data.scaleX : (val + data.deltaY)/data.scaleY})
+        dataExtXY = dataExtXY.map(function(val,i){return val*data.semiWidthReal/data.semiWidthData})
+        if(data.clockWiseReal != data.clockWiseData){
+            for(let i = 0; i < Math.floor(dataExtXY.length/4); i++){
+                let tempX = dataExtXY[i*2];
+                let tempY = dataExtXY[i*2+1];
+                dataExtXY[i*2] = dataExtXY[dataExtXY.length - 2 - i*2]
+                dataExtXY[i*2 + 1] = dataExtXY[dataExtXY.length - 1 - i*2]
+                dataExtXY[dataExtXY.length - 2 - i*2] = tempX;
+                dataExtXY[dataExtXY.length - 1 - i*2] = tempY;
+            }
+        }
+        this.trackSemiWidth = data.semiWidthReal
+        let nbOfPoints = dataExtXY.length/2;
+
+        //COMPUTE POINTS (some minus signs to go with inverted Y-axis)
+        if(data.clockWiseReal){
+            for(let i = 0; i < nbOfPoints-1; i++){
+                let dir = Math.atan2(-(dataExtXY[i*2 + 3] - dataExtXY[i*2 + 1]), dataExtXY[i*2 + 2] - dataExtXY[i*2]);
+                this.leftPoints.push(new Point(dataExtXY[i*2], dataExtXY[i*2+1], dir));
+                this.rightPoints.push(new Point(dataExtXY[i*2] + 2*this.trackSemiWidth*Math.cos(dir-pi/2), dataExtXY[i*2+1] - 2*this.trackSemiWidth*Math.sin(dir-pi/2)));
+                this.points.push(new Point(dataExtXY[i*2] + this.trackSemiWidth*Math.cos(dir-pi/2), dataExtXY[i*2+1] - this.trackSemiWidth*Math.sin(dir-pi/2)));
+            }
+        }else{
+            for(let i = 0; i < nbOfPoints-1; i++){
+                let dir = Math.atan2(-(dataExtXY[i*2 + 3] - dataExtXY[i*2 + 1]), dataExtXY[i*2 + 2] - dataExtXY[i*2]);
+                this.rightPoints.push(new Point(dataExtXY[i*2], dataExtXY[i*2+1], dir));
+                this.leftPoints.push(new Point(dataExtXY[i*2] + 2*this.trackSemiWidth*Math.cos(dir+pi/2), dataExtXY[i*2+1] - 2*this.trackSemiWidth*Math.sin(dir+pi/2)));
+                this.points.push(new Point(dataExtXY[i*2] + this.trackSemiWidth*Math.cos(dir+pi/2), dataExtXY[i*2+1] - this.trackSemiWidth*Math.sin(dir+pi/2)));
+            }
         }
     }
 
@@ -81,15 +110,16 @@ class Track{
 
     //[TODO]BuildFromCenteredPoints(curveFunction){}
 
-    Draw(style = 3, color = "black", img = false) {
+    Draw(style = 3, color = "black") {
         ui.fixedCtx.strokeStyle = color;
         ui.fixedCtx.fillStyle = color;
         let canvasOffsetX = ui.GetFloatParam('offsetX');
         let canvasOffsetY = ui.GetFloatParam('offsetY');
         let canvasScale = 0.01*ui.GetFloatParam('scale');
 
-        if(img){
-            ui.fixedCtx.drawImage(img,canvasOffsetX,canvasOffsetY,17403*canvasScale,9057*canvasScale);
+        if(this.trackRawData.hasImage){
+            let scaler = canvasScale*this.trackRawData.semiWidthReal/this.trackRawData.semiWidthData;
+            ui.fixedCtx.drawImage(document.getElementById(this.trackRawData.imgName), canvasOffsetX, canvasOffsetY, this.trackRawData.imgWidth*scaler, this.trackRawData.imgHeight*scaler);
         }
     
         if (style == 0) {//FULL CONCRETE TRACK

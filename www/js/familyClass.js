@@ -12,6 +12,7 @@ class Family{
         centerTraj.Draw();
         centerTraj.CalcAbsCurve();
         centerTraj.CalcDists();
+        centerTraj.CalcSpeed();
         centerTraj.Time();
         this.children = [centerTraj];
         ui.DrawAll(true);
@@ -27,6 +28,7 @@ class Family{
             childTraj.BuildPoints();
             if(childTraj.CalcAbsCurve()){
                 childTraj.CalcDists();
+                childTraj.CalcSpeed();
                 childTraj.Time();
             }
             else{

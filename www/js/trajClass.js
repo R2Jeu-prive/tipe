@@ -1,9 +1,10 @@
 class Traj {
     constructor() {
-        this.laterals = []; //array of lateral placement values
-        this.points = []; //array of Points
-        this.dists = []; //array of Points all same dist from on another
-        this.absCurves = []; //array of curvuture values
+        this.laterals = []; //array of lateral placement values [n]
+        this.points = []; //array of Points [n]
+        this.absCurves = []; //array of curvuture values [n]
+        this.dists = []; //array of distances between each point [n-1]
+        this.speeds = []; //array of speed between each point [n]
         this.time = -1;
         for (let i = 0; i < track.points.length; i++) {
             this.laterals.push(0.5);
@@ -26,7 +27,7 @@ class Traj {
     }
 
     CalcAbsCurve(){
-        this.absCurves = [];
+        this.absCurves = [0];//consider first point to be at curve = 0
         let isPossible = true;//flase if traj has great absCurve (too abrupt turn)
         for (let i = 2; i < track.points.length; i++) {
             //A : compare i-2 and i-1
@@ -39,10 +40,10 @@ class Traj {
                 this.absCurves.push(0);
                 continue
             }
-            let midAX = (this.points[i-2].x + this.points[i-1].x)/2
-            let midAY = (this.points[i-2].y + this.points[i-1].y)/2
-            let midBX = (this.points[i-1].x + this.points[i].x)/2
-            let midBY = (this.points[i-1].y + this.points[i].y)/2
+            let midAX = (this.points[i-2].x + this.points[i-1].x)/2;
+            let midAY = (this.points[i-2].y + this.points[i-1].y)/2;
+            let midBX = (this.points[i-1].x + this.points[i].x)/2;
+            let midBY = (this.points[i-1].y + this.points[i].y)/2;
             //parametric representations
 
             //x = midAX + vectAX*t = midBX + vectBX*s
@@ -70,39 +71,55 @@ class Traj {
             }
             let x = midBX + vectBX*s;
             let y = midBY + vectBY*s;
-            let absCurve = 1/Math.sqrt((this.points[i].x - x)**2 + (this.points[i].y - y)**2)
-            this.absCurves.push(absCurve)//NOTOPTI
-            isPossible = isPossible && absCurve < 3;
+            let absCurve = 1/Math.sqrt((this.points[i].x - x)**2 + (this.points[i].y - y)**2);
+            this.absCurves.push(absCurve);//NOTOPTI
+            isPossible = isPossible && absCurve < 3;//TODO 3 to be related to track width or car ?
+        }
+        this.absCurves.push(0);//consider last point to be at curve = 0
+        return isPossible;
+    }
+
+    CalcSpeed(){
+        this.speeds = [0];
+        for (let i = 1; i < track.points.length; i++) {
+            this.speeds.push(Math.min(car.MaxSpeed(this.absCurves[i]), Math.sqrt(2*car.maxAcceleration*this.dists[i-1] + this.speeds[i-1]**2)))
         }
 
-        this.absCurves.push(this.absCurves[this.absCurves.length-1]);//dup last absCurve value to have n-1 values
-        return isPossible;
+        //back propageation to take into account breaking
+        for (let i = track.points.length-1; i > 0; i--) {
+            this.speeds[i-1] = Math.min(this.speeds[i-1], Math.sqrt(this.speeds[i]**2 - 2*car.maxDecceleration*this.dists[i-1]))
+        }
     }
 
     Time(){
         this.time = 0;
         for(let i = 1; i < this.points.length; i++){
-            this.time += this.dists[i-1]/car.MaxSpeed(this.absCurves[i-1]);
+            this.time += this.dists[i-1]/this.speeds[i];
         }
         return this.time;
     }
 
-    Draw(color = "blue"){
-        ui.ctx.strokeStyle = color;
-        ui.ctx.fillStyle = color;
+    Draw(){
         let canvasOffsetX = ui.GetFloatParam('offsetX');
         let canvasOffsetY = ui.GetFloatParam('offsetY');
         let canvasScale = 0.01*ui.GetFloatParam('scale');
-        ui.ctx.beginPath();
         for (let i = 1; i < this.points.length; i++) {
             let x1 = this.points[i - 1].x * canvasScale + canvasOffsetX;
             let y1 = this.points[i - 1].y * canvasScale + canvasOffsetY;
             let x2 = this.points[i].x * canvasScale + canvasOffsetX;
             let y2 = this.points[i].y * canvasScale + canvasOffsetY;
+            let rgb = hslToRgb(this.speeds[i],100,50)
+            let r = toHex(Math.floor(rgb[0]));
+            let g = toHex(Math.floor(rgb[1]));
+            let b = toHex(Math.floor(rgb[2]));
+            ui.ctx.strokeStyle = "#" + r + g + b;
+            ui.ctx.lineWidth = 5;
+            //console.log("#" + (Math.floor(this.speeds[i]*100)).toString(16));
+            ui.ctx.beginPath();
             ui.ctx.moveTo(x1, y1);
             ui.ctx.lineTo(x2, y2);
+            ui.ctx.stroke();
         }
-        ui.ctx.stroke();
     }
 
     CopyLateralsFrom(parentTraj, copyStart, copyEnd){

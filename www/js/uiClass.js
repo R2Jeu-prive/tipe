@@ -5,7 +5,6 @@ class UI{
 
         this.fixedCanvas = document.getElementById('track-canvas');
         this.fixedCtx = this.fixedCanvas.getContext('2d');
-        this.trackImage = document.getElementById("trackImage")
 
         this.canvas.addEventListener("mousedown", this.PanStart.bind(this));
         document.addEventListener("mousemove", this.Pan.bind(this));
@@ -23,7 +22,7 @@ class UI{
         //draw track
         if(refreshFixed){
             this.fixedCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            track.Draw(3, 'black', this.trackImage);
+            track.Draw(3, 'black');
         }        
 
         //draw trajs and show times
@@ -31,14 +30,10 @@ class UI{
         timeboard.innerHTML = "";
 
         for (let i = family.children.length-1; i > -1; i--) {
-            if(i < family.parentCount){
-                family.children[i].Draw("blue");
-                let li = document.createElement("li");
-                li.appendChild(document.createTextNode(family.children[i].time));
-                timeboard.appendChild(li);
-            }else{
-                family.children[i].Draw("pink");
-            }
+            family.children[i].Draw();
+            let li = document.createElement("li");
+            li.appendChild(document.createTextNode(family.children[i].time));
+            timeboard.appendChild(li);
         }
     }
 

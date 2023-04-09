@@ -1,5 +1,17 @@
 imola = {
     "_comment" : "generated with https://shinao.github.io/PathToPoints/",
+    "deltaX" : 13.5655791360537,
+    "deltaY" : 22.2414900823916,
+    "scaleX" : 0.75,
+    "scaleY" : 0.75,
+    "semiWidthData" : 47,
+    "semiWidthReal" : 9.7,
+    "hasImage" : true,
+    "imgName" : "imola",
+    "imgWidth" : 17403,
+    "imgHeight" : 9057,
+    "clockWiseData" : true,
+    "clockWiseReal" : false,
     "points" :
     [
         9921.487462454912,784.8479739978254,
