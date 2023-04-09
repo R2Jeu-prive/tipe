@@ -44,7 +44,7 @@ class Track{
         this.BuildSidePoints();
     }
 
-    BuildFromRealData(data){
+    BuildFromRealData(data, restrictStart, restrictEnd){
         this.trackRawData = data;
         this.points = [];
         this.leftPoints = [];
@@ -64,6 +64,7 @@ class Track{
             }
         }
         this.trackSemiWidth = data.semiWidthReal
+        dataExtXY = dataExtXY.slice(restrictStart*2, restrictEnd*2);
         let nbOfPoints = dataExtXY.length/2;
 
         //COMPUTE POINTS (some minus signs to go with inverted Y-axis)

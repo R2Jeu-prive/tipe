@@ -32,7 +32,7 @@ class UI{
         for (let i = family.children.length-1; i > -1; i--) {
             family.children[i].Draw();
             let li = document.createElement("li");
-            li.appendChild(document.createTextNode(family.children[i].time));
+            li.appendChild(document.createTextNode(family.children[i].evaluation));
             timeboard.appendChild(li);
         }
     }
@@ -47,6 +47,10 @@ class UI{
 
     SetParam(string, val){
         return document.getElementById(string).value = val;
+    }
+
+    GetSelectParam(string){
+        return document.getElementById(string).value;
     }
 
     PanStart(e){

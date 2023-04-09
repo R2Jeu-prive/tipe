@@ -7,12 +7,13 @@ class Car{
         this.roadFricCoef = 2;
         this.horsePower = 914;
 
-        this.maxAcceleration = 5*9.81; //in m/s²
-        this.maxDecceleration = -5*9.81; //in m/s²
+        this.maxAcceleration = Infinity//2*9.81; //in m/s²
+        this.maxDecceleration = -Infinity//-2*9.81; //in m/s²
     };
 
     MaxSpeed(curve){
-        return Math.sqrt(2*9.81/curve); //in m/s
+        return 1/(0.01+curve);
+        return Math.sqrt(this.roadFricCoef*9.81/curve); //in m/s
         //return pi / 2;//in m/s
     }
 }

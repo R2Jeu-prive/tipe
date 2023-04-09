@@ -25,16 +25,25 @@
         <canvas id="traj-canvas" width="1000" height="500"></canvas>
         <canvas id="track-canvas" width="1000" height="500"></canvas>
         <form action="javascript:void(0);" id="track-inputs">
-            <label>Scale : <input id="scale" type="number"value="22" onchange="ui.DrawAll(true)" /></label>
-            <label>Offset X : <input id="offsetX" type="number" value="0" onchange="ui.DrawAll(true)" /></label>
-            <label>Offset Y : <input id="offsetY" type="number" value="0" onchange="ui.DrawAll(true)" /></label>
+            <label>Scale : <input id="scale" type="number" value="22" step=any onchange="ui.DrawAll(true)" /></label>
+            <label>Offset X : <input id="offsetX" type="number" value="0" step=any onchange="ui.DrawAll(true)" /></label>
+            <label>Offset Y : <input id="offsetY" type="number" value="0" step=any onchange="ui.DrawAll(true)" /></label>
 
-            <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.2" step="0.05" /></label><br>
+            <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.2" step=any /></label><br>
             <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="50" value="20" step="1" /></label><br>
             <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="50" step="1" /></label><br>
             <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="10" step="1" /></label><br>
             <button onclick="family.GenForward()">Gen Start</button>
             <button onclick="family.StopGen()">Gen Stop</button>
+            <label>Traj Color Indicator<select id="trajColorIndicator" onchange="ui.DrawAll(true)">
+                <option value="curvature">Curvature</option>
+                <option value="speed">Speed</option>
+            </select></label>
+            <label>Traj Selection Mode<select id="trajSelectionMode" onchange="ui.DrawAll(false)">
+                <option value="minCurvature">Min Curvature</option>
+                <option value="minDistance">Min Distance</option>
+                <option value="minTime">Min Time (f1)</option>
+            </select></label>
         </form>
     </div>
     <p>Best Times</p>

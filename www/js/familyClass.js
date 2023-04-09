@@ -13,7 +13,7 @@ class Family{
         centerTraj.CalcAbsCurve();
         centerTraj.CalcDists();
         centerTraj.CalcSpeed();
-        centerTraj.Time();
+        centerTraj.Evaluate("minDistance");
         this.children = [centerTraj];
         ui.DrawAll(true);
         this.loopTimeout = -1;
@@ -24,12 +24,12 @@ class Family{
     }
 
     EvaluateChild(childTraj){
-        if(childTraj.time == -1){
+        if(childTraj.evaluation == -1){
             childTraj.BuildPoints();
             if(childTraj.CalcAbsCurve()){
                 childTraj.CalcDists();
                 childTraj.CalcSpeed();
-                childTraj.Time();
+                childTraj.Evaluate("minDistance");
             }
             else{
                 return false;//was not kept because not feasible
@@ -38,13 +38,13 @@ class Family{
         if(this.children.length < this.parentCount){
             this.children.push(childTraj);
             return true;//was kept because we're missing children
-        }else if(this.children[this.parentCount-1].time < childTraj.time){
+        }else if(this.children[this.parentCount-1].evaluation < childTraj.evaluation){
             return false;//was not kept, worse then all children we have
         }else{
             this.children.pop();
             this.children.push(childTraj);
             for(let i = this.parentCount-2; i >= 0; i--){
-                if(this.children[i].time < this.children[i+1].time){
+                if(this.children[i].evaluation < this.children[i+1].evaluation){
                     break;
                 }
                 let temp = this.children[i];
@@ -68,7 +68,7 @@ class Family{
             let morphingChild = new Traj();
             morphingChild.CopyLateralsFrom(parents[i], 0, parents[i].laterals.length-1);
             for(let j = 0; j < this.childrenCountPerParent; j++){
-                morphingChild.time = -1;
+                morphingChild.evaluation = -1;
                 let [morphStart,morphEnd] = morphingChild.Mutate(mutationForce, mutationWidth);
                 if(this.EvaluateChild(morphingChild)){
                     morphingChild = new Traj();
@@ -79,7 +79,7 @@ class Family{
             }
         }
 
-        this.children.sort((a,b) => a.time - b.time);
+        this.children.sort((a,b) => a.evaluation - b.evaluation);
 
         ui.DrawAll(false);
         this.loopTimeout = setTimeout(() => {

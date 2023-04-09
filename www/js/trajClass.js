@@ -5,7 +5,7 @@ class Traj {
         this.absCurves = []; //array of curvuture values [n]
         this.dists = []; //array of distances between each point [n-1]
         this.speeds = []; //array of speed between each point [n]
-        this.time = -1;
+        this.evaluation = -1;
         for (let i = 0; i < track.points.length; i++) {
             this.laterals.push(0.5);
             this.points.push(new Point(0,0));
@@ -91,30 +91,47 @@ class Traj {
         }
     }
 
-    Time(){
-        this.time = 0;
-        for(let i = 1; i < this.points.length; i++){
-            this.time += this.dists[i-1]/this.speeds[i];
+    Evaluate(mode = "minDistance"){
+        if(mode == "minDistance"){
+            this.evaluation = 0;
+            for(let i = 1; i < this.points.length; i++){
+                this.evaluation += this.dists[i-1];
+            }
+        }else if(mode == "minCuravture"){
+            this.evaluation = 0;
+            for(let i = 1; i < this.points.length; i++){
+                this.evaluation += this.absCurves[i]*this.absCurves[i]*this.dists[i-1];
+            }
+        }else{
+            this.evaluation = 0;
+            for(let i = 1; i < this.points.length; i++){
+                this.evaluation += this.dists[i-1]/this.speeds[i];
+            }
         }
-        return this.time;
+        return this.evaluation;
     }
 
     Draw(){
         let canvasOffsetX = ui.GetFloatParam('offsetX');
         let canvasOffsetY = ui.GetFloatParam('offsetY');
         let canvasScale = 0.01*ui.GetFloatParam('scale');
+        let mode = ui.GetSelectParam("trajColorIndicator")
         for (let i = 1; i < this.points.length; i++) {
             let x1 = this.points[i - 1].x * canvasScale + canvasOffsetX;
             let y1 = this.points[i - 1].y * canvasScale + canvasOffsetY;
             let x2 = this.points[i].x * canvasScale + canvasOffsetX;
             let y2 = this.points[i].y * canvasScale + canvasOffsetY;
-            let rgb = hslToRgb(this.speeds[i],100,50)
-            let r = toHex(Math.floor(rgb[0]));
-            let g = toHex(Math.floor(rgb[1]));
-            let b = toHex(Math.floor(rgb[2]));
-            ui.ctx.strokeStyle = "#" + r + g + b;
+            if(mode == "curvature"){
+                let rgb = hslToRgb(120-5000*this.absCurves[i],100,50)
+                let r = toHex(Math.floor(rgb[0]));
+                let g = toHex(Math.floor(rgb[1]));
+                let b = toHex(Math.floor(rgb[2]));
+                ui.ctx.strokeStyle = "#" + r + g + b;
+            }else{
+                ui.ctx.strokeStyle = "#ff00ff";
+            }
+            
             ui.ctx.lineWidth = 5;
-            //console.log("#" + (Math.floor(this.speeds[i]*100)).toString(16));
             ui.ctx.beginPath();
             ui.ctx.moveTo(x1, y1);
             ui.ctx.lineTo(x2, y2);
@@ -135,6 +152,9 @@ class Traj {
         let mutationPoint = Math.floor(rand()*this.laterals.length);
         let mutateStart = Math.max(mutationPoint - width, 0)
         let mutateEnd = Math.min(mutationPoint + width, this.laterals.length-1);
+        /*let minMutationValue = Math.max(0, 1 - 2*this.laterals[mutationPoint]);
+        let maxMutationValue = Math.min(1, 2*this.laterals[mutationPoint]);
+        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();*/
         let mutationValue = rand();
 
         for (let i = mutateStart; i <= mutateEnd; i++) {

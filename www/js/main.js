@@ -9,7 +9,7 @@ window.onload = () => {
     canvas = document.getElementById('track-canvas');
     ctx = canvas.getContext('2d');
     family.Reset();*/
-    trackSemiWidth = 47;
-    track.BuildFromRealData(imola)
+    //trackSemiWidth = 47;
+    track.BuildFromRealData(imola,0,6800)
     family.Reset();
 };
