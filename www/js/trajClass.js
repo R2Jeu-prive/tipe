@@ -92,17 +92,19 @@ class Traj {
     }
 
     Evaluate(mode = "minDistance"){
+        this.CalcDists();
         if(mode == "minDistance"){
             this.evaluation = 0;
             for(let i = 1; i < this.points.length; i++){
                 this.evaluation += this.dists[i-1];
             }
-        }else if(mode == "minCuravture"){
+        }else if(mode == "minCurvature"){
             this.evaluation = 0;
             for(let i = 1; i < this.points.length; i++){
                 this.evaluation += this.absCurves[i]*this.absCurves[i]*this.dists[i-1];
             }
         }else{
+            this.CalcSpeed();
             this.evaluation = 0;
             for(let i = 1; i < this.points.length; i++){
                 this.evaluation += this.dists[i-1]/this.speeds[i];
@@ -116,19 +118,30 @@ class Traj {
         let canvasOffsetY = ui.GetFloatParam('offsetY');
         let canvasScale = 0.01*ui.GetFloatParam('scale');
         let mode = ui.GetSelectParam("trajColorIndicator")
+        let visualScaler = ui.GetFloatParam("visualScaler")
         for (let i = 1; i < this.points.length; i++) {
             let x1 = this.points[i - 1].x * canvasScale + canvasOffsetX;
             let y1 = this.points[i - 1].y * canvasScale + canvasOffsetY;
             let x2 = this.points[i].x * canvasScale + canvasOffsetX;
             let y2 = this.points[i].y * canvasScale + canvasOffsetY;
             if(mode == "curvature"){
-                let rgb = hslToRgb(120-5000*this.absCurves[i],100,50)
+                let rgb = hslToRgb(120-visualScaler*this.absCurves[i],100,50)
                 let r = toHex(Math.floor(rgb[0]));
                 let g = toHex(Math.floor(rgb[1]));
                 let b = toHex(Math.floor(rgb[2]));
                 ui.ctx.strokeStyle = "#" + r + g + b;
-            }else{
-                ui.ctx.strokeStyle = "#ff00ff";
+            }else if(mode == "speed"){
+                let rgb = hslToRgb(visualScaler*this.speeds[i],100,50)
+                let r = toHex(Math.floor(rgb[0]));
+                let g = toHex(Math.floor(rgb[1]));
+                let b = toHex(Math.floor(rgb[2]));
+                ui.ctx.strokeStyle = "#" + r + g + b;
+            }else if(mode == "acceleration"){
+                let acceleration = visualScaler*(this.speeds[i] - this.speeds[i-1])*(this.speeds[i] + this.speeds[i-1])/this.dists[i-1]
+                let r = toHex(Math.ceil(Math.min(0,acceleration)));
+                let g = toHex(Math.ceil(Math.max(0,acceleration)));
+                let b = toHex(0);
+                ui.ctx.strokeStyle = "#" + r + g + b;
             }
             
             ui.ctx.lineWidth = 5;

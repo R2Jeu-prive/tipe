@@ -38,12 +38,14 @@
             <label>Traj Color Indicator<select id="trajColorIndicator" onchange="ui.DrawAll(true)">
                 <option value="curvature">Curvature</option>
                 <option value="speed">Speed</option>
+                <option value="acceleration">Acceleration</option>
             </select></label>
-            <label>Traj Selection Mode<select id="trajSelectionMode" onchange="ui.DrawAll(false)">
+            <label>Evaluation Mode<select id="evaluationMode" onchange="family.ResetEvaluations()">
                 <option value="minCurvature">Min Curvature</option>
                 <option value="minDistance">Min Distance</option>
                 <option value="minTime">Min Time (f1)</option>
             </select></label>
+            <label>Offset Y : <input id="visualScaler" type="number" value="1" step=any onchange="ui.DrawAll(false)" /></label>
         </form>
     </div>
     <p>Best Times</p>

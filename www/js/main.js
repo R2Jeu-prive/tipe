@@ -10,6 +10,6 @@ window.onload = () => {
     ctx = canvas.getContext('2d');
     family.Reset();*/
     //trackSemiWidth = 47;
-    track.BuildFromRealData(imola,0,6800)
-    family.Reset();
+    track.BuildFromRealData(imola,4500,5400)
+    family.Init();
 };

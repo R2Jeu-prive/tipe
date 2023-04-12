@@ -5,16 +5,21 @@ class Family{
         this.childrenCountPerParent = 1;
         this.loopTimeout = -1;
     }
-
-    Reset(){
+    Init(){
         let centerTraj = new Traj();
         centerTraj.BuildPoints();
         centerTraj.Draw();
         centerTraj.CalcAbsCurve();
-        centerTraj.CalcDists();
-        centerTraj.CalcSpeed();
-        centerTraj.Evaluate("minDistance");
+        centerTraj.Evaluate(ui.GetSelectParam("evaluationMode"));
         this.children = [centerTraj];
+        ui.DrawAll(true);
+        this.loopTimeout = -1;
+    }
+
+    ResetEvaluations(){
+        for(let i = 0; i < this.children.length; i++){
+            this.children[i].Evaluate(ui.GetSelectParam("evaluationMode"));
+        }
         ui.DrawAll(true);
         this.loopTimeout = -1;
     }
@@ -23,13 +28,13 @@ class Family{
         clearTimeout(this.loopTimeout);
     }
 
-    EvaluateChild(childTraj){
+    EvaluateChild(childTraj, evaluationMode){
         if(childTraj.evaluation == -1){
             childTraj.BuildPoints();
             if(childTraj.CalcAbsCurve()){
                 childTraj.CalcDists();
                 childTraj.CalcSpeed();
-                childTraj.Evaluate("minDistance");
+                childTraj.Evaluate(evaluationMode);
             }
             else{
                 return false;//was not kept because not feasible
@@ -60,6 +65,7 @@ class Family{
         this.childrenCountPerParent = ui.GetIntParam("childrenCountPerParent");
         let mutationForce = ui.GetFloatParam("mutationForce");
         let mutationWidth = ui.GetFloatParam("mutationWidth");
+        let evaluationMode = ui.GetSelectParam("evaluationMode");
         if(this.children.length > this.parentCount){
             this.children.splice(this.parentCount,this.children.length - this.parentCount);
         }
@@ -70,7 +76,7 @@ class Family{
             for(let j = 0; j < this.childrenCountPerParent; j++){
                 morphingChild.evaluation = -1;
                 let [morphStart,morphEnd] = morphingChild.Mutate(mutationForce, mutationWidth);
-                if(this.EvaluateChild(morphingChild)){
+                if(this.EvaluateChild(morphingChild, evaluationMode)){
                     morphingChild = new Traj();
                     morphingChild.CopyLateralsFrom(parents[i], 0, parents[i].laterals.length-1);
                 }else{
