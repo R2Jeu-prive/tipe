@@ -9,8 +9,8 @@ class Car{
 
         /*this.maxAcceleration = Infinity
         this.maxDecceleration = -Infinity*/
-        this.maxAcceleration = 2*9.81; //in m/s²
-        this.maxDecceleration = -2*9.81; //in m/s²
+        this.maxAcceleration = 3*9.81; //in m/s²
+        this.maxDecceleration = -4*9.81; //in m/s²
     };
 
     MaxSpeed(curve){

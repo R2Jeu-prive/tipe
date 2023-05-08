@@ -101,7 +101,7 @@ class Traj {
         }else if(mode == "minCurvature"){
             this.evaluation = 0;
             for(let i = 1; i < this.points.length; i++){
-                this.evaluation += this.absCurves[i]*this.absCurves[i]*this.dists[i-1];
+                this.evaluation += Math.pow(this.absCurves[i], 2)*this.dists[i-1];
             }
         }else{
             this.CalcSpeed();
@@ -165,10 +165,15 @@ class Traj {
         let mutationPoint = Math.floor(rand()*this.laterals.length);
         let mutateStart = Math.max(mutationPoint - width, 0)
         let mutateEnd = Math.min(mutationPoint + width, this.laterals.length-1);
-        /*let minMutationValue = Math.max(0, 1 - 2*this.laterals[mutationPoint]);
-        let maxMutationValue = Math.min(1, 2*this.laterals[mutationPoint]);
-        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();*/
-        let mutationValue = rand();
+        let minMutationValue = 0;
+        let maxMutationValue = 1;
+        if(this.laterals[mutationPoint] >= 0.5){
+            minMutationValue = 1-(2*this.laterals[mutationPoint]);
+        }else{
+            maxMutationValue = 2*this.laterals[mutationPoint];
+        }
+        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();
+        //let mutationValue = rand();
 
         for (let i = mutateStart; i <= mutateEnd; i++) {
             let blend = force*0.5*(Math.cos(pi*(mutationPoint - i)/width) + 1);

@@ -180,4 +180,29 @@ class Track{
             return;
         }
     }
+
+    GenerateShortestTraj(){
+        let traj = new Traj();
+        traj.BuildPoints();
+        console.log(traj);
+        let turningRights = [-1];
+        for(let i = 1; i<traj.points.length-1; i++){
+            console.log("loop");
+            let a = new Vector(traj.points[i], traj.points[i-1]);
+            let b = new Vector(traj.points[i+1], traj.points[i]);
+            a.Rotate();
+            turningRights.push(Vector.Dot(a,b) < 0);
+        }
+        turningRights[0] = turningRights[1];
+        turningRights[traj.laterals.length-1] = turningRights[traj.laterals.length-2];
+        for(let i = 0; i < traj.laterals.length-1; i++){
+            if(turningRights[i]){
+                traj.laterals[i] = 1;
+            }else{
+                traj.laterals[i] = 0;
+            }
+        }
+        traj.BuildPoints();
+        traj.Draw();
+    }
 }

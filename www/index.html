@@ -10,9 +10,9 @@
     <script src="js/constants.js"></script>
     <script src="js/tracks.js"></script>
     <script src="js/pointClass.js"></script>
+    <script src="js/vectorClass.js"></script>
     <script src="js/trackClass.js"></script>
     <script src="js/uiClass.js"></script>
-    <script src="js/uiManager.js"></script>
     <script src="js/carClass.js"></script>
     <script src="js/familyClass.js"></script>
     <script src="js/trajClass.js"></script>
@@ -45,13 +45,13 @@
                 <option value="minDistance">Min Distance</option>
                 <option value="minTime">Min Time (f1)</option>
             </select></label>
-            <label>Offset Y : <input id="visualScaler" type="number" value="1" step=any onchange="ui.DrawAll(false)" /></label>
+            <label>Visual Scale : <input id="visualScaler" type="number" value="1" step=any onchange="ui.DrawAll(false)" /></label>
         </form>
     </div>
     <p>Best Times</p>
     <ul id="timeboard">
     </ul>
-
+    <p id="mutationSuccessRate">Mutation Success Rate : 0%</p>
     <script src="js/main.js"></script>
 </body>
 

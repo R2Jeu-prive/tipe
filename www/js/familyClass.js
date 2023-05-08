@@ -78,9 +78,11 @@ class Family{
                 let [morphStart,morphEnd] = morphingChild.Mutate(mutationForce, mutationWidth);
                 if(this.EvaluateChild(morphingChild, evaluationMode)){
                     morphingChild = new Traj();
+                    ui.StoreMutateSuccess(true);
                     morphingChild.CopyLateralsFrom(parents[i], 0, parents[i].laterals.length-1);
                 }else{
                     morphingChild.CopyLateralsFrom(parents[i], morphStart, morphEnd);
+                    ui.StoreMutateSuccess(false);
                 }
             }
         }

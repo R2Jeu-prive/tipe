@@ -13,6 +13,9 @@ class UI{
 
         this.panning = false;
         this.panCoords = [NaN,NaN];
+        
+        this.mutateTriedCounter = 0;
+        this.mutateCounter = 0;
     }
 
     DrawAll(refreshFixed = false){
@@ -77,5 +80,17 @@ class UI{
         this.SetParam("offsetX", e.offsetX - (e.offsetX - this.GetFloatParam("offsetX"))*this.GetFloatParam("scale")/oldScale);
         this.SetParam("offsetY", e.offsetY - (e.offsetY - this.GetFloatParam("offsetY"))*this.GetFloatParam("scale")/oldScale);
         this.DrawAll(true);
+    }
+
+    StoreMutateSuccess(success){
+        this.mutateTriedCounter += 1;
+        if(success){
+            this.mutateCounter += 1;
+        }
+        if(this.mutateTriedCounter == 10000){
+            document.getElementById("mutationSuccessRate").innerHTML = "Mutation Success Rate : " + this.mutateCounter/100 + "%"
+            this.mutateTriedCounter = 0;
+            this.mutateCounter = 0;
+        }
     }
 }

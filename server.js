@@ -15,7 +15,6 @@ routes.push(["/js/pointClass.js","/www/js/pointClass.js"]);
 routes.push(["/js/tracks.js","/www/js/tracks.js"]);
 routes.push(["/js/trajClass.js","/www/js/trajClass.js"]);
 routes.push(["/js/trackClass.js","/www/js/trackClass.js"]);
-routes.push(["/js/uiManager.js","/www/js/uiManager.js"]);
 
 routes.push(["/css/style.css","/www/css/style.css"]);
 
