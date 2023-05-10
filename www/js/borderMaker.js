@@ -2,6 +2,7 @@ window.onload = () => {
     document.addEventListener("mousedown", MouseDown.bind(this));
     document.addEventListener("mousemove", MouseMove.bind(this));
     document.addEventListener("mouseup", MouseUp.bind(this));
+    document.addEventListener("keydown", KeyDown.bind(this));
     document.addEventListener("contextmenu", e => e.shiftKey ? e.preventDefault() : false);
     let topleftGoogleEarthTile = [620232, 750141];
     let panX = 0;
@@ -10,6 +11,7 @@ window.onload = () => {
     let panStartY = 0;
     let panning = false;
     let movingPointId = -1;
+    let zoom = 0;
     points = [];
     
     //document.addEventListener("mouseup", this.Pan.bind(this));*/
@@ -19,12 +21,33 @@ window.onload = () => {
     canvasFore = document.getElementById('canvasFore');
     ctxFore = canvasFore.getContext('2d');
 
-    /*function Click(e){
-        console.log(e)
-    }*/
+    LoadSavedPoints();
+    ReDrawBack();
+    ReDrawFore();
 
-    ReDrawBack()
-    ReDrawFore()
+    function KeyDown(e){
+        if(e.key == "+"){
+            zoom += 1;
+            ZoomPoints(2);
+        }else if(e.key == "-"){
+            if(zoom == 0){
+                return;
+            }
+            zoom -= 1;
+            ZoomPoints(.5);
+        }
+    }
+
+    function ZoomPoints(factor){
+        panX *= factor;
+        panY *= factor;
+        for(let i = 0; i < points.length; i++){
+            points[i].x *= factor;
+            points[i].y *= factor;
+        }
+        ReDrawBack();
+        ReDrawFore();
+    }
 
     function MouseDown(e){
         if(e.button == 1){
@@ -57,6 +80,7 @@ window.onload = () => {
         if(e.button == 2 && e.shiftKey){
             e.preventDefault();
         }
+        SavePoints();
     }
 
     function PanStart(e){
@@ -76,8 +100,8 @@ window.onload = () => {
         
         if(panX < 0){panX = 0;}
         if(panY < 0){panY = 0;}
-        if(panX > 256*(48-6)){panX = 256*(48-6);}
-        if(panY > 256*(144-2)){panY = 256*(144-2);}
+        /*if(panX > 256*(48-6)){panX = 256*(48-6);}
+        if(panY > 256*(144-2)){panY = 256*(144-2);}*/
         panStartX = e.pageX;
         panStartY = e.pageY;
         ReDrawBack();
@@ -129,18 +153,41 @@ window.onload = () => {
                 closestId = i;
             }
         }
+        if(100 < Math.pow(points[closestId].x-(e.pageX+panX), 2) + Math.pow(points[closestId].y-(e.pageY+panY), 2)){
+            return -1;
+        }
         return closestId;
+    }
+
+    function SavePoints(){
+        let str = "";
+        for(let i = 0; i < points.length; i++){
+            str = str.concat(JSON.stringify(points[i].x/(Math.pow(2,zoom))))
+            str = str.concat("|");
+            str = str.concat(JSON.stringify(points[i].y/(Math.pow(2,zoom))))
+            str = str.concat(";");
+        }
+        localStorage.setItem('points', str);
+    }
+
+    function LoadSavedPoints(){
+        let str = localStorage.getItem('points');
+        let strPoints = str.split(";");
+        for(let i = 0; i < strPoints.length; i++){
+            let strCoords = strPoints[i].split("|");
+            points.push(new Point(parseFloat(strCoords[0]), parseFloat(strCoords[1])));
+        }
     }
 
     function ReDrawBack(){
         
-        let baseU = Math.floor(panX/256);
-        let baseV = Math.floor(panY/256);
+        let baseU = Math.floor(panX/(256*Math.pow(2,zoom)));
+        let baseV = Math.floor(panY/(256*Math.pow(2,zoom)));
         for(let u = baseU; u < baseU+8; u++){
             //if(u < 0 || u > 44){continue;}
             for(let v = baseV; v < baseV+4; v++){
                 //if(v < 0 || v > 144){continue;}
-                DrawImage(u,v, -(panX % 256) + 256*(u-baseU), -(panY % 256) + 256*(v-baseV));
+                DrawImage(u,v, -(panX % (256*Math.pow(2,zoom))) + 256*(u-baseU)*Math.pow(2,zoom), -(panY % (256*Math.pow(2,zoom))) + 256*(v-baseV)*Math.pow(2,zoom));
             }
         }
     }
@@ -184,7 +231,7 @@ window.onload = () => {
         let x = u + topleftGoogleEarthTile[0];
         let y = v + topleftGoogleEarthTile[1];
         img.addEventListener('load', function() {
-            ctxBack.drawImage(img, canvasX, canvasY, 256, 256);
+            ctxBack.drawImage(img, canvasX, canvasY, 256*Math.pow(2,zoom), 256*Math.pow(2,zoom));
         });
         img.src = '../google_earth_fetcher/villeneuve/' + x + '_' + y + '.png';
     }
