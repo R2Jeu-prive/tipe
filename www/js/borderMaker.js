@@ -2,7 +2,7 @@ window.onload = () => {
     document.addEventListener("mousedown", MouseDown.bind(this));
     document.addEventListener("mousemove", MouseMove.bind(this));
     document.addEventListener("mouseup", MouseUp.bind(this));
-    //document.addEventListener("contextmenu", e => e.preventDefault());
+    document.addEventListener("contextmenu", e => e.shiftKey ? e.preventDefault() : false);
     let topleftGoogleEarthTile = [620232, 750141];
     let panX = 0;
     let panY = 0;
@@ -27,13 +27,16 @@ window.onload = () => {
     ReDrawFore()
 
     function MouseDown(e){
-        if(e.button == 0){
+        if(e.button == 1){
             PanStart(e);
-        }else if(e.button == 1 && e.shiftKey){
+        }else if(e.button == 0 && e.shiftKey){
             CreatePoint(e);
-        }else if(e.button == 1){
+        }else if(e.button == 0){
             movingPointId = GetClosestPoint(e);
             console.log(movingPointId);
+        }else if(e.button == 2 && e.shiftKey){
+            e.preventDefault();
+            canvasFore.hidden = !canvasFore.hidden;
         }
     }
 
@@ -51,6 +54,9 @@ window.onload = () => {
     function MouseUp(e){
         panning = false;
         movingPointId = -1;
+        if(e.button == 2 && e.shiftKey){
+            e.preventDefault();
+        }
     }
 
     function PanStart(e){
@@ -141,19 +147,33 @@ window.onload = () => {
 
     function ReDrawFore(){
         ctxFore.clearRect(0, 0, canvasBack.width, canvasBack.height);
+
         ctxFore.strokeStyle = "#ff00ff"
+        ctxFore.beginPath();
+        for(let i = 0; i < points.length; i++){
+            if(i == 0){
+                ctxFore.moveTo(points[i].x - panX, points[i].y - panY);
+            }else if(i%3 == 2){
+                ctxFore.moveTo(points[i].x - panX, points[i].y - panY);
+            }else{
+                ctxFore.lineTo(points[i].x - panX, points[i].y - panY);
+            }
+        }
+        ctxFore.stroke();
+
+        ctxFore.strokeStyle = "#000000"
         ctxFore.beginPath();
         for(let i = 0; i < points.length; i++){
             if(i%3 == 0){
                 ctxFore.fillStyle = "#ffffff"
             }else{
-                ctxFore.fillStyle = "#00ff00"
+                ctxFore.fillStyle = "#ff00ff"
             }
             ctxFore.fillRect(points[i].x - panX - 2, points[i].y - panY - 2, 4, 4);
             if(i == 0){
                 ctxFore.moveTo(points[i].x - panX, points[i].y - panY);
-            }else{
-                ctxFore.lineTo(points[i].x - panX, points[i].y - panY);
+            }else if(i%3 == 0){
+                ctxFore.bezierCurveTo(points[i-2].x - panX, points[i-2].y - panY, points[i-1].x - panX, points[i-1].y - panY, points[i].x - panX, points[i].y - panY);
             }
         }
         ctxFore.stroke();
