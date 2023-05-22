@@ -53,7 +53,9 @@ window.onload = () => {
         if(e.button == 1){
             PanStart(e);
         }else if(e.button == 0 && e.shiftKey){
-            CreatePoint(e);
+            CreatePoint(e, false);
+        }else if(e.button == 0 && e.ctrlKey){
+            CreatePoint(e, true);
         }else if(e.button == 0){
             movingPointId = GetClosestPoint(e);
             console.log(movingPointId);
@@ -108,8 +110,8 @@ window.onload = () => {
         ReDrawFore();
     }
 
-    function CreatePoint(e){
-        if(points.length != 0){
+    function CreatePoint(e, single){
+        if(points.length != 0 && !single){
             points.push(new Point((e.pageX + panX + 2*points[points.length-1].x)/3, (e.pageY + panY + 2*points[points.length-1].y)/3));
             points.push(new Point((2*(e.pageX + panX) + points[points.length-2].x)/3, (2*(e.pageY + panY) + points[points.length-2].y)/3));
         }
@@ -137,6 +139,11 @@ window.onload = () => {
                 points[movingPointId].x = e.pageX + panX;
                 points[movingPointId].y = e.pageY + panY;
             }
+        }else if(points.length%3 == 0 && movingPointId == 1){
+            points[1].x = e.pageX + panX;
+            points[1].y = e.pageY + panY;
+            points[points.length-1].x = 2*points[0].x - points[1].x;
+            points[points.length-1].y = 2*points[0].y - points[1].y;
         }else{
             points[movingPointId].x = e.pageX + panX;
             points[movingPointId].y = e.pageY + panY;
@@ -172,8 +179,9 @@ window.onload = () => {
 
     function LoadSavedPoints(){
         let str = localStorage.getItem('points');
+        if(str === null){return;}
         let strPoints = str.split(";");
-        for(let i = 0; i < strPoints.length; i++){
+        for(let i = 0; i < strPoints.length-1; i++){
             let strCoords = strPoints[i].split("|");
             points.push(new Point(parseFloat(strCoords[0]), parseFloat(strCoords[1])));
         }
@@ -222,6 +230,10 @@ window.onload = () => {
             }else if(i%3 == 0){
                 ctxFore.bezierCurveTo(points[i-2].x - panX, points[i-2].y - panY, points[i-1].x - panX, points[i-1].y - panY, points[i].x - panX, points[i].y - panY);
             }
+        }
+        if(points.length%3 == 0){//isLoop
+            ctxFore.moveTo(points[points.length-3].x - panX, points[points.length-3].y - panY);
+            ctxFore.bezierCurveTo(points[points.length-2].x - panX, points[points.length-2].y - panY, points[points.length-1].x - panX, points[points.length-1].y - panY, points[0].x - panX, points[0].y - panY);
         }
         ctxFore.stroke();
     }
