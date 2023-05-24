@@ -58,7 +58,6 @@ window.onload = () => {
             CreatePoint(e, true);
         }else if(e.button == 0){
             movingPointId = GetClosestPoint(e);
-            console.log(movingPointId);
         }else if(e.button == 2 && e.shiftKey){
             e.preventDefault();
             canvasFore.hidden = !canvasFore.hidden;
@@ -185,6 +184,24 @@ window.onload = () => {
             let strCoords = strPoints[i].split("|");
             points.push(new Point(parseFloat(strCoords[0]), parseFloat(strCoords[1])));
         }
+        for(let i = 0; i < strPoints.length-1; i+=3){//CHECKS NOT DIFFERENTIABLE 
+            if(i == 0){
+                dx1 = points[points.length-1].x - points[0].x
+                dy1 = points[points.length-1].y - points[0].y
+                dx2 = points[0].x - points[1].x
+                dy2 = points[0].y - points[1].y
+            }else{
+                if(i == 0){
+                    dx1 = points[i-1].x - points[i].x
+                    dy1 = points[i-1].y - points[i].y
+                    dx2 = points[i].x - points[i+1].x
+                    dy2 = points[i].y - points[i+1].y
+                }
+            }
+            if(dx1*dy2 != dx2*dy1){
+                console.log(i);
+            }
+        }
     }
 
     function ReDrawBack(){
@@ -219,7 +236,11 @@ window.onload = () => {
         ctxFore.strokeStyle = "#000000"
         ctxFore.beginPath();
         for(let i = 0; i < points.length; i++){
-            if(i%3 == 0){
+            if(i == -1){//SPOTTER
+                ctxFore.fillStyle = "#00ffff"
+                ctxFore.fillRect(points[i].x - panX - 2, points[i].y - panY - 2, 20, 20);
+            }
+            else if(i%3 == 0){
                 ctxFore.fillStyle = "#ffffff"
             }else{
                 ctxFore.fillStyle = "#ff00ff"
