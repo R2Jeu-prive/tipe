@@ -1,0 +1,20 @@
+Génération de trajectoires par approche génétique
+
+Algorithmes génétiques, Courbes planes, Modélisations automobiles, Outils de pointage, Discrétisation
+
+Dans le contexte scientifique, des travaux ont été menés pour déterminer des trajectoires de voitures de courses. Il existe beaucoup d'approches différentes du problème avec des modélisations et méthodes de résolution variées. Les calculs étant souvent trop lourds on préfère des approches probabilistes [1] et une discrétisation du problème [2], [3]. Il est tout de même important de comprendre les phénomènes physiques de déformation des pneumatiques [4] et d'aérodynamisme pour éviter les approximations trop grossières.
+
+Comment générer des trajectoires optimales sur circuits automobiles grâce aux algorithmes génétiques ?
+
+L'objectif de mon TIPE est de comprendre comment optimiser les paramètres d'un algorithme génétique dans le but de générer des trajectoires optimales (minimisant distance/courbure/temps). La complexité du modèle physique du la voiture utilisé doit être bien choisit afin d'éviter des calculs trop lourds sans faire des hypothèses trop simplificatrices. De plus il serait intéressant de comparer les trajectoires générées aux trajectoires réelles prises par des pilotes en piste.
+
+[1]
+https://arxiv.org/abs/2203.03224
+
+[2]
+https://www.researchgate.net/publication/236583021_Race_driver_model
+
+[3]
+https://www.tandfonline.com/doi/abs/10.1080/00423114.2019.1631455?journalCode=nvsd20
+
+[4] http://e2phy.in2p3.fr/2008/documents/presentations/Cours_Gerard_Fandard.pdf

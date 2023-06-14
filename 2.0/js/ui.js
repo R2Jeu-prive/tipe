@@ -61,8 +61,8 @@ class UI{
         if(UI.panX < 0){UI.panX = 0;}
         if(UI.panY < 0){UI.panY = 0;}
         let tileSize = 256*Math.pow(2, UI.zoom);
-        if(UI.panX > tileSize*Villeneuve.numOfTiles[0] - Canvas.canvasBack.width){UI.panX = tileSize*Villeneuve.numOfTiles[0] - Canvas.canvasBack.width;}
-        if(UI.panY > tileSize*Villeneuve.numOfTiles[1] - Canvas.canvasBack.height){UI.panY = tileSize*Villeneuve.numOfTiles[1] - Canvas.canvasBack.height;}
+        if(UI.panX > tileSize*Track.numOfTiles[0] - Canvas.canvasBack.width){UI.panX = tileSize*Track.numOfTiles[0] - Canvas.canvasBack.width;}
+        if(UI.panY > tileSize*Track.numOfTiles[1] - Canvas.canvasBack.height){UI.panY = tileSize*Track.numOfTiles[1] - Canvas.canvasBack.height;}
         UI.panStartX = e.pageX;
         UI.panStartY = e.pageY;
         Canvas.DrawBack();

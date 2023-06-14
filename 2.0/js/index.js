@@ -5,8 +5,10 @@ window.onload = () => {
     document.addEventListener("keydown", UI.KeyDown.bind(this));
     document.addEventListener("contextmenu", e => e.shiftKey ? e.preventDefault() : false);
 
+    Track.Init(Villeneuve);
     Canvas.Init();
     Canvas.DrawBack();
+    Canvas.DrawBorder();
     /*ReDrawFore();
 
     function ReDrawFore(){
