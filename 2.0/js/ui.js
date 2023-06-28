@@ -13,9 +13,9 @@ class UI{
             UI.panY *= 2;
             Canvas.DrawBack();
         }else if(e.key == "-" && !UI.panning){
-            if(UI.zoom == 0){
+            /*if(UI.zoom == 0){
                 return;
-            }
+            }*/
             UI.zoom -= 1;
             UI.panX /= 2;
             UI.panY /= 2;

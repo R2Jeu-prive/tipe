@@ -1,5 +1,5 @@
 class Villeneuve extends Track{
-    static topleftGoogleEarthTile = [620232, 750141];
+    static topleftGoogleEarthTile = new Point(620232, 750141);
     static numOfTiles = [49, 145];
     static pathToTiles = '../google_earth_fetcher/villeneuve/';
     

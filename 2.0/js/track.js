@@ -11,14 +11,14 @@ class Track{
         for(let prop in trackClass){
             Track[prop] = trackClass[prop];
         }
-        this.GenerateBorderPoints(20);
+        this.GenerateBorderPoints(5);
     }
 
     static DrawTile(u,v,canvasX,canvasY){
         let img = new Image();
         let tileSize = 256*Math.pow(2,UI.zoom);
-        let x = u + this.topleftGoogleEarthTile[0];
-        let y = v + this.topleftGoogleEarthTile[1];
+        let x = u + this.topleftGoogleEarthTile.x;
+        let y = v + this.topleftGoogleEarthTile.y;
         img.addEventListener('load', function() {
             Canvas.ctxBack.drawImage(img, canvasX, canvasY, tileSize, tileSize);
         });
@@ -27,7 +27,7 @@ class Track{
 
     static GenerateBorderPoints(distBetweenPoint){
         let precision = 0.001;
-        let distBetweenPointSquared = [(1-precision)*distBetweenPoint*distBetweenPoint, (1+precision)*distBetweenPoint*distBetweenPoint];
+        let distBetweenPointSquared = new Point((1-precision)*distBetweenPoint*distBetweenPoint, (1+precision)*distBetweenPoint*distBetweenPoint);
         let numOfCubics = this.intBezier.controlPoints.length/3;
         let minT = 0;
         let maxT = numOfCubics;
@@ -39,16 +39,16 @@ class Track{
         while(true){
             let prevPoint = this.intPoints[this.intPoints.length - 1];
             if(minT > 0.5*numOfCubics){
-                let distToEndSquared = Math.pow(endPoint[0] - prevPoint[0], 2) + Math.pow(endPoint[1] - prevPoint[1], 2);
-                if(distToEndSquared <= distBetweenPointSquared[0]){break;}
+                let distToEndSquared = Math.pow(endPoint.x - prevPoint.x, 2) + Math.pow(endPoint.y - prevPoint.y, 2);
+                if(distToEndSquared <= distBetweenPointSquared.x){break;}
             }
             while(true){
                 t = 0.5*(minT + maxT);
                 let point = this.intBezier.GetPointAtParam(t);
-                let distSquared = Math.pow(point[0] - prevPoint[0], 2) + Math.pow(point[1] - prevPoint[1], 2);
-                if(distSquared < distBetweenPointSquared[0]){
+                let distSquared = Math.pow(point.x - prevPoint.x, 2) + Math.pow(point.y - prevPoint.y, 2);
+                if(distSquared < distBetweenPointSquared.x){
                     minT = t;
-                }else if(distSquared > distBetweenPointSquared[1]){
+                }else if(distSquared > distBetweenPointSquared.y){
                     maxT = t;
                 }else{
                     this.intPoints.push(point)
@@ -62,13 +62,13 @@ class Track{
         //build extPoints
         this.extPoints = [];
         for(let i = 0; i < this.intPoints.length-1; i++){
-            let x = this.intPoints[i][0];
-            let y = this.intPoints[i][1];
-            let dir = Math.atan2(-(this.intPoints[i+1][1] - y), this.intPoints[i+1][0] - x);
+            let x = this.intPoints[i].x;
+            let y = this.intPoints[i].y;
+            let dir = Math.atan2(-(this.intPoints[i+1].y - y), this.intPoints[i+1].x - x);
             let u = Math.sin(dir + (pi/2));
             let v = Math.cos(dir + (pi/2));
             let w = u*x + v*y;
-            this.extPoints.push(GetClosestPoint(x,y,this.extBezier.GetIntersectWithLine(u,v,w)));
+            this.extPoints.push(GetClosestPoint(this.intPoints[i],this.extBezier.GetIntersectWithLine(u,v,w)));
         }
         this.intPoints.pop();//kill last int point to have same amount int and ext
     }

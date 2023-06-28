@@ -73,12 +73,12 @@ function solveCubic(a, b, c, d) {
     return roots;
 }
 
-function GetClosestPoint(x, y, points){
+function GetClosestPoint(needle, points){
     let squaredDists = []
     let minSquaredDist = Infinity;
     let minIndex = -1;
     for(let i = 0; i < points.length; i++){
-        let squaredDist = (x-points[i][0])*(x-points[i][0]) + (y-points[i][1])*(y-points[i][1]);
+        let squaredDist = (needle.x-points[i].x)*(needle.x-points[i].x) + (needle.y-points[i].y)*(needle.y-points[i].y);
         squaredDists.push(squaredDist);
         if(squaredDist < minSquaredDist){
             minSquaredDist = squaredDist;
