@@ -16,12 +16,27 @@ class Canvas{
     }
 
     static DrawBack(){
-        let tileSize = 256*Math.pow(2,UI.zoom)
-        let baseU = Math.floor(UI.panX/tileSize);
-        let baseV = Math.floor(UI.panY/tileSize);
-        for(let u = baseU; u < baseU+(8*Math.pow(2,-UI.zoom))+1; u++){
-            for(let v = baseV; v < baseV+(4*Math.pow(2,-UI.zoom))+1; v++){
-                Track.DrawTile(u,v, -(UI.panX % tileSize) + (u-baseU)*tileSize, -(UI.panY % tileSize) + (v-baseV)*tileSize);
+        let canvasW = this.canvasBack.width
+        let canvasH = this.canvasBack.height
+        if(UI.zoom >= 0){
+            let tileSize = 256*Math.pow(2,UI.zoom)
+            let baseU = Math.floor(UI.panX/tileSize);
+            let baseV = Math.floor(UI.panY/tileSize);
+            for(let u = baseU; u < baseU+(8*Math.pow(2,-UI.zoom))+1; u++){
+                for(let v = baseV; v < baseV+(4*Math.pow(2,-UI.zoom))+1; v++){
+                    Track.DrawTile(u,v, -(UI.panX % tileSize) + (u-baseU)*tileSize, -(UI.panY % tileSize) + (v-baseV)*tileSize);
+                }
+            }
+        }
+        else{
+            let tileSize = 256
+            let incr = Math.pow(2, -UI.zoom);
+            let baseU = Math.floor(UI.panX/256) * incr;
+            let baseV = Math.floor(UI.panY/256) * incr;
+            for(let deltaU = 0; 0 < canvasW-(((deltaU/incr)-1)*tileSize); deltaU+=incr){
+                for(let deltaV = 0; 0 < canvasH-(((deltaV/incr)-1)*tileSize); deltaV+=incr){
+                    Track.DrawTile(baseU + deltaU, baseV + deltaV, -(UI.panX % 256) + deltaU*256/incr, -(UI.panY % 256) + deltaV*256/incr);
+                }
             }
         }
         Canvas.DrawMid();
@@ -87,8 +102,8 @@ class Canvas{
                 let y1 = Canvas.drawnTrajs[k].points[i - 1].y * zoomFactor - UI.panY;
                 let x2 = Canvas.drawnTrajs[k].points[i].x * zoomFactor - UI.panX;
                 let y2 = Canvas.drawnTrajs[k].points[i].y * zoomFactor - UI.panY;
-                if(i == 1){console.log(x1,y1)};
-                if(i == 1){console.log(Track.intPoints[0],Track.extPoints[0])};
+                /*if(i == 1){console.log(x1,y1)};
+                if(i == 1){console.log(Track.intPoints[0],Track.extPoints[0])};*/
                 if(mode == "curvature"){
                     let rgb = hslToRgb(120-visualScaler*Canvas.drawnTrajs[k].absCurves[i],100,50)
                     let r = toHex(Math.floor(rgb[0]));

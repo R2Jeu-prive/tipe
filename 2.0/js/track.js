@@ -16,13 +16,17 @@ class Track{
 
     static DrawTile(u,v,canvasX,canvasY){
         let img = new Image();
-        let tileSize = 256*Math.pow(2,UI.zoom);
+        let tileSize = Math.max(256*Math.pow(2,UI.zoom), 256);
         let x = u + this.topleftGoogleEarthTile.x;
         let y = v + this.topleftGoogleEarthTile.y;
+        let path = this.pathToTiles
+        if(UI.zoom < 0){
+            path += "_dezoom_" + (-UI.zoom);
+        }
         img.addEventListener('load', function() {
             Canvas.ctxBack.drawImage(img, canvasX, canvasY, tileSize, tileSize);
         });
-        img.src = this.pathToTiles + x + '_' + y + '.png';
+        img.src = path + '/' + x + '_' + y + '.png';
     }
 
     static GenerateBorderPoints(distBetweenPoint){

@@ -13,9 +13,9 @@ class UI{
             UI.panY *= 2;
             Canvas.DrawBack();
         }else if(e.key == "-" && !UI.panning){
-            /*if(UI.zoom == 0){
+            if(UI.zoom == -5){
                 return;
-            }*/
+            }
             UI.zoom -= 1;
             UI.panX /= 2;
             UI.panY /= 2;
@@ -60,9 +60,9 @@ class UI{
         
         if(UI.panX < 0){UI.panX = 0;}
         if(UI.panY < 0){UI.panY = 0;}
-        let tileSize = 256*Math.pow(2, UI.zoom);
+        /*let tileSize = 256*Math.pow(2, UI.zoom);
         if(UI.panX > tileSize*Track.numOfTiles[0] - Canvas.canvasBack.width){UI.panX = tileSize*Track.numOfTiles[0] - Canvas.canvasBack.width;}
-        if(UI.panY > tileSize*Track.numOfTiles[1] - Canvas.canvasBack.height){UI.panY = tileSize*Track.numOfTiles[1] - Canvas.canvasBack.height;}
+        if(UI.panY > tileSize*Track.numOfTiles[1] - Canvas.canvasBack.height){UI.panY = tileSize*Track.numOfTiles[1] - Canvas.canvasBack.height;}*/
         UI.panStartX = e.pageX;
         UI.panStartY = e.pageY;
         Canvas.DrawBack();
