@@ -80,18 +80,19 @@ class Traj {
     }
 
     CalcSpeed(){
-        /*this.speeds = [0];
+        this.speeds = [0];
         for (let i = 1; i < Track.extPoints.length; i++) {
-            this.speeds.push(Math.min(car.MaxSpeed(this.absCurves[i]), Math.sqrt(2*car.maxAcceleration*this.dists[i-1] + this.speeds[i-1]**2)))
+            this.speeds.push(Math.min(Car.MaxSpeed(this.absCurves[i]), Math.sqrt(2*Car.maxAcceleration*this.dists[i-1] + this.speeds[i-1]**2)))
         }
 
         //back propageation to take into account breaking
         for (let i = Track.extPoints.length-1; i > 0; i--) {
-            this.speeds[i-1] = Math.min(this.speeds[i-1], Math.sqrt(this.speeds[i]**2 - 2*car.maxDecceleration*this.dists[i-1]))
-        }*/
+            this.speeds[i-1] = Math.min(this.speeds[i-1], Math.sqrt(this.speeds[i]**2 - 2*Car.maxDecceleration*this.dists[i-1]))
+        }
     }
 
-    Evaluate(mode = "minDistance"){
+    Evaluate(){
+        let mode = Family.evaluationMode;
         this.CalcDists();
         if(mode == "minDistance"){
             this.evaluation = 0;
@@ -111,10 +112,6 @@ class Traj {
             }
         }
         return this.evaluation;
-    }
-
-    Draw(){
-        
     }
 
     CopyLateralsFrom(parentTraj, copyStart, copyEnd){

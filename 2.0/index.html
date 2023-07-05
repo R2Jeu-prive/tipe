@@ -5,9 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>2.0 Generative Algorithm</title>
-    <!--link href="css/style.css" rel="stylesheet" type="text/css" /-->
+    <link href="style.css" rel="stylesheet" type="text/css">
     <script src="js/point.js"></script>
     <script src="js/constants.js"></script>
+    <script src="js/car.js"></script>
     <script src="js/cubicBezier.js"></script>
     <script src="js/track.js"></script>
     <script src="js/villeneuve.js"></script>
@@ -17,10 +18,28 @@
     <script src="js/family.js"></script>
 </head>
 
-<body style="position: fixed; width: 100%; height: 100%; background-color: #222; margin: 0px;">
-    <canvas height="768" width="1792" id="canvasBack" style="position: absolute; filter:brightness(0.3);"></canvas>
-    <canvas height="768" width="1792" id="canvasMid" style="position: absolute;"></canvas>
-    <canvas height="768" width="1792" id="canvasFore" style="position: absolute;"></canvas>
+<body>
+    <canvas height="768" width="1792" id="canvasBack"></canvas>
+    <canvas height="768" width="1792" id="canvasMid"></canvas>
+    <canvas height="768" width="1792" id="canvasFore"></canvas>
+    <div id="params">
+        <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.2" step=any /></label><br>
+        <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="50" value="20" step="1" /></label><br>
+        <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="50" step="1" /></label><br>
+        <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="10" step="1" /></label><br>
+        <button onclick="Family.GenForward()">Gen Start</button>
+        <button onclick="Family.StopGen()">Gen Stop</button>
+        <label>Traj Color Indicator<select id="trajColorIndicator" onchange="Canvas.DrawFore()">
+            <option value="curvature">Curvature</option>
+            <option value="speed">Speed</option>
+            <option value="acceleration">Acceleration</option>
+        </select></label>
+        <label>Evaluation Mode<select id="evaluationMode" onchange="Family.ChangeEvaluationMode()">
+            <option value="minCurvature">Min Curvature</option>
+            <option value="minDistance">Min Distance</option>
+            <option value="minTime">Min Time (f1)</option>
+        </select></label>
+    </div>
     <script src="js/index.js"></script>
 </body>
 

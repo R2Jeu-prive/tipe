@@ -11,7 +11,7 @@ class Track{
         for(let prop in trackClass){
             Track[prop] = trackClass[prop];
         }
-        this.GenerateBorderPoints(15);
+        this.GenerateBorderPoints(50);
     }
 
     static DrawTile(u,v,canvasX,canvasY){
