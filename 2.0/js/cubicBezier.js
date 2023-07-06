@@ -1,6 +1,7 @@
 class CubicsBezier{
     constructor(controlPoints){
         this.controlPoints = [];
+        this.loops = true;
         for(let i = 0; i < controlPoints.length; i++){
             let couple = controlPoints[i];
             this.controlPoints.push(new Point(couple[0], couple[1]));
@@ -44,5 +45,9 @@ class CubicsBezier{
             }
         }
         return intersects;
+    }
+
+    ExtrudePortion(start, end){
+        this.controlPoints = this.controlPoints.slice(start*3,end*3 - 2);
     }
 }

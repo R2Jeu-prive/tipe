@@ -102,7 +102,7 @@ class Traj {
         }else if(mode == "minCurvature"){
             this.evaluation = 0;
             for(let i = 1; i < this.points.length; i++){
-                this.evaluation += Math.pow(this.absCurves[i], 2)*this.dists[i-1];
+                this.evaluation += Math.pow(this.absCurves[i], 2)//*this.dists[i-1];
             }
         }else{
             this.CalcSpeed();

@@ -11,6 +11,9 @@ class Track{
         for(let prop in trackClass){
             Track[prop] = trackClass[prop];
         }
+        console.log(this.intBezier);
+        this.intBezier.ExtrudePortion(180, 274);
+        console.log(this.intBezier);
         this.GenerateBorderPoints(50);
     }
 
@@ -31,8 +34,8 @@ class Track{
 
     static GenerateBorderPoints(distBetweenPoint){
         let precision = 0.001;
-        let distBetweenPointSquared = new Point((1-precision)*distBetweenPoint*distBetweenPoint, (1+precision)*distBetweenPoint*distBetweenPoint);
-        let numOfCubics = this.intBezier.controlPoints.length/3;
+        let distBetweenPointSquared = [(1-precision)*distBetweenPoint*distBetweenPoint, (1+precision)*distBetweenPoint*distBetweenPoint];
+        let numOfCubics = Math.floor(this.intBezier.controlPoints.length/3);
         let minT = 0;
         let maxT = numOfCubics;
         let t;
@@ -44,15 +47,15 @@ class Track{
             let prevPoint = this.intPoints[this.intPoints.length - 1];
             if(minT > 0.5*numOfCubics){
                 let distToEndSquared = Math.pow(endPoint.x - prevPoint.x, 2) + Math.pow(endPoint.y - prevPoint.y, 2);
-                if(distToEndSquared <= distBetweenPointSquared.x){break;}
+                if(distToEndSquared <= distBetweenPointSquared[0]){break;}
             }
             while(true){
                 t = 0.5*(minT + maxT);
                 let point = this.intBezier.GetPointAtParam(t);
                 let distSquared = Math.pow(point.x - prevPoint.x, 2) + Math.pow(point.y - prevPoint.y, 2);
-                if(distSquared < distBetweenPointSquared.x){
+                if(distSquared < distBetweenPointSquared[0]){
                     minT = t;
-                }else if(distSquared > distBetweenPointSquared.y){
+                }else if(distSquared > distBetweenPointSquared[1]){
                     maxT = t;
                 }else{
                     this.intPoints.push(point)
@@ -62,6 +65,7 @@ class Track{
                 }
             }
         }
+        console.log(JSON.parse(JSON.stringify(this.intPoints)));
 
         //build extPoints
         this.extPoints = [];

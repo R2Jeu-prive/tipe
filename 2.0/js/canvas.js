@@ -102,8 +102,6 @@ class Canvas{
                 let y1 = Canvas.drawnTrajs[k].points[i - 1].y * zoomFactor - UI.panY;
                 let x2 = Canvas.drawnTrajs[k].points[i].x * zoomFactor - UI.panX;
                 let y2 = Canvas.drawnTrajs[k].points[i].y * zoomFactor - UI.panY;
-                /*if(i == 1){console.log(x1,y1)};
-                if(i == 1){console.log(Track.intPoints[0],Track.extPoints[0])};*/
                 if(mode == "curvature"){
                     let rgb = hslToRgb(120-visualScaler*Canvas.drawnTrajs[k].absCurves[i],100,50)
                     let r = toHex(Math.floor(rgb[0]));

@@ -29,6 +29,7 @@
         <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="10" step="1" /></label><br>
         <button onclick="Family.GenForward()">Gen Start</button>
         <button onclick="Family.StopGen()">Gen Stop</button>
+        <button onclick="Family.Init()">Gen Reset</button>
         <label>Traj Color Indicator<select id="trajColorIndicator" onchange="Canvas.DrawFore()">
             <option value="curvature">Curvature</option>
             <option value="speed">Speed</option>
