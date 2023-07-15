@@ -11,9 +11,10 @@ class Track{
         for(let prop in trackClass){
             Track[prop] = trackClass[prop];
         }
-        console.log(this.intBezier);
-        this.intBezier.ExtrudePortion(180, 274);
-        console.log(this.intBezier);
+        //console.log(this.intBezier);
+        //this.intBezier.ExtrudePortion(240, 274);
+        this.intBezier.ExtrudePortion(100, 133);
+        //console.log(this.intBezier);
         this.GenerateBorderPoints(50);
     }
 

@@ -4,6 +4,7 @@ class Canvas{
     static canvasFore;
     static ctxFore;
     static drawnTrajs;
+    static trajColorIndicator = "curvature";
 
     static Init(){
         Canvas.canvasBack = document.getElementById('canvasBack');
@@ -92,9 +93,14 @@ class Canvas{
         }
     }
 
+    static ChangeTrajColorIndicator(){
+        this.trajColorIndicator = document.getElementById("trajColorIndicator").value;
+        this.DrawFore();
+    }
+
     static DrawTrajs(){
-        let mode = "curvature"//ui.GetSelectParam("trajColorIndicator")
-        let visualScaler = 30000//ui.GetFloatParam("visualScaler")
+        let mode = this.trajColorIndicator;
+        let visualScaler;
         let zoomFactor = Math.pow(2,UI.zoom);
         for(let k = 0; k < Canvas.drawnTrajs.length; k++){
             for (let i = 1; i < Canvas.drawnTrajs[k].points.length; i++) {
@@ -103,18 +109,21 @@ class Canvas{
                 let x2 = Canvas.drawnTrajs[k].points[i].x * zoomFactor - UI.panX;
                 let y2 = Canvas.drawnTrajs[k].points[i].y * zoomFactor - UI.panY;
                 if(mode == "curvature"){
-                    let rgb = hslToRgb(120-visualScaler*Canvas.drawnTrajs[k].absCurves[i],100,50)
+                    visualScaler = 30000;
+                    let rgb = hslToRgb(120-30000*Canvas.drawnTrajs[k].absCurves[i],100,50)
                     let r = toHex(Math.floor(rgb[0]));
                     let g = toHex(Math.floor(rgb[1]));
                     let b = toHex(Math.floor(rgb[2]));
                     Canvas.ctxFore.strokeStyle = "#" + r + g + b;
                 }else if(mode == "speed"){
+                    visualScaler = 6;
                     let rgb = hslToRgb(visualScaler*Canvas.drawnTrajs[k].speeds[i],100,50)
                     let r = toHex(Math.floor(rgb[0]));
                     let g = toHex(Math.floor(rgb[1]));
                     let b = toHex(Math.floor(rgb[2]));
                     Canvas.ctxFore.strokeStyle = "#" + r + g + b;
                 }else if(mode == "acceleration"){
+                    visualScaler = 6;
                     let acceleration = visualScaler*(Canvas.drawnTrajs[k].speeds[i] - Canvas.drawnTrajs[k].speeds[i-1])*(Canvas.drawnTrajs[k].speeds[i] + Canvas.drawnTrajs[k].speeds[i-1])/Canvas.drawnTrajs[k].dists[i-1]
                     let r = toHex(Math.ceil(Math.min(0,acceleration)));
                     let g = toHex(Math.ceil(Math.max(0,acceleration)));

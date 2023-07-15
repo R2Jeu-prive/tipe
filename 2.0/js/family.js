@@ -1,11 +1,13 @@
 class Family{
     static children = [];
     static evaluationMode;
+    static mutationMode;
     static parentCount = 0;
     static childrenCountPerParent = 1;
     static loopTimeout = -1;
     static Init(){
         this.ChangeEvaluationMode();
+        this.ChangeMutationMode();
         let centerTraj = new Traj();
         centerTraj.BuildPoints();
         centerTraj.CalcAbsCurve();
@@ -25,6 +27,10 @@ class Family{
         Canvas.drawnTrajs = this.children;
         Canvas.DrawFore()
         this.StopGen();
+    }
+
+    static ChangeMutationMode(){
+        this.mutationMode = document.getElementById("mutationMode").value;
     }
 
     static StopGen(){
@@ -80,11 +86,11 @@ class Family{
                 let [morphStart,morphEnd] = morphingChild.Mutate(mutationForce, mutationWidth);
                 if(this.EvaluateChild(morphingChild)){
                     morphingChild = new Traj();
-                    //UI.StoreMutateSuccess(true);
+                    Result.StoreMutateSuccess(true);
                     morphingChild.CopyLateralsFrom(parents[i], 0, parents[i].laterals.length-1);
                 }else{
                     morphingChild.CopyLateralsFrom(parents[i], morphStart, morphEnd);
-                    //UI.StoreMutateSuccess(false);
+                    Result.StoreMutateSuccess(false);
                 }
             }
         }

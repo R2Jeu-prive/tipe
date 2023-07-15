@@ -22,7 +22,7 @@ class Traj {
     CalcDists(){
         this.dists = [];
         for (let i = 1; i < Track.extPoints.length; i++) {
-            this.dists.push(Math.sqrt((this.points[i - 1].x - this.points[i].x)**2 + (this.points[i - 1].y - this.points[i].y)**2))//NOTOPTI
+            this.dists.push(Track.pxToMetersRatio*Math.sqrt((this.points[i - 1].x - this.points[i].x)**2 + (this.points[i - 1].y - this.points[i].y)**2))//NOTOPTI
         }
     }
 
@@ -80,7 +80,7 @@ class Traj {
     }
 
     CalcSpeed(){
-        this.speeds = [0];
+        this.speeds = [50];//initial speed in m/s
         for (let i = 1; i < Track.extPoints.length; i++) {
             this.speeds.push(Math.min(Car.MaxSpeed(this.absCurves[i]), Math.sqrt(2*Car.maxAcceleration*this.dists[i-1] + this.speeds[i-1]**2)))
         }
@@ -102,7 +102,8 @@ class Traj {
         }else if(mode == "minCurvature"){
             this.evaluation = 0;
             for(let i = 1; i < this.points.length; i++){
-                this.evaluation += Math.pow(this.absCurves[i], 2)//*this.dists[i-1];
+                this.evaluation += Math.pow(this.absCurves[i], 2)*this.dists[i-1];
+                //this.evaluation += Math.pow(this.absCurves[i]*this.dists[i-1], 4);
             }
         }else{
             this.CalcSpeed();
@@ -122,6 +123,14 @@ class Traj {
 
 
     Mutate(force = 0.2, width = 20) {
+        if(Family.mutationMode == "bump"){return this.MutateBump(force, width);}
+        if(Family.mutationMode == "shift"){return this.MutateShift(force, width);}
+        let rand = Math.round(Math.random());
+        if(rand == 0){return this.MutateShift(force, width);}
+        else{return this.MutateBump(force, width);}
+    }
+
+    MutateBump(force, width) {
         //force : force at which mutationPoint if pushed towards mutationValue (must be in [0,1])
         //width : number of points effected on each side of the mutationPoint (first and last aren't actually effected but start the cos interpolation)
         let mutationPoint = Math.floor(rand()*this.laterals.length);
@@ -134,13 +143,39 @@ class Traj {
         }else{
             maxMutationValue = 2*this.laterals[mutationPoint];
         }
-        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();
-        //let mutationValue = rand();
+        //let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();
+        let mutationValue = rand();
 
         for (let i = mutateStart; i <= mutateEnd; i++) {
             let blend = force*0.5*(Math.cos(pi*(mutationPoint - i)/width) + 1);
             this.laterals[i] = blend*mutationValue + (1-blend)*this.laterals[i];
+            if(this.laterals[i] < 0){this.laterals[i] = 0;}
+            if(this.laterals[i] > 1){this.laterals[i] = 1;}
         }
+        return [mutateStart, mutateEnd];
+    }
+
+    MutateShift(force, width) {
+        //force : weight of the new shifted values when reapplied to original array of laterals (must be in [0,1])
+        //width : number of shifted points
+        let mutateStart = Math.max(Math.floor(Math.random()*this.laterals.length), 0);
+        let mutateEnd = Math.min(mutateStart + width, this.laterals.length-1);
+        let rand = Math.round(Math.random());
+        if(rand == 0){
+            //shift foraward (delay actions)
+            let mem = this.laterals[mutateStart];
+            for(let i = mutateStart; i < mutateEnd; i++){
+                let prevmem = mem;
+                mem = this.laterals[i+1];
+                this.laterals[i+1] = prevmem*force + mem*(1-force);
+            }
+        }else{
+            //shift backword (anticipate actions)
+            for(let i = mutateStart; i <= mutateEnd; i++){
+                this.laterals[i] = this.laterals[i+1]*force + this.laterals[i]*(1-force);
+            }
+        }
+        //console.log(JSON.parse(JSON.stringify(this.laterals)));
         return [mutateStart, mutateEnd];
     }
 }
