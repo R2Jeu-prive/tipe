@@ -71,7 +71,7 @@ class Traj {
             }
             let x = midBX + vectBX*s;
             let y = midBY + vectBY*s;
-            let absCurve = 1/Math.sqrt((this.points[i].x - x)**2 + (this.points[i].y - y)**2);
+            let absCurve = 1/(Track.pxToMetersRatio*Math.sqrt((this.points[i].x - x)**2 + (this.points[i].y - y)**2));
             this.absCurves.push(absCurve);//NOTOPTI
             isPossible = isPossible && absCurve < 3;//TODO 3 to be related to track width or car ?
         }
