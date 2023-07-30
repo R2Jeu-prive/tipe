@@ -26,6 +26,8 @@ class UI{
     static MouseDown(e){
         if(e.button == 1){
             UI.PanStart(e);
+        }else if(e.button == 0){
+            UI.CopyCoords(e);
         }
     }
     
@@ -66,5 +68,9 @@ class UI{
         UI.panStartX = e.pageX;
         UI.panStartY = e.pageY;
         Canvas.DrawBack();
+    }
+
+    static CopyCoords(e){
+        console.log((UI.panX + e.pageX)*Math.pow(2, -UI.zoom) + " " + (UI.panY + e.pageY)*Math.pow(2, -UI.zoom));
     }
 }
