@@ -138,4 +138,18 @@ class Canvas{
             }
         }
     }
+
+    static DrawPoint(mapX, mapY){
+        let zoomFactor = Math.pow(2, UI.zoom);
+        let x = mapX*zoomFactor - UI.panX;
+        let y = mapY*zoomFactor - UI.panY;
+        Canvas.ctxFore.strokeStyle = "#00ffff";
+        Canvas.ctxFore.lineWidth = 1;
+        Canvas.ctxFore.beginPath();
+        Canvas.ctxFore.moveTo(x-5, y-5);
+        Canvas.ctxFore.lineTo(x+5, y+5);
+        Canvas.ctxFore.moveTo(x-5, y+5);
+        Canvas.ctxFore.lineTo(x+5, y-5);
+        Canvas.ctxFore.stroke();
+    }
 }

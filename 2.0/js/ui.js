@@ -71,6 +71,8 @@ class UI{
     }
 
     static CopyCoords(e){
-        console.log((UI.panX + e.pageX)*Math.pow(2, -UI.zoom) + " " + (UI.panY + e.pageY)*Math.pow(2, -UI.zoom));
+        let mapX = (UI.panX + e.pageX)*Math.pow(2, -UI.zoom);
+        let mapY = (UI.panY + e.pageY)*Math.pow(2, -UI.zoom);
+        Canvas.DrawPoint(mapX, mapY);
     }
 }
