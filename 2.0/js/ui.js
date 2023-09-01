@@ -74,5 +74,6 @@ class UI{
         let mapX = (UI.panX + e.pageX)*Math.pow(2, -UI.zoom);
         let mapY = (UI.panY + e.pageY)*Math.pow(2, -UI.zoom);
         Canvas.DrawPoint(mapX, mapY);
+        console.log(mapX + " " + (-mapY));
     }
 }
