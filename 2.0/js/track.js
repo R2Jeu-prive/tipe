@@ -81,4 +81,25 @@ class Track{
         }
         this.intPoints.pop();//kill last int point to have same amount int and ext
     }
+
+    static GenerateShortestTraj(){
+        let midTraj = new Traj();
+        let shortestPath = new Traj();
+        midTraj.BuildPoints();
+        //calculate if track is turning left or right
+        for(let i = 1; i < midTraj.points.length-1; i++){
+            let vectA = new Point(midTraj.points[i-1].x - midTraj.points[i].x, midTraj.points[i-1].y - midTraj.points[i].y);
+            let vectB = new Point(midTraj.points[i].y - midTraj.points[i+1].y, midTraj.points[i+1].x - midTraj.points[i].x);
+            if(vectA.x*vectB.x + vectA.y*vectB.y > 0){
+                //turning right
+                shortestPath.laterals[i] = 1;
+            }else{
+                //turning left
+                shortestPath.laterals[i] = 0;
+            }
+        }
+        //copy first and last point
+        shortestPath.laterals[0] = shortestPath.laterals[1];
+        shortestPath.laterals[midTraj.points.length-1] = shortestPath.laterals[midTraj.points.length-2];
+    }
 }
