@@ -3,6 +3,7 @@ using LinearAlgebra
 print("Starting\n")
 
 #=
+OLD POINTS
 u1 = [605/810,50/810,1]
 u2 = [172/810,-84/810,1]
 u3 = [-596/810,-24/810,1]
@@ -12,7 +13,8 @@ x2 = [9820.5,22052.5,0,1]
 x3 = [9909,22030.5,0,1]
 x4 = [9968.5,22308.5,0,1]
 =#
-dx = -1000
+
+#POINTED DATA (frame : 5339)
 u4 = [-0.345703125, 0.12239583333333334, 1]
 u3 = [-0.3873697916666667, 0.015625, 1]
 u2 = [0.11067708333333337, 0.0546875, 1]
@@ -21,20 +23,13 @@ x1 = [9810.0,0,21985.5,1]
 x2 = [9820.0,0,22052.0,1]
 x3 = [9909.0,0,22031.0,1]
 x4 = [9968.5,0,22308.5,1]
-
+#=
 u5 = [0.015625, 0.09700520833333334, 1]
 x5 = [9817.5,0,22128.5, 1]
-
-
-@var b c d k t1 t2 t3 t4 w x y z 
-#=
-g_1 = y*y + 1 + x
-g_2 = x + y + 1
-G = System([g_1, g_2])
-result = solve(G)
-sols = solutions(result)
-print(sols)
 =#
+
+#SYSTEM
+@var b c d k t1 t2 t3 t4 w x y z 
 
 f_1 = ((1 + b*b - c*c - d*d)*x1[1] + (2*b*c - 2*d)*x1[2] + (2*c + 2*b*d)*x1[3] + x*x1[4]) - t1*u1[1]
 f_2 = ((2*d + 2*b*c)*x1[1] + (1 - b*b + c*c - d*d)*x1[2] + (2*c*d - 2*b)*x1[3] + y*x1[4]) - t1*u1[2]
@@ -52,11 +47,15 @@ f_10 = ((1 + b*b - c*c - d*d)*x4[1] + (2*b*c - 2*d)*x4[2] + (2*c + 2*b*d)*x4[3] 
 f_11 = ((2*d + 2*b*c)*x4[1] + (1 - b*b + c*c - d*d)*x4[2] + (2*c*d - 2*b)*x4[3] + y*x4[4]) - t4*u4[2]
 f_12 = w*((2*b*d - 2*c)*x4[1] + (2*b + 2*c*d)*x4[2] + (1 - b*b - c*c + d*d)*x4[3] + z*x4[4]) - t4*(1 + k*(u4[1]^2 + u4[2]^2))
 
+#=
 f_13 = ((1 + b*b - c*c - d*d)*x5[1] + (2*b*c - 2*d)*x5[2] + (2*c + 2*b*d)*x5[3] + x*x5[4]) - t4*u5[1]
 f_14 = ((2*d + 2*b*c)*x5[1] + (1 - b*b + c*c - d*d)*x5[2] + (2*c*d - 2*b)*x5[3] + y*x5[4]) - t4*u5[2]
 f_15 = w*((2*b*d - 2*c)*x5[1] + (2*b + 2*c*d)*x5[2] + (1 - b*b - c*c + d*d)*x5[3] + z*x5[4]) - t4*(1 + k*(u5[1]^2 + u5[2]^2))
+=#
 F = System([f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8, f_9, f_10, f_11, f_12])
 
+
+#SOLVER
 result = solve(F)
 sols = real_solutions(result)
 
@@ -73,31 +72,42 @@ for sol in sols
     x_val = sol[10]
     y_val = sol[11]
     z_val = sol[12]
-    R = [1+b_val^2-c_val^2-d_val^2 2*b_val*c_val-2*d_val 2*c_val+2*b_val*d_val ; 2*d_val+2*b_val*c_val -b_val^2+c_val^2-d_val^2 2*c_val*d_val-2*b_val ; 2*b_val*d_val-2*c_val 2*b_val+2*c_val*d_val -b_val^2-c_val^2+d_val^2]
-    print(R)
-    break
-    q = (1/det(R))^(1/3)
-    T = [x_val ; y_val ; z_val]
-    pos = -transpose(q*R)*(q*T)
-    Rot = q*R
-    if Rot[3,1] == 1
+
+    #NORMALIZE QUATERNION
+    oldQuatNorm = sqrt(1 + (b_val^2) + (c_val^2) + (d_val^2))
+    rot_a = 1/oldQuatNorm
+    rot_b = b_val/oldQuatNorm
+    rot_c = c_val/oldQuatNorm
+    rot_d = d_val/oldQuatNorm
+
+    #REBUILD R|T MATRIX (lambda values should be changed to satisfy system but we don't use them)
+    new_x = x_val/(oldQuatNorm^2)
+    new_y = y_val/(oldQuatNorm^2)
+    new_z = z_val/(oldQuatNorm^2)
+    R = [(rot_a^2)+(rot_b^2)-(rot_c^2)-(rot_d^2) 2*rot_b*rot_c-(2*rot_d*rot_a) 2*rot_c*rot_a+(2*rot_b*rot_d) ; 2*rot_d*rot_a+(2*rot_b*rot_c) (rot_a^2)-(rot_b^2)+(rot_c^2)-(rot_d^2) 2*rot_c*rot_d-(2*rot_b*rot_a) ; 2*rot_b*rot_d-(2*rot_c*rot_a) 2*rot_b*rot_a+(2*rot_c*rot_d) (rot_a^2)-(rot_b^2)-(rot_c^2)+(rot_d^2)]
+    #print(R)
+    T = [new_x ; new_y ; new_z] #in cam coord
+    Tworld = -transpose(R)*T #in world coord https://en.wikipedia.org/wiki/Camera_resectioning
+
+    #COMPUTE EULER ANGLES FROM R
+    if R[3,1] == 1
         th1 = pi/2
-        psi1 = atand(Rot[1,2],Rot[1,3])
+        psi1 = atand(R[1,2],R[1,3])
         phi1 = 0
-    elseif Rot[3,1] == -1
+    elseif R[3,1] == -1
         th1 = -pi/2
-        psi1 = atand(-Rot[1,2],-Rot[1,3])
+        psi1 = atand(-R[1,2],-R[1,3])
         phi1 = 0
     else
-        th1 = -asind(Rot[3,1])
+        th1 = -asind(R[3,1])
         th2 = pi - th1
-        psi1 = atand(Rot[3,2]/cosd(th1), Rot[3,3]/cosd(th2))
-        psi2 = atand(Rot[3,2]/cosd(th2), Rot[3,3]/cosd(th2))
-        phi1 = atand(Rot[2,1]/cosd(th1), Rot[1,1]/cosd(th2))
-        phi2 = atand(Rot[2,1]/cosd(th2), Rot[1,1]/cosd(th2))
+        psi1 = atand(R[3,2]/cosd(th1), R[3,3]/cosd(th2))
+        psi2 = atand(R[3,2]/cosd(th2), R[3,3]/cosd(th2))
+        phi1 = atand(R[2,1]/cosd(th1), R[1,1]/cosd(th2))
+        phi2 = atand(R[2,1]/cosd(th2), R[1,1]/cosd(th2))
     end
     print("pos: ")
-    print(pos)
+    print(Tworld)
     print("\nf: ")
     print(1/w_val)
     print("\nk: ")
