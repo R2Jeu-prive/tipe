@@ -6,7 +6,7 @@ class Car{
     static roadFricCoef = 1.5;
     static horsePower = 914;
 
-    static maxAcceleration = 3*Car.g; //in m/s²
+    static maxAcceleration = 1.45*Car.g; //in m/s²
     static maxDecceleration = -4*Car.g; //in m/s²
 
     static MaxSpeed(curve){
