@@ -52,6 +52,9 @@ class Canvas{
     static DrawFore(){
         Canvas.ctxFore.clearRect(0, 0, Canvas.canvasMid.width, Canvas.canvasMid.height);
         Canvas.DrawTrajs();
+        for(let i = 0; i < UI.pointings.length; i++){
+            this.DrawPoint(UI.pointings[i][0], UI.pointings[i][1], i)
+        }
     }
     
     static DrawBorder(style = 1){
@@ -139,7 +142,7 @@ class Canvas{
         }
     }
 
-    static DrawPoint(mapX, mapY){
+    static DrawPoint(mapX, mapY, id){
         let zoomFactor = Math.pow(2, UI.zoom);
         let x = mapX*zoomFactor - UI.panX;
         let y = mapY*zoomFactor - UI.panY;
@@ -151,5 +154,9 @@ class Canvas{
         Canvas.ctxFore.moveTo(x-5, y+5);
         Canvas.ctxFore.lineTo(x+5, y-5);
         Canvas.ctxFore.stroke();
+
+        Canvas.ctxFore.font = "12px serif";
+        Canvas.ctxFore.fillStyle = "#00ffff";
+        Canvas.ctxFore.fillText(id+1, x+7, y-7);
     }
 }

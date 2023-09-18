@@ -5,6 +5,7 @@ class UI{
     static panStartY = 0;
     static panning = false;
     static zoom = 0;
+    static pointings = []; //list of clicked points for pointing
 
     static KeyDown(e){
         if(e.key == "+" && !UI.panning){
@@ -20,6 +21,11 @@ class UI{
             UI.panX /= 2;
             UI.panY /= 2;
             Canvas.DrawBack();
+        }else if(e.key == " "){
+            this.pointings = [];
+            Canvas.DrawFore();
+        }else if(e.key == "c"){
+            UI.CopyPointings();
         }
     }
 
@@ -27,7 +33,7 @@ class UI{
         if(e.button == 1){
             UI.PanStart(e);
         }else if(e.button == 0){
-            UI.CopyCoords(e);
+            UI.AddPointing(e);
         }
     }
     
@@ -70,10 +76,26 @@ class UI{
         Canvas.DrawBack();
     }
 
-    static CopyCoords(e){
+    static AddPointing(e){
         let mapX = (UI.panX + e.pageX)*Math.pow(2, -UI.zoom);
         let mapY = (UI.panY + e.pageY)*Math.pow(2, -UI.zoom);
-        Canvas.DrawPoint(mapX, mapY);
-        console.log(mapX + " " + (-mapY));
+        this.pointings.push([mapX, mapY]);
+        Canvas.DrawFore();
+    }
+
+    static CopyPointings(){
+        if(this.pointings.length != 4){
+            alert("4 pointings needed");
+            return;
+        }
+
+        let text = "";
+        for(let i = 0; i < 4; i++){
+            for(let j = 0; j < 2; j++){
+                text += this.pointings[i][j];
+                text += "\n";
+            }
+        }
+        navigator.clipboard.writeText(text);
     }
 }
