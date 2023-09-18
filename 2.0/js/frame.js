@@ -59,7 +59,7 @@ function CopyPointings(){
         return;
     }
 
-    let text = "\n" + frame + "\n";
+    let text = "###" + frame + "\n";
     for(let i = 0; i < 4; i++){
         for(let j = 0; j < 2; j++){
             text += pointings[i][j];
