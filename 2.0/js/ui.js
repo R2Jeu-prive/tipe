@@ -22,7 +22,7 @@ class UI{
             UI.panY /= 2;
             Canvas.DrawBack();
         }else if(e.key == " "){
-            this.pointings = [];
+            UI.pointings = [];
             Canvas.DrawFore();
         }else if(e.key == "c"){
             UI.CopyPointings();
