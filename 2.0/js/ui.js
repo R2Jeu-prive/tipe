@@ -30,9 +30,9 @@ class UI{
     }
 
     static MouseDown(e){
-        if(e.button == 1){
+        if(e.button == 0){
             UI.PanStart(e);
-        }else if(e.button == 0){
+        }else if(e.button == 1){
             UI.AddPointing(e);
         }
     }
