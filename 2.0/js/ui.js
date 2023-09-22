@@ -26,6 +26,8 @@ class UI{
             Canvas.DrawFore();
         }else if(e.key == "c"){
             UI.CopyPointings();
+        }else if(e.key == "v"){
+            UI.FetchResultPointings();
         }
     }
 
@@ -97,5 +99,23 @@ class UI{
             }
         }
         navigator.clipboard.writeText(text);
+    }
+
+    static FetchResultPointings(){
+        this.pointings = [
+            [9877.5428031673,
+            21927.2936696749],
+            [9885.147193074747,
+            21851.27727057673],
+            [9807.580473860351,
+            22135.226800836735],
+            [9800.086283762555,
+            22211.601403166776],
+            [9681.779857792519,
+            22372.638396536284],
+            [9673.617431906157,
+            22410.162840113408]
+        ]
+        Canvas.DrawFore();
     }
 }
