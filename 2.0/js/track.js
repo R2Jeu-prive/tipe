@@ -66,7 +66,6 @@ class Track{
                 }
             }
         }
-        console.log(JSON.parse(JSON.stringify(this.intPoints)));
 
         //build extPoints
         this.extPoints = [];
