@@ -80,14 +80,14 @@ class Traj {
     }
 
     CalcSpeed(){
-        this.speeds = [50];//initial speed in m/s
+        this.speeds = [5];//initial speed in m/s
         for (let i = 1; i < Track.extPoints.length; i++) {
-            this.speeds.push(Math.min(Car.MaxSpeed(this.absCurves[i]), Math.sqrt(2*Car.maxAcceleration*this.dists[i-1] + this.speeds[i-1]**2)))
+            this.speeds.push(Math.min(Car.MaxSpeed(this.absCurves[i]), Math.sqrt(2*Car.GetEffectiveMaxAcceleration(this.speeds[i-1])*this.dists[i-1] + this.speeds[i-1]**2)))
         }
 
         //back propageation to take into account breaking
         for (let i = Track.extPoints.length-1; i > 0; i--) {
-            this.speeds[i-1] = Math.min(this.speeds[i-1], Math.sqrt(this.speeds[i]**2 - 2*Car.maxDecceleration*this.dists[i-1]))
+            this.speeds[i-1] = Math.min(this.speeds[i-1], Math.sqrt(this.speeds[i]**2 - 2*Car.GetEffectiveMaxDecceleration(this.speeds[i])*this.dists[i-1]))
         }
     }
 
