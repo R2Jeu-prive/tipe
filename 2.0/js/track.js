@@ -14,7 +14,7 @@ class Track{
         //console.log(this.intBezier);
         //this.intBezier.ExtrudePortion(240, 274);
         //this.intBezier.ExtrudePortion(100, 133); //turn 2 and 2
-        this.intBezier.ExtrudePortion(70, 133); //
+        //this.intBezier.ExtrudePortion(70, 133); //
         //console.log(this.intBezier);
         this.GenerateBorderPoints(50);
     }

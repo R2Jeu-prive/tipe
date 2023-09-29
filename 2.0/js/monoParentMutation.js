@@ -1,5 +1,11 @@
-class MonoParentModel extends Model{
+class MonoParentModel{
     constructor(){
-        super();
+        super(true, MonoParentModel.uiBuildFuntion);
+    }
+
+    static uiBuildFuntion(){
+        let monoParentModelUI = document.getElementById("monoParentalModelUI");
+        let uiClone = monoParentModelUI.cloneNode(true);
+        return uiClone;
     }
 }
