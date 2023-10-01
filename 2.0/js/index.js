@@ -5,11 +5,13 @@ window.onload = () => {
     document.addEventListener("keydown", UI.KeyDown.bind(this));
     document.addEventListener("contextmenu", e => e.shiftKey ? e.preventDefault() : false);
 
+    let test = new CubicBezier(new Point(0,0), new Point(0,1), new Point(1,1), new Point(1,2)); 
+    console.log(test.GetNormalLineAtParam(1));
     Track.Init(Villeneuve);
     Canvas.Init();
     Canvas.DrawBack();
     Canvas.DrawBorder();
-    Family.Init();
+    //Family.Init();
     /*ReDrawFore();
 
     function ReDrawFore(){

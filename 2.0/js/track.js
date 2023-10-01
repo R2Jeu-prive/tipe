@@ -2,21 +2,21 @@ class Track{
     static topleftGoogleEarthTile;
     static numOfTiles;
     static pathToTiles;
-    static intBezier;
-    static extBezier;
-    static extPoints;
-    static intPoints;
+    static intBorder = new SmoothBorderLoop();
+    static extBorder = new SmoothBorderLoop();
+    static extPoints = [new Point()];
+    static intPoints = [new Point()];
 
     static Init(trackClass){
         for(let prop in trackClass){
             Track[prop] = trackClass[prop];
         }
-        //console.log(this.intBezier);
-        //this.intBezier.ExtrudePortion(240, 274);
-        //this.intBezier.ExtrudePortion(100, 133); //turn 2 and 2
-        this.intBezier.ExtrudePortion(70, 133); //
-        //console.log(this.intBezier);
-        this.GenerateBorderPoints(50);
+        //console.log(this.intBorder);
+        //this.intBorder.ExtrudePortion(240, 274);
+        //this.intBorder.ExtrudePortion(100, 133); //turn 2 and 2
+        //this.intBorder.ExtrudePortion(70, 133); //
+        //console.log(this.intBorder);
+        this.GenerateBorderPoints(100);
     }
 
     static DrawTile(u,v,canvasX,canvasY){
@@ -34,7 +34,44 @@ class Track{
         img.src = path + '/' + x + '_' + y + '.png';
     }
 
-    static GenerateBorderPoints(distBetweenPoint){
+    static GenerateBorderPoints(maxDistBetweenPoints = 100){
+        //set first lateral at intBorder(0);
+        let tIntList = [0];
+        console.log(this.intBorder.GetNormalLineAtParam(0));
+        let tExtList = [this.intBorder.GetOtherBorderT(this.extBorder, 0)];
+        //console.log({a:tIntList, b:tExtList});
+
+        while(true){
+            break;
+            let lastIndex = tIntList.length - 1;
+            //console.log(lastIndex);
+            let nextTInt = this.intBorder.GetParamAtDist(maxDistBetweenPoints, tIntList[lastIndex]);
+            let nextTExt = this.extBorder.GetParamAtDist(maxDistBetweenPoints, tExtList[lastIndex]);
+            //console.log({a:nextTInt, b:nextTExt});
+            let tOppositeInt = this.intBorder.GetOtherBorderT(this.extBorder, nextTInt);
+            let tOppositeExt = this.extBorder.GetOtherBorderT(this.intBorder, nextTExt);
+            
+            if(tOppositeInt > nextTExt){
+                tIntList.push(tOppositeExt);
+                tExtList.push(nextTExt);
+            }else{
+                tIntList.push(nextTInt);
+                tExtList.push(tOppositeInt);
+            }
+            //console.log(tIntList[lastIndex + 1]);
+            break;
+            if(tIntList[lastIndex + 1] < tIntList[lastIndex]){
+                tIntList.pop();
+                tExtList.pop();
+                break;
+            }
+        }
+
+        this.intPoints = this.intBorder.GetPointsAtParams(tIntList);
+        this.extPoints = this.extBorder.GetPointsAtParams(tExtList);
+    }
+
+    /*static GenerateBorderPoints(distBetweenPoint){
         let precision = 0.001;
         let distBetweenPointSquared = [(1-precision)*distBetweenPoint*distBetweenPoint, (1+precision)*distBetweenPoint*distBetweenPoint];
         let numOfCubics = Math.floor(this.intBezier.controlPoints.length/3);
@@ -80,7 +117,7 @@ class Track{
             this.extPoints.push(GetClosestPoint(this.intPoints[i],this.extBezier.GetIntersectWithLine(u,v,w)));
         }
         this.intPoints.pop();//kill last int point to have same amount int and ext
-    }
+    }*/
 
     static GenerateShortestTraj(){
         let midTraj = new Traj();

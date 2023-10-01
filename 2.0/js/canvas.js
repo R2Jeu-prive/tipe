@@ -58,7 +58,7 @@ class Canvas{
     }
     
     static DrawBorder(style = 1){
-        Canvas.ctxMid.strokeStyle = "#555555";
+        Canvas.ctxMid.strokeStyle = "#ff00ff";
         let zoomFactor = Math.pow(2,UI.zoom);
     
         if (style == 1) {//PERP TRACK LINES
