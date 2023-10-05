@@ -13,7 +13,7 @@ class Line{
         let oldW = this.w;
         this.u = -oldV;
         this.v = oldU;
-        this.w = this.u*x + this.v*y - oldU*x - oldV*y + oldW
+        this.w = this.u*x + this.v*y;
         //ux+vy-w = UX+VY-W
         //W = UX+VY -ux-vy+w
         return this;

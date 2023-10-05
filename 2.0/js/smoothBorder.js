@@ -23,8 +23,9 @@ class SmoothBorderLoop{
     GetOtherBorderT(otherBorder = SmoothBorderLoop, myT){
         let myPoint = this.GetPointAtParam(myT);
         let normalLine = this.GetNormalLineAtParam(myT);
+        console.error(normalLine);
         let tIntersects = otherBorder.GetTIntersectsWithLine(normalLine);
-        //console.error(tIntersects);
+        console.error(tIntersects);
         //console.error(otherBorder);
         let intersects = otherBorder.GetPointsAtParams(tIntersects)
         let oppositeT = tIntersects[myPoint.GetClosestIndex(intersects)]
@@ -64,8 +65,13 @@ class SmoothBorderLoop{
 
     GetTIntersectsWithLine(line){
         let tIntersects = [];
-        for(let cubic of this.cubics){
-            tIntersects = tIntersects.concat(cubic.GetTIntersectsWithLine(line));
+        for(let i = 0; i < this.cubics.length; i++){
+            let cubic = this.cubics[i];
+            let newTIntersects = cubic.GetTIntersectsWithLine(line);
+            for(let j = 0; j < newTIntersects.length; j++){
+                console.error(i);
+                tIntersects.push(newTIntersects[j] + i);;// adding i to get global t value on border
+            }
         }
         return tIntersects;
     }

@@ -42,7 +42,6 @@ class Track{
         //console.log({a:tIntList, b:tExtList});
 
         while(true){
-            break;
             let lastIndex = tIntList.length - 1;
             //console.log(lastIndex);
             let nextTInt = this.intBorder.GetParamAtDist(maxDistBetweenPoints, tIntList[lastIndex]);
@@ -59,7 +58,7 @@ class Track{
                 tExtList.push(tOppositeInt);
             }
             //console.log(tIntList[lastIndex + 1]);
-            break;
+            //break;
             if(tIntList[lastIndex + 1] < tIntList[lastIndex]){
                 tIntList.pop();
                 tExtList.pop();
