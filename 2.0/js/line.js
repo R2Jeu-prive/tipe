@@ -11,11 +11,13 @@ class Line{
         let oldU = this.u;
         let oldV = this.v;
         let oldW = this.w;
+
+        //turn directing vector
         this.u = -oldV;
         this.v = oldU;
+
+        //move w argument so (x,y) is still on line
         this.w = this.u*x + this.v*y;
-        //ux+vy-w = UX+VY-W
-        //W = UX+VY -ux-vy+w
         return this;
     }
 }

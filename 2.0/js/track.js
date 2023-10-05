@@ -11,12 +11,7 @@ class Track{
         for(let prop in trackClass){
             Track[prop] = trackClass[prop];
         }
-        //console.log(this.intBorder);
-        //this.intBorder.ExtrudePortion(240, 274);
-        //this.intBorder.ExtrudePortion(100, 133); //turn 2 and 2
-        //this.intBorder.ExtrudePortion(70, 133); //
-        //console.log(this.intBorder);
-        this.GenerateBorderPoints(100);
+        this.GenerateBorderPoints(50);
     }
 
     static DrawTile(u,v,canvasX,canvasY){
@@ -34,89 +29,56 @@ class Track{
         img.src = path + '/' + x + '_' + y + '.png';
     }
 
-    static GenerateBorderPoints(maxDistBetweenPoints = 100){
-        //set first lateral at intBorder(0);
+    static GenerateBorderPoints(maxDistBetweenPoints = 20){
+        let quadDistConstraint = maxDistBetweenPoints*maxDistBetweenPoints;
+        let precision = 1;
+        //set first lateral at intBorder t=0;
         let tIntList = [0];
-        console.log(this.intBorder.GetNormalLineAtParam(0));
+        this.intPoints = [this.intBorder.GetPointAtParam(0)];
         let tExtList = [this.intBorder.GetOtherBorderT(this.extBorder, 0)];
-        //console.log({a:tIntList, b:tExtList});
+        this.extPoints = [this.extBorder.GetPointAtParam(tExtList[0])];
 
-        while(true){
+        while(true){//loop over number of points
             let lastIndex = tIntList.length - 1;
-            //console.log(lastIndex);
-            let nextTInt = this.intBorder.GetParamAtDist(maxDistBetweenPoints, tIntList[lastIndex]);
-            let nextTExt = this.extBorder.GetParamAtDist(maxDistBetweenPoints, tExtList[lastIndex]);
-            //console.log({a:nextTInt, b:nextTExt});
-            let tOppositeInt = this.intBorder.GetOtherBorderT(this.extBorder, nextTInt);
-            let tOppositeExt = this.extBorder.GetOtherBorderT(this.intBorder, nextTExt);
+            let intTMin = tIntList[lastIndex];
+            let intTMax = this.intBorder.GetParamAtDist(maxDistBetweenPoints, tIntList[lastIndex]);
+            let intT;
+            let extT;
+            let intPoint;
+            let extPoint;
             
-            if(tOppositeInt > nextTExt){
-                tIntList.push(tOppositeExt);
-                tExtList.push(nextTExt);
-            }else{
-                tIntList.push(nextTInt);
-                tExtList.push(tOppositeInt);
-            }
-            //console.log(tIntList[lastIndex + 1]);
-            //break;
-            if(tIntList[lastIndex + 1] < tIntList[lastIndex]){
-                tIntList.pop();
-                tExtList.pop();
-                break;
-            }
-        }
-
-        this.intPoints = this.intBorder.GetPointsAtParams(tIntList);
-        this.extPoints = this.extBorder.GetPointsAtParams(tExtList);
-    }
-
-    /*static GenerateBorderPoints(distBetweenPoint){
-        let precision = 0.001;
-        let distBetweenPointSquared = [(1-precision)*distBetweenPoint*distBetweenPoint, (1+precision)*distBetweenPoint*distBetweenPoint];
-        let numOfCubics = Math.floor(this.intBezier.controlPoints.length/3);
-        let minT = 0;
-        let maxT = numOfCubics;
-        let t;
-        let endPoint = this.intBezier.GetPointAtParam(numOfCubics);
-        this.intPoints = [this.intBezier.GetPointAtParam(0)];
-
-        //getPoints at Regular Distance on interior border
-        while(true){
-            let prevPoint = this.intPoints[this.intPoints.length - 1];
-            if(minT > 0.5*numOfCubics){
-                let distToEndSquared = Math.pow(endPoint.x - prevPoint.x, 2) + Math.pow(endPoint.y - prevPoint.y, 2);
-                if(distToEndSquared <= distBetweenPointSquared[0]){break;}
-            }
-            while(true){
-                t = 0.5*(minT + maxT);
-                let point = this.intBezier.GetPointAtParam(t);
-                let distSquared = Math.pow(point.x - prevPoint.x, 2) + Math.pow(point.y - prevPoint.y, 2);
-                if(distSquared < distBetweenPointSquared[0]){
-                    minT = t;
-                }else if(distSquared > distBetweenPointSquared[1]){
-                    maxT = t;
+            while(true){//dichotmy to create point with valid constraints
+                intT = 0.5*(intTMin + intTMax);
+                intPoint = this.intBorder.GetPointAtParam(intT);
+                extT = this.intBorder.GetOtherBorderT(this.extBorder, intT);
+                extPoint = this.extBorder.GetPointAtParam(extT);
+                let quadDistInt = intPoint.quadDistTo(this.intPoints[lastIndex]);
+                let quadDistExt = extPoint.quadDistTo(this.extPoints[lastIndex]);
+                if(quadDistExt < quadDistConstraint && Math.abs(quadDistInt - quadDistConstraint) < precision){
+                    break;//constrained reached on intBorder with outBorder not too big
+                }else if(Math.abs(quadDistExt - quadDistConstraint) < precision){
+                    break;//constrained reached on extBorder so valid on intBorder too
+                }else if(quadDistExt > quadDistConstraint + precision){
+                    intTMax = intT;
+                }else if(quadDistExt < quadDistConstraint - precision){
+                    intTMin = intT;
                 }else{
-                    this.intPoints.push(point)
-                    minT = t;
-                    maxT = numOfCubics;
-                    break;
+                    console.error("could not handle case");
+                    console.error([quadDistInt,quadDistExt]);
+                    debugger;
                 }
             }
-        }
 
-        //build extPoints
-        this.extPoints = [];
-        for(let i = 0; i < this.intPoints.length-1; i++){
-            let x = this.intPoints[i].x;
-            let y = this.intPoints[i].y;
-            let dir = Math.atan2(-(this.intPoints[i+1].y - y), this.intPoints[i+1].x - x);
-            let u = Math.sin(dir + (pi/2));
-            let v = Math.cos(dir + (pi/2));
-            let w = u*x + v*y;
-            this.extPoints.push(GetClosestPoint(this.intPoints[i],this.extBezier.GetIntersectWithLine(u,v,w)));
+            if(intT > this.intBorder.cubics.length){
+                break;
+            }
+
+            tIntList.push(intT);
+            tExtList.push(extT);
+            this.intPoints.push(intPoint);
+            this.extPoints.push(extPoint);
         }
-        this.intPoints.pop();//kill last int point to have same amount int and ext
-    }*/
+    }
 
     static GenerateShortestTraj(){
         let midTraj = new Traj();
