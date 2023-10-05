@@ -1,53 +1,51 @@
-class CubicsBezier{
-    constructor(controlPoints){
-        this.controlPoints = [];
-        this.loops = true;
-        for(let i = 0; i < controlPoints.length; i++){
-            let couple = controlPoints[i];
-            this.controlPoints.push(new Point(couple[0], couple[1]));
-        }
+class CubicBezier{
+    constructor(_p0, _p1, _p2, _p3){
+        this.ctrlPoints = [_p0,_p1,_p2,_p3];
+        this.p0 = _p0;
+        this.p1 = _p1;
+        this.p2 = _p2;
+        this.p3 = _p3;
     }
 
-    GetPointAtParam(globalT){
-        let cubicNum = globalT == 0 ? 0 : (Math.ceil(globalT) - 1);
-        let t = globalT - cubicNum;
-        let P0 = this.controlPoints[cubicNum*3];
-        let P1 = this.controlPoints[cubicNum*3 + 1];
-        let P2 = this.controlPoints[cubicNum*3 + 2];
-        let P3 = (cubicNum + 1)*3 == this.controlPoints.length ? this.controlPoints[0] : this.controlPoints[cubicNum*3 + 3];
-        let x = (1-t)*(1-t)*(1-t)*P0.x+3*t*(1-t)*(1-t)*P1.x+3*t*t*(1-t)*P2.x+t*t*t*P3.x;
-        let y = (1-t)*(1-t)*(1-t)*P0.y+3*t*(1-t)*(1-t)*P1.y+3*t*t*(1-t)*P2.y+t*t*t*P3.y;
+    GetPointAtParam(t){
+        if(t < 0 || t > 1){console.error("evaluating bezier outside [0, 1]");}
+        let x = (1-t)*(1-t)*(1-t)*this.p0.x + 3*t*(1-t)*(1-t)*this.p1.x + 3*t*t*(1-t)*this.p2.x + t*t*t*this.p3.x;
+        let y = (1-t)*(1-t)*(1-t)*this.p0.y + 3*t*(1-t)*(1-t)*this.p1.y + 3*t*t*(1-t)*this.p2.y + t*t*t*this.p3.y;
         return new Point(x,y);
     }
 
-    GetIntersectWithLine(u, v, w){
-        let intersects = [];
-        //line : ux + vy = w
-        for(let i = 0; i < this.controlPoints.length/3; i++){
-            //bezier control points
-            let x0 = this.controlPoints[3*i].x;
-            let y0 = this.controlPoints[3*i].y;
-            let x1 = this.controlPoints[3*i + 1].x;
-            let y1 = this.controlPoints[3*i + 1].y;
-            let x2 = this.controlPoints[3*i + 2].x;
-            let y2 = this.controlPoints[3*i + 2].y;
-            let x3 = (i + 1)*3 == this.controlPoints.length ? this.controlPoints[0].x : this.controlPoints[3*i + 3].x;
-            let y3 = (i + 1)*3 == this.controlPoints.length ? this.controlPoints[0].y : this.controlPoints[3*i + 3].y;
-            //cubic equation to solve
-            let a = u*(-x0 +3*x1 -3*x2 +x3) + v*(-y0 +3*y1 -3*y2 +y3);
-            let b = u*(3*x0 -6*x1 +3*x2) + v*(3*y0 -6*y1 +3*y2);
-            let c = u*(-3*x0 +3*x1) + v*(-3*y0 +3*y1);
-            let d = u*x0 + v*y0 - w;
-            let newintersects = solveCubic(a,b,c,d);
-            for(let j = newintersects.length-1; j >= 0; j--){
-                if(newintersects[j] < 0 || newintersects[j] > 1){continue;}
-                intersects.push(this.GetPointAtParam(newintersects[j] + i));
-            }
-        }
-        return intersects;
+    GetNormalLineAtParam(t){
+        if(t < 0 || t > 1){console.error("evaluating bezier outside [0, 1]");}
+        //calc tangent first
+        let dxdt = 3*(1-t)*(1-t)*(this.p1.x - this.p0.x) + 6*(1-t)*t*(this.p2.x - this.p1.x) + 3*t*t*(this.p3.x - this.p2.x);
+        let dydt = 3*(1-t)*(1-t)*(this.p1.y - this.p0.y) + 6*(1-t)*t*(this.p2.y - this.p1.y) + 3*t*t*(this.p3.y - this.p2.y);
+        let x = (1-t)*(1-t)*(1-t)*this.p0.x + 3*t*(1-t)*(1-t)*this.p1.x + 3*t*t*(1-t)*this.p2.x + t*t*t*this.p3.x;
+        let y = (1-t)*(1-t)*(1-t)*this.p0.y + 3*t*(1-t)*(1-t)*this.p1.y + 3*t*t*(1-t)*this.p2.y + t*t*t*this.p3.y;
+
+        //calc w so line intersects cubic at t
+        //tangent equation
+        //dydt*(eqx - x) = dxdt*(eqy - y)
+        //dydt*(-x) - dxdt*(-y) = -dydt*eqx + dxdt*eqy
+        let w = -dydt*x + dxdt*y;
+        let tangent = new Line(-dydt, dxdt, w);
+
+        return tangent.Rotate90Around(x,y);
     }
 
-    ExtrudePortion(start, end){
-        this.controlPoints = this.controlPoints.slice(start*3,end*3 - 2);
+    GetTIntersectsWithLine(line){
+        //cubic equation to solve
+        let a = line.u*(-this.p0.x +3*this.p1.x -3*this.p2.x +this.p3.x) + line.v*(-this.p0.y +3*this.p1.y -3*this.p2.y +this.p3.y);
+        let b = line.u*(3*this.p0.x -6*this.p1.x +3*this.p2.x) + line.v*(3*this.p0.y -6*this.p1.y +3*this.p2.y);
+        let c = line.u*(-3*this.p0.x +3*this.p1.x) + line.v*(-3*this.p0.y +3*this.p1.y);
+        let d = line.u*this.p0.x + line.v*this.p0.y - line.w;
+
+        //solve and remove solutions outside [0,1[
+        let solutions = solveCubic(a,b,c,d);
+        let tIntersects = [];
+        for(let j = solutions.length-1; j >= 0; j--){
+            if(solutions[j] < 0 || solutions[j] >= 1){continue;}
+            tIntersects.push(solutions[j]);
+        }
+        return tIntersects;
     }
 }
