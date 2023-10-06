@@ -58,11 +58,12 @@ class Canvas{
     }
     
     static DrawBorder(style = 1){
-        Canvas.ctxMid.strokeStyle = "#ff00ff";
+        //Canvas.ctxMid.strokeStyle = "#555555"; //default color
         let zoomFactor = Math.pow(2,UI.zoom);
     
         if (style == 1) {//PERP TRACK LINES
             for (let i = 0; i < Track.intPoints.length; i++) {
+                Canvas.ctxMid.strokeStyle = "#" + Track.GetLateralColor(i);
                 let x1 = Track.extPoints[i].x*zoomFactor - UI.panX;
                 let y1 = Track.extPoints[i].y*zoomFactor - UI.panY;
                 let x2 = Track.intPoints[i].x*zoomFactor - UI.panX;
@@ -77,6 +78,7 @@ class Canvas{
     
         if (style == 2) {//TRACK LIMIT LINES
             for (let i = 1; i < Track.intPoints.length; i++) {
+                Canvas.ctxMid.strokeStyle = "#" + Track.GetLateralColor(i);
                 let x1 = Track.intPoints[i-1].x*zoomFactor - UI.panX;
                 let x2 = Track.intPoints[i].x*zoomFactor - UI.panX;
                 let y1 = Track.intPoints[i-1].y*zoomFactor - UI.panY;

@@ -6,12 +6,17 @@ class Track{
     static extBorder = new SmoothBorderLoop();
     static extPoints = [new Point()];
     static intPoints = [new Point()];
+    static zones = [new TrackZone()];
+    static lateralZoneWeights = [];
+    //weights typically between 0 and n-1 (n zones) 2.3 -> 0.7*zone2 + 0.3*zone3
+    //if between -1 and 0 this means it's a mix between lastzone (-1) and first zone (0)
 
     static Init(trackClass){
         for(let prop in trackClass){
             Track[prop] = trackClass[prop];
         }
-        this.GenerateBorderPoints(50);
+        this.GenerateBorderPoints(48);//48 (empirical) to void last and first lateral being too close or too far appart
+        this.GenerateZoneWeights();
     }
 
     static DrawTile(u,v,canvasX,canvasY){
@@ -77,6 +82,74 @@ class Track{
             tExtList.push(extT);
             this.intPoints.push(intPoint);
             this.extPoints.push(extPoint);
+        }
+
+        this.GenerateZoneLateralIntervals(tIntList);//do this while we have tIntList available
+    }
+
+    static GenerateZoneLateralIntervals(tList){
+        //transforms zone starts and ends from tvalues to lateral indexes
+
+        //set zone 0 to start at lateral 0
+        this.zones[0].SetStartLateral(0);
+        
+        for(let i = 1; i < tList.length; i++){//loop on laterals
+            let lastT = tList[i-1];
+            let currentT = tList[i];
+            for(let j = 0; j < this.zones.length; j++){//loop on zones
+                let zone = this.zones[j];
+                if(lastT < zone.startT && currentT >= zone.startT){
+                    zone.SetStartLateral(i);
+                }
+                if(lastT < zone.endT && currentT >= zone.endT){
+                    zone.SetEndLateral(i);
+                }
+            }
+        }
+    }
+
+    static GenerateZoneWeights(){
+        const CalcZoneWeight = function(indexA, indexB, currentIndex, zoneA){
+            let a = 1/(indexB-indexA);
+            let b = -indexA*a;
+            return zoneA + a*currentIndex+b;
+        }
+
+        let currentZoneId = 0;
+        this.lateralZoneWeights = []
+
+        //complete array for the first few laterals that blend between last and first zone
+        for(let i = 0; i <= this.zones[this.zones.length-1].endLateral; i++){
+            this.lateralZoneWeights.push(CalcZoneWeight(0, this.zones[this.zones.length-1].endLateral, i, -1))//so value between -1 and 0
+        }
+
+        //loop on laterals except first few which are in zone n-1 and 0
+        for(let i = this.zones[this.zones.length-1].endLateral + 1; i < this.intPoints.length; i++){
+            if(currentZoneId != this.zones.length-1 && this.zones[currentZoneId].endLateral < i){currentZoneId += 1;}//change current zone if left
+
+            if(currentZoneId < (this.zones.length-1) && this.zones[currentZoneId+1].startLateral <= i){
+                //we are in mixed zones currentZoneId ~ currentZoneId+1
+                this.lateralZoneWeights.push(CalcZoneWeight(this.zones[currentZoneId+1].startLateral, this.zones[currentZoneId].endLateral, i, currentZoneId));
+            }else{
+                //we are in currenZoneId only
+                this.lateralZoneWeights.push(currentZoneId);
+            }
+        }
+    }
+
+    static GetLateralColor(i){
+        let zoneWeight = this.lateralZoneWeights[i];
+
+        if(zoneWeight < 0){
+            return hexMix(this.zones[this.zones.length-1].color, this.zones[0].color, 1+zoneWeight);
+        }
+
+        let floorWeight = Math.floor(zoneWeight);
+        if(zoneWeight == floorWeight){
+            return this.zones[floorWeight].color;
+        }
+        else{
+            return hexMix(this.zones[floorWeight].color, this.zones[floorWeight+1].color, zoneWeight-floorWeight);
         }
     }
 
