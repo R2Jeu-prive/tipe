@@ -85,7 +85,7 @@ class SmoothBorderLoop{
             //calc point between min and max
             avgT = 0.5*(minT + maxT);
             avgPoint = this.GetPointAtParam(avgT);
-            avgQuadDist = originPoint.quadDistTo(avgPoint);
+            avgQuadDist = originPoint.QuadDistTo(avgPoint);
             if(avgQuadDist > quadDist + precision){//avgT is too far
                 maxT = avgT;
                 continue;

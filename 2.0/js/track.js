@@ -57,8 +57,8 @@ class Track{
                 intPoint = this.intBorder.GetPointAtParam(intT);
                 extT = this.intBorder.GetOtherBorderT(this.extBorder, intT);
                 extPoint = this.extBorder.GetPointAtParam(extT);
-                let quadDistInt = intPoint.quadDistTo(this.intPoints[lastIndex]);
-                let quadDistExt = extPoint.quadDistTo(this.extPoints[lastIndex]);
+                let quadDistInt = intPoint.QuadDistTo(this.intPoints[lastIndex]);
+                let quadDistExt = extPoint.QuadDistTo(this.extPoints[lastIndex]);
                 if(quadDistExt < quadDistConstraint && Math.abs(quadDistInt - quadDistConstraint) < precision){
                     break;//constrained reached on intBorder with outBorder not too big
                 }else if(Math.abs(quadDistExt - quadDistConstraint) < precision){
