@@ -72,6 +72,9 @@ class Canvas{
                 Canvas.ctxMid.moveTo(x1, y1);
                 Canvas.ctxMid.lineTo(x2, y2);
                 Canvas.ctxMid.stroke();
+                /*Canvas.ctxMid.font = "12px serif";
+                Canvas.ctxMid.fillStyle = "#00ffff";
+                Canvas.ctxMid.fillText(i, x2+7, y2-7);*/
             }
             return;
         }
