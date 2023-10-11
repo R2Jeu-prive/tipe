@@ -87,17 +87,13 @@ function solveCubic(a, b, c, d) {
     return roots;
 }
 
-function GetClosestPoint(needle, points){
-    let squaredDists = []
-    let minSquaredDist = Infinity;
-    let minIndex = -1;
-    for(let i = 0; i < points.length; i++){
-        let squaredDist = (needle.x-points[i].x)*(needle.x-points[i].x) + (needle.y-points[i].y)*(needle.y-points[i].y);
-        squaredDists.push(squaredDist);
-        if(squaredDist < minSquaredDist){
-            minSquaredDist = squaredDist;
-            minIndex = i;
-        }
-    }
-    return points[minIndex];
+function SignedCurvatureBetween(a = new Point(), b = Point, c = Point){
+    //https://en.wikipedia.org/wiki/Menger_curvature#Definition
+    //https://math.stackexchange.com/questions/2511452/how-do-i-calculate-the-signed-area-of-a-triangle-in-3d-space
+    let ab = a.DistTo(b)*Track.pxToMetersRatio;
+    let bc = b.DistTo(c)*Track.pxToMetersRatio;
+    let ca = c.DistTo(a)*Track.pxToMetersRatio;
+
+    let signedTiangleArea = 0.5*((b.x*c.y-c.x*b.y) - (a.x*c.y-c.x*a.y) + (a.x*b.y-b.x*a.y))*Track.pxToMetersRatio*Track.pxToMetersRatio;
+    return 4*signedTiangleArea/(ab*bc*ca);
 }
