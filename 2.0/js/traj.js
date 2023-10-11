@@ -1,9 +1,10 @@
 class Traj {
     constructor() {
+        this.n = Track.extPoints.length;
         this.laterals = []; //array of lateral placement values [n]
         this.points = []; //array of Points [n]
         this.absCurves = []; //array of curvuture values [n]
-        this.dists = []; //array of distances between each point [n-1]
+        this.dists = []; //array of distances to next point [n]
         this.speeds = []; //array of speed between each point [n]
         this.evaluation = -1;
         for (let i = 0; i < Track.extPoints.length; i++) {
@@ -21,62 +22,19 @@ class Traj {
 
     CalcDists(){
         this.dists = [];
-        for (let i = 1; i < Track.extPoints.length; i++) {
-            this.dists.push(Track.pxToMetersRatio*Math.sqrt((this.points[i - 1].x - this.points[i].x)**2 + (this.points[i - 1].y - this.points[i].y)**2))//NOTOPTI
+        for (let i = 0; i < Track.extPoints.length-1; i++) {
+            this.dists.push(Track.pxToMetersRatio*Math.sqrt((this.points[i].x - this.points[i+1].x)**2 + (this.points[i].y - this.points[i+1].y)**2))//NOTOPTI
         }
+        this.dists.push(Track.pxToMetersRatio*Math.sqrt((this.points[this.n-1].x - this.points[0].x)**2 + (this.points[this.n-1].y - this.points[0].y)**2))
     }
 
     CalcAbsCurve(){
-        this.absCurves = [0];//consider first point to be at curve = 0
-        let isPossible = true;//flase if traj has great absCurve (too abrupt turn)
-        for (let i = 2; i < Track.extPoints.length; i++) {
-            //A : compare i-2 and i-1
-            //B : compare i-1 and i
-            let vectAX = this.points[i-2].y - this.points[i-1].y;
-            let vectAY = this.points[i-1].x - this.points[i-2].x;
-            let vectBX = this.points[i-1].y - this.points[i].y;
-            let vectBY = this.points[i].x - this.points[i-1].x;
-            if(vectAX*vectBY - vectAY*vectBX == 0){
-                this.absCurves.push(0);
-                continue
-            }
-            let midAX = (this.points[i-2].x + this.points[i-1].x)/2;
-            let midAY = (this.points[i-2].y + this.points[i-1].y)/2;
-            let midBX = (this.points[i-1].x + this.points[i].x)/2;
-            let midBY = (this.points[i-1].y + this.points[i].y)/2;
-            //parametric representations
-
-            //x = midAX + vectAX*t = midBX + vectBX*s
-            //y = midAY + vectAY*t = midBY + vectBY*s
-            //solve for s then for x y
-
-            //vectAX*t = midBX - midAX + vectBX*s 
-            //vectAY*t = midBY - midAY + vectBY*s
-            let s;
-            if (vectAX != 0){
-                //t = (midBX - midAX)/vectAX + vectBX*s/vectAX
-                //vectAY*t - vectBY*s = midBY - midAY
-
-                //t = (midBX - midAX)/vectAX + vectBX*s/vectAX
-                //vectAY*((midBX - midAX)/vectAX + vectBX*s/vectAX) - vectBY*s = midBY - midAY
-                
-                //t = (midBX - midAX)/vectAX + vectBX*s/vectAX
-                //s*(vectAY*vectBX/vectAX - vectBY) = midBY - midAY - vectAY(midBX - midAX)/vectAX
-
-                s = (midBY - midAY - vectAY*(midBX - midAX)/vectAX)/(vectAY*vectBX/vectAX - vectBY);
-            }else{
-                //0 = midBX - midAX + vectBX*s 
-
-                s = (midAX - midBX)/vectBX
-            }
-            let x = midBX + vectBX*s;
-            let y = midBY + vectBY*s;
-            let absCurve = 1/(Track.pxToMetersRatio*Math.sqrt((this.points[i].x - x)**2 + (this.points[i].y - y)**2));
-            this.absCurves.push(absCurve);//NOTOPTI
-            isPossible = isPossible && absCurve < 3;//TODO 3 to be related to track width or car ?
+        this.absCurves = [Math.abs(SignedCurvatureBetween(this.points[this.n-1], this.points[0], this.points[1]))];
+        for(let i = 1; i < this.n-1; i++){
+            this.absCurves.push(Math.abs(SignedCurvatureBetween(this.points[i-1], this.points[i], this.points[i+1])))
         }
-        this.absCurves.push(0);//consider last point to be at curve = 0
-        return isPossible;
+        this.absCurves.push(Math.abs(SignedCurvatureBetween(this.points[this.n-2], this.points[this.n-1], this.points[0])))
+        return true;//TODO check for vary high |absCurvature|
     }
 
     CalcSpeed(){
@@ -101,8 +59,9 @@ class Traj {
             }
         }else if(mode == "minCurvature"){
             this.evaluation = 0;
-            for(let i = 1; i < this.points.length; i++){
-                this.evaluation += Math.pow(this.absCurves[i], 2)*this.dists[i-1];
+            for(let i = 0; i < this.points.length; i++){
+                this.evaluation += Math.pow(this.absCurves[i], 2)*this.dists[i];
+                //this.evaluation += Math.pow(0.05 + this.absCurves[i],2)*this.dists[i];
                 //this.evaluation += Math.pow(this.absCurves[i]*this.dists[i-1], 4);
             }
         }else{
@@ -116,46 +75,44 @@ class Traj {
     }
 
     CopyLateralsFrom(parentTraj, copyStart, copyEnd){
-        for (let i = copyStart; i <= copyEnd; i++) {
+        let i = copyStart;
+        while (i != copyEnd){
             this.laterals[i] = parentTraj.laterals[i];
+            i = (i+1) % this.n;
         }
     }
 
 
     Mutate(force = 0.2, width = 20) {
-        if(Family.mutationMode == "bump"){return this.MutateBump(force, width);}
+        return this.MutateBump(force,width);
+        /*if(Family.mutationMode == "bump"){return this.MutateBump(force, width);}
         if(Family.mutationMode == "shift"){return this.MutateShift(force, width);}
         let rand = Math.round(Math.random());
         if(rand == 0){return this.MutateShift(force, width);}
-        else{return this.MutateBump(force, width);}
+        else{return this.MutateBump(force, width);}*/
     }
 
-    MutateBump(force, width) {
+    MutateBump(force, semiWidth) {
         //force : force at which mutationPoint if pushed towards mutationValue (must be in [0,1])
-        //width : number of points effected on each side of the mutationPoint (first and last aren't actually effected but start the cos interpolation)
+        //semiWidth : number of points effected on each side of the mutationPoint (first and last aren't actually effected but start the cos interpolation)
         let mutationPoint = Math.floor(rand()*this.laterals.length);
-        let mutateStart = Math.max(mutationPoint - width, 0)
-        let mutateEnd = Math.min(mutationPoint + width, this.laterals.length-1);
-        let minMutationValue = 0;
-        let maxMutationValue = 1;
-        if(this.laterals[mutationPoint] >= 0.5){
-            minMutationValue = 1-(2*this.laterals[mutationPoint]);
-        }else{
-            maxMutationValue = 2*this.laterals[mutationPoint];
-        }
-        //let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();
+        if(Track.lateralZoneWeights[mutationPoint] > 0.5 && Track.lateralZoneWeights[mutationPoint] < 9.5){return this.MutateBump(force,semiWidth);}
+        let mutateStart = (mutationPoint - semiWidth) % this.n;
+        let mutateEnd = (mutationPoint + semiWidth) % this.n;
         let mutationValue = rand();
-
-        for (let i = mutateStart; i <= mutateEnd; i++) {
-            let blend = force*0.5*(Math.cos(pi*(mutationPoint - i)/width) + 1);
-            this.laterals[i] = blend*mutationValue + (1-blend)*this.laterals[i];
-            if(this.laterals[i] < 0){this.laterals[i] = 0;}
-            if(this.laterals[i] > 1){this.laterals[i] = 1;}
+        let i = -semiWidth + 1;
+        for (let i = -semiWidth + 1; i < semiWidth; i++) {
+            let cosInterpol = 0.5 + 0.5*Math.cos(pi*i/semiWidth);//0 at -semiWidth; 1 at 0; 0 at semiWidth
+            let blend = cosInterpol*force;
+            let current = (mutationPoint + i) % this.n
+            this.laterals[current] = blend*mutationValue + (1-blend)*this.laterals[current];
+            if(this.laterals[current] < 0){this.laterals[current] = 0;}
+            if(this.laterals[current] > 1){this.laterals[current] = 1;}
         }
         return [mutateStart, mutateEnd];
     }
 
-    MutateShift(force, width) {
+    /*MutateShift(force, width) {
         //force : weight of the new shifted values when reapplied to original array of laterals (must be in [0,1])
         //width : number of shifted points
         let mutateStart = Math.max(Math.floor(Math.random()*this.laterals.length), 0);
@@ -177,5 +134,5 @@ class Traj {
         }
         //console.log(JSON.parse(JSON.stringify(this.laterals)));
         return [mutateStart, mutateEnd];
-    }
+    }*/
 }
