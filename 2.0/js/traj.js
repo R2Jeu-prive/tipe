@@ -87,7 +87,8 @@ class Traj {
 
 
     Mutate(force = 0.2, width = 20) {
-        return this.MutateBump(force,width);
+        let semiWidth = Math.pow(2, Math.floor(rand()*8));
+        return this.MutateBump(force,semiWidth);
         /*if(Family.mutationMode == "bump"){return this.MutateBump(force, width);}
         if(Family.mutationMode == "shift"){return this.MutateShift(force, width);}
         let rand = Math.round(Math.random());
