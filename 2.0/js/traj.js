@@ -29,12 +29,14 @@ class Traj {
     }
 
     CalcAbsCurve(){
+        let physicallyPossible = true;
         this.absCurves = [Math.abs(SignedCurvatureBetween(this.points[this.n-1], this.points[0], this.points[1]))];
         for(let i = 1; i < this.n-1; i++){
             this.absCurves.push(Math.abs(SignedCurvatureBetween(this.points[i-1], this.points[i], this.points[i+1])))
+            physicallyPossible = physicallyPossible && Math.abs(this.absCurves[i]) < 0.5;//not tighter than 2m radius turn
         }
         this.absCurves.push(Math.abs(SignedCurvatureBetween(this.points[this.n-2], this.points[this.n-1], this.points[0])))
-        return true;//TODO check for vary high |absCurvature|
+        return physicallyPossible;//TODO not checking first and last
     }
 
     CalcSpeed(){
