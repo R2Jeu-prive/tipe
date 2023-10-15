@@ -101,10 +101,19 @@ class Traj {
         let mutationPoint = Math.floor(rand()*this.n);
         //if(Track.lateralZoneWeights[mutationPoint] > 0.5 && Track.lateralZoneWeights[mutationPoint] < 9.5){return this.MutateBump(force,semiWidth);}//hairpin
         //if(Track.lateralZoneWeights[mutationPoint] > 1.5 || Track.lateralZoneWeights[mutationPoint] < 0.5){return this.MutateBump(force,semiWidth);}//chicane
-        if(Track.lateralZoneWeights[mutationPoint] > 4 || Track.lateralZoneWeights[mutationPoint] < 2){return this.MutateBump(force,semiWidth);}//first turns
+        //if(Track.lateralZoneWeights[mutationPoint] > 4 || Track.lateralZoneWeights[mutationPoint] < 2){return this.MutateBump(force,semiWidth);}//first turns
         let mutateStart = mod((mutationPoint - semiWidth), this.n);
         let mutateEnd = mod((mutationPoint + semiWidth), this.n);
-        let mutationValue = rand();
+        //let mutationValue = rand();
+        let minMutationValue = 0;
+        let maxMutationValue = 1;
+        if(this.laterals[mutationPoint] >= 0.5){
+            minMutationValue = 1-(2*this.laterals[mutationPoint]);
+        }else{
+            maxMutationValue = 2*this.laterals[mutationPoint];
+        }
+        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();
+        //let mutationValue = rand()
         let i = -semiWidth + 1;
         for (let i = -semiWidth + 1; i < semiWidth; i++) {
             let cosInterpol = 0.5 + 0.5*Math.cos(pi*i/semiWidth);//0 at -semiWidth; 1 at 0; 0 at semiWidth
