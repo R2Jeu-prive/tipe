@@ -62,7 +62,7 @@ class Traj {
         }else if(mode == "minCurvature"){
             this.evaluation = 0;
             for(let i = 0; i < this.points.length; i++){
-                this.evaluation += Math.pow(this.absCurves[i], 2)*this.dists[i];
+                this.evaluation += Math.pow(this.absCurves[i]*100, 2)*this.dists[i];
                 //this.evaluation += Math.pow(0.05 + this.absCurves[i],2)*this.dists[i];
                 //this.evaluation += Math.pow(this.absCurves[i]*this.dists[i-1], 4);
             }
@@ -119,8 +119,7 @@ class Traj {
         //let mutationValue = rand()
         let i = -semiWidth + 1;
         for (let i = -semiWidth + 1; i < semiWidth; i++) {
-            let cosInterpol = 0.5 + 0.5*Math.cos(pi*i/semiWidth);//0 at -semiWidth; 1 at 0; 0 at semiWidth
-            let blend = cosInterpol*force;
+            let blend = force*PoweredSmoothSquare.base.GetValue(i,semiWidth);
             let current = mod((mutationPoint + i), this.n);
             this.laterals[current] = blend*mutationValue + (1-blend)*this.laterals[current];
             if(this.laterals[current] < 0){this.laterals[current] = 0;}

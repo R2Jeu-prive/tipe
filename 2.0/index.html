@@ -11,6 +11,7 @@
     <script src="js/point.js"></script>
     <script src="js/line.js"></script>
     <script src="js/constants.js"></script>
+    <script src="js/bumps.js"></script>
     <script src="js/result.js"></script>
     <script src="js/car.js"></script>
     <script src="js/cubicBezier.js"></script>
@@ -30,7 +31,7 @@
     <canvas height="768" width="1792" id="canvasFore"></canvas>
     <div id="params">
         <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.1" step=any /></label><br>
-        <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="50" value="10" step="1" /></label><br>
+        <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="256" value="0" step="1" /></label><br>
         <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="200" step="1" /></label><br>
         <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="1" step="1" /></label><br>
         <button onclick="Family.GenForward()">Gen Start</button>
