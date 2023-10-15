@@ -22,10 +22,10 @@ class Traj {
 
     CalcDists(){
         this.dists = [];
-        for (let i = 0; i < Track.extPoints.length-1; i++) {
-            this.dists.push(Track.pxToMetersRatio*Math.sqrt((this.points[i].x - this.points[i+1].x)**2 + (this.points[i].y - this.points[i+1].y)**2))//NOTOPTI
+        for (let i = 0; i < this.n-1; i++) {
+            this.dists.push(Track.pxToMetersRatio*this.points[i].DistTo(this.points[i+1]));
         }
-        this.dists.push(Track.pxToMetersRatio*Math.sqrt((this.points[this.n-1].x - this.points[0].x)**2 + (this.points[this.n-1].y - this.points[0].y)**2))
+        this.dists.push(Track.pxToMetersRatio*this.points[this.n-1].DistTo(this.points[0]));
     }
 
     CalcAbsCurve(){
@@ -56,8 +56,8 @@ class Traj {
         this.CalcDists();
         if(mode == "minDistance"){
             this.evaluation = 0;
-            for(let i = 1; i < this.points.length; i++){
-                this.evaluation += this.dists[i-1];
+            for(let i = 0; i < this.n; i++){
+                this.evaluation += this.dists[i];
             }
         }else if(mode == "minCurvature"){
             this.evaluation = 0;
@@ -80,8 +80,9 @@ class Traj {
         let i = copyStart;
         while (i != copyEnd){
             this.laterals[i] = parentTraj.laterals[i];
-            i = (i+1) % this.n;
+            i = mod((i+1), this.n);
         }
+        this.laterals[copyEnd] = parentTraj.laterals[copyEnd];
     }
 
 
@@ -97,16 +98,18 @@ class Traj {
     MutateBump(force, semiWidth) {
         //force : force at which mutationPoint if pushed towards mutationValue (must be in [0,1])
         //semiWidth : number of points effected on each side of the mutationPoint (first and last aren't actually effected but start the cos interpolation)
-        let mutationPoint = Math.floor(rand()*this.laterals.length);
-        if(Track.lateralZoneWeights[mutationPoint] > 0.5 && Track.lateralZoneWeights[mutationPoint] < 9.5){return this.MutateBump(force,semiWidth);}
-        let mutateStart = (mutationPoint - semiWidth) % this.n;
-        let mutateEnd = (mutationPoint + semiWidth) % this.n;
+        let mutationPoint = Math.floor(rand()*this.n);
+        //if(Track.lateralZoneWeights[mutationPoint] > 0.5 && Track.lateralZoneWeights[mutationPoint] < 9.5){return this.MutateBump(force,semiWidth);}//hairpin
+        //if(Track.lateralZoneWeights[mutationPoint] > 1.5 || Track.lateralZoneWeights[mutationPoint] < 0.5){return this.MutateBump(force,semiWidth);}//chicane
+        if(Track.lateralZoneWeights[mutationPoint] > 4 || Track.lateralZoneWeights[mutationPoint] < 2){return this.MutateBump(force,semiWidth);}//first turns
+        let mutateStart = mod((mutationPoint - semiWidth), this.n);
+        let mutateEnd = mod((mutationPoint + semiWidth), this.n);
         let mutationValue = rand();
         let i = -semiWidth + 1;
         for (let i = -semiWidth + 1; i < semiWidth; i++) {
             let cosInterpol = 0.5 + 0.5*Math.cos(pi*i/semiWidth);//0 at -semiWidth; 1 at 0; 0 at semiWidth
             let blend = cosInterpol*force;
-            let current = (mutationPoint + i) % this.n
+            let current = mod((mutationPoint + i), this.n);
             this.laterals[current] = blend*mutationValue + (1-blend)*this.laterals[current];
             if(this.laterals[current] < 0){this.laterals[current] = 0;}
             if(this.laterals[current] > 1){this.laterals[current] = 1;}

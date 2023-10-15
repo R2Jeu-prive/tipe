@@ -38,6 +38,11 @@ function cuberoot(x) {
     return x < 0 ? -y : y;
 }
 
+function mod(x,n){
+    //return x % n in [0,n-1]
+    return ((x % n) + n) % n;
+}
+
 function solveCubic(a, b, c, d) {
     if (Math.abs(a) < 1e-8) { // Quadratic case, ax^2+bx+c=0
         a = b; b = c; c = d;
