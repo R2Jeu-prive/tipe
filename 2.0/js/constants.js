@@ -1,4 +1,5 @@
 pi = Math.PI;
+LN_250 = Math.log(250);
 
 function rand() {
     return Math.random();

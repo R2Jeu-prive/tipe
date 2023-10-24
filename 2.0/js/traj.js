@@ -8,7 +8,7 @@ class Traj {
         this.speeds = []; //array of speed between each point [n]
         this.evaluation = -1;
         for (let i = 0; i < Track.extPoints.length; i++) {
-            this.laterals.push(0.5);
+            this.laterals.push(1);
             this.points.push(new Point(0,0));
         }
     }
@@ -88,9 +88,12 @@ class Traj {
 
     Mutate(force = 0.2, semiWidth = 20) {
         if(semiWidth == 0){
-            semiWidth = Math.pow(2, Math.floor(rand()*8));
+            let randomSemiWidth = Math.round(Math.exp(rand()*LN_250));
+            //let randomSemiWidth = 1 + 3*(Math.floor(rand()*50));
+            //let randomSemiWidth = Math.pow(2, Math.floor(rand()*8));
+            return this.MutateBump(force, randomSemiWidth);
         }
-        return this.MutateBump(force,semiWidth);
+        return this.MutateBump(force, semiWidth);
         /*if(Family.mutationMode == "bump"){return this.MutateBump(force, width);}
         if(Family.mutationMode == "shift"){return this.MutateShift(force, width);}
         let rand = Math.round(Math.random());
@@ -119,7 +122,7 @@ class Traj {
         //let mutationValue = rand()
         let i = -semiWidth + 1;
         for (let i = -semiWidth + 1; i < semiWidth; i++) {
-            let blend = force*PoweredSmoothSquare.base.GetValue(i,semiWidth);
+            let blend = force*SmoothSquare.soft.GetValue(i,semiWidth);
             let current = mod((mutationPoint + i), this.n);
             this.laterals[current] = blend*mutationValue + (1-blend)*this.laterals[current];
             if(this.laterals[current] < 0){this.laterals[current] = 0;}
