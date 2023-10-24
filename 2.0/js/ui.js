@@ -1,6 +1,6 @@
 class UI{
-    static panX = 0;
-    static panY = 0;
+    static panX = 3115;
+    static panY = 105;
     static panStartX = 0;
     static panStartY = 0;
     static panning = false;
