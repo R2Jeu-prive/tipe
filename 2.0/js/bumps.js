@@ -1,18 +1,20 @@
 class BumpFunction{
     constructor(_normalisedFunction){
         //_normalisedFunction is a pair smooth bump function: f(0) = 1, f(1) = 0
-        this.maxSemiWidth = 256;//has to be power of 2
-        this.val = [];//stores values from i=0 to i=256 to avoid heavy computation every time
-        for(let i = 0; i <= this.maxSemiWidth; i++){
-            this.val.push(_normalisedFunction(i/this.maxSemiWidth));
+        this.maxSemiWidth = 256;
+        this.val = [];//2d array stores for semiWidth in [1, maxSemiWidth] and array of size i containing precomputed bump values
+        for(let semiWidth = 0; semiWidth <= this.maxSemiWidth; semiWidth++){
+            this.val.push([]);
+            for(let k = 0; k <= semiWidth; k++){
+                this.val[semiWidth].push(_normalisedFunction(k/semiWidth));
+            }
         }
-        console.log(_normalisedFunction(0));
     }
 
-    GetValue(i,semiWidth){
-        //i in [-semiWidth, semiWidth]
+    GetValue(k,semiWidth){
+        //k in [-semiWidth, semiWidth]
         //semiWidth : info about the current bump we're building
-        return this.val[Math.abs(i)*this.maxSemiWidth/semiWidth];
+        return this.val[semiWidth][Math.abs(k)];
     }
 }
 
