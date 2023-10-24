@@ -97,6 +97,8 @@ class Family{
 
         this.children.sort((a,b) => a.evaluation - b.evaluation);
 
+        Result.ShowBestEval(Math.round(this.children[0].evaluation));
+
         Canvas.drawnTrajs = this.children;
         Canvas.DrawFore(false);
         this.loopTimeout = setTimeout(() => {

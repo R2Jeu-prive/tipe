@@ -13,4 +13,8 @@ class Result{
             this.lastUpdate = Date.now();
         }
     }
+
+    static ShowBestEval(bestEval){
+        document.getElementById("bestEval").innerHTML = bestEval;
+    }
 }
