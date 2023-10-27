@@ -2,7 +2,7 @@ class Track{
     static topleftGoogleEarthTile;
     static numOfTiles;
     static pathToTiles;
-    static intBorder = new SmoothBorderLoop();
+    static intBorder = new SmoothBorderLoop(); // values are set to see types
     static extBorder = new SmoothBorderLoop();
     static extPoints = [new Point()];
     static intPoints = [new Point()];
