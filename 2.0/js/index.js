@@ -9,5 +9,5 @@ window.onload = () => {
     Canvas.Init();
     Canvas.DrawBack();
     Canvas.DrawBorder();
-    Family.Init();
+    Evolution.Init();
 }

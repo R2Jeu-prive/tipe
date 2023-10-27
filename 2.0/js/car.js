@@ -17,14 +17,14 @@ class Car{
         //return pi / 2;//in m/s
     }
 
-    static DebugShowMaxSpeed(){
+    /*static DebugShowMaxSpeed(){
         for(let i = 0; i < Track.intPoints.length; i++){
             let maxSpeed = Car.MaxSpeed(Family.children[0].absCurves[i]);
             console.log(maxSpeed);
             Canvas.ctxFore.fillStyle = "#ffffff";
             Canvas.ctxFore.fillRect(i, 0.01*maxSpeed, 1, 1);
         }
-    }
+    }*/
 
     static GetResistiveForce(speed){
         return Car.resistiveCoef*speed*speed;
