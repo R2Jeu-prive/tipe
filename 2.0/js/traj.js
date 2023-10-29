@@ -103,4 +103,70 @@ class Traj {
         }
         return [mutateStart, mutateEnd];
     }
+
+    /**
+     * @param {Number} hardWindSemiWidth zone in which points will be moved the same amount as mutationPoint
+     * @param {Number} softWindSemiWidth total zone of effect (hardWind + blending)
+     */
+    MutateWind(hardWindSemiWidth, softWindSemiWidth){
+        this.evaluation = -1;//invalidate evaluation
+        let mutationPoint = mod(-20,this.n);//Math.floor(rand()*this.n);
+        let minMutationValue = 0;
+        let maxMutationValue = 1;
+        if(this.laterals[mutationPoint] >= 0.5){
+            minMutationValue = 1-(2*this.laterals[mutationPoint]);
+        }else{
+            maxMutationValue = 2*this.laterals[mutationPoint];
+        }
+        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();
+        let initialMutationPoint = Segment.CalcPointAtLateral(Track.extPoints[mutationPoint], Track.intPoints[mutationPoint], this.laterals[mutationPoint]);
+        let wantedMutationPoint = Segment.CalcPointAtLateral(Track.extPoints[mutationPoint], Track.intPoints[mutationPoint], mutationValue);
+        let windVector = wantedMutationPoint.Minus(initialMutationPoint);
+        console.log(mutationValue);
+        console.log(windVector);
+
+        //create movedPoints
+        let movedPoints = [];
+        for(let i = -softWindSemiWidth; i <= softWindSemiWidth; i++){
+            let currentIndex = mod(mutationPoint + i, this.n);
+            let blend;
+            if(Math.abs(i) <= hardWindSemiWidth){
+                blend = 1;
+            }else if(i < 0){
+                blend = i/(softWindSemiWidth-hardWindSemiWidth) + softWindSemiWidth/(softWindSemiWidth-hardWindSemiWidth);
+            }else if(i > 0){
+                blend = i/(hardWindSemiWidth-softWindSemiWidth) - softWindSemiWidth/(hardWindSemiWidth-softWindSemiWidth);
+            }
+            movedPoints.push(new Point(this.points[currentIndex].x + windVector.x*blend, this.points[currentIndex].y + windVector.y*blend));
+        }
+
+        //recalculate laterals for these moved points
+        let newLaterals = [];
+        for(let i = -softWindSemiWidth; i <= softWindSemiWidth; i++){
+            let currentIndex = mod(mutationPoint + i, this.n);
+            if(Math.abs(i) == softWindSemiWidth){
+                newLaterals.push(this.laterals[currentIndex]);//first and last point haven't moved (avoids near miss intersection)
+                continue;
+            }
+            let newLateralsHere = [];
+            for(let j = 0; j < movedPoints.length-1; j++){
+                let newLateralValue = Segment.Intersection(Track.extPoints[currentIndex], Track.intPoints[currentIndex], movedPoints[j], movedPoints[j+1]);
+                if(newLateralValue != null){
+                    newLateralsHere.push(newLateralValue);
+                }
+            }
+            if(newLateralsHere.length != 1){
+                //new traj is off track or zigzags on a lateral
+                return false;
+            }else{
+                newLaterals.push(newLateralsHere[0]);
+            }
+        }
+
+        //modify traj (all laterals exist)
+        for(let i = -softWindSemiWidth; i <= softWindSemiWidth; i++){
+            let currentIndex = mod(mutationPoint + i, this.n);
+            this.laterals[currentIndex] = newLaterals[i + softWindSemiWidth];
+        }
+    }
 }

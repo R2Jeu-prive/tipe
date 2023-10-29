@@ -25,4 +25,21 @@ class Point{
         }
         return closestIndex;
     }
+
+    Plus(other = new Point){
+        return new Point(this.x + other.x, this.y + other.y)
+    }
+
+    Minus(other = new Point){
+        return new Point(this.x - other.x, this.y - other.y);
+    }
+
+    //special definition of a cross product between two 2d vectors
+    Cross(other = new Point){
+        return this.x*other.y - this.y*other.x;
+    }
+
+    Scale(scalar){
+        return new Point(this.x * scalar, this.y * scalar);
+    }
 }
