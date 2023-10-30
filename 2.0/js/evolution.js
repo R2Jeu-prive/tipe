@@ -8,7 +8,7 @@ class Evolution{
         Evolution.Stop();
         this.LoadEvaluationMode();
         this.LoadMutationMode();
-        this.GenerateChildren(1);
+        this.GenerateChildren(5);
         this.loopId = -1;
 
         Canvas.drawnTrajs = this.children;
@@ -52,7 +52,7 @@ class Evolution{
         let mutationForce = parseFloat(document.getElementById("mutationForce").value);
         let mutationWidth = parseFloat(document.getElementById("mutationWidth").value);
         for(let i = 0; i < this.children.length; i++){
-            for(let j = 0; j < 500; j++){
+            for(let j = 0; j < 10; j++){
                 let newTraj = Traj.DeepCopy(this.children[i]);
                 for(let k = 0; k < 5; k++){
                     newTraj.Mutate(mutationForce, mutationWidth);

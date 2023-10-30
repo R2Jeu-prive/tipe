@@ -68,11 +68,21 @@ class Traj {
 
 
     Mutate(force = 0.2, semiWidth = 20) {
+        let chosenSemiWidth = semiWidth;
         if(semiWidth == 0){
-            let randomSemiWidth = Math.round(Math.exp(rand()*LN_250));//more small semi width than long
-            return this.MutateBump(force, randomSemiWidth);
+            chosenSemiWidth = Math.round(Math.exp(rand()*LN_250));//more small semi width than long
         }
-        return this.MutateBump(force, semiWidth);
+        if(Evolution.mutationMode == "bump"){
+            return this.MutateBump(force, chosenSemiWidth);
+        }else if(Evolution.mutationMode == "wind"){
+            return this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15);
+        }else if(Evolution.mutationMode == "both"){
+            if(rand() >= 0.5){//coin flip
+                return this.MutateBump(force, chosenSemiWidth);
+            }else{
+                return this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15);
+            }
+        }
     }
 
     MutateBump(force, semiWidth) {
@@ -105,25 +115,18 @@ class Traj {
     }
 
     /**
+     * @param {Number} force 0 is no mutation 1 is potentially strong mutation
      * @param {Number} hardWindSemiWidth zone in which points will be moved the same amount as mutationPoint
      * @param {Number} softWindSemiWidth total zone of effect (hardWind + blending)
      */
-    MutateWind(hardWindSemiWidth, softWindSemiWidth){
+    MutateWind(force, hardWindSemiWidth, softWindSemiWidth){
         this.evaluation = -1;//invalidate evaluation
-        let mutationPoint = mod(-20,this.n);//Math.floor(rand()*this.n);
-        let minMutationValue = 0;
-        let maxMutationValue = 1;
-        if(this.laterals[mutationPoint] >= 0.5){
-            minMutationValue = 1-(2*this.laterals[mutationPoint]);
-        }else{
-            maxMutationValue = 2*this.laterals[mutationPoint];
-        }
-        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();
+        let mutationPoint = Math.floor(rand()*this.n);
+        let mutationValue = rand();
+        mutationValue = this.laterals[mutationPoint] + force*(mutationValue - this.laterals[mutationPoint]);
         let initialMutationPoint = Segment.CalcPointAtLateral(Track.extPoints[mutationPoint], Track.intPoints[mutationPoint], this.laterals[mutationPoint]);
         let wantedMutationPoint = Segment.CalcPointAtLateral(Track.extPoints[mutationPoint], Track.intPoints[mutationPoint], mutationValue);
         let windVector = wantedMutationPoint.Minus(initialMutationPoint);
-        console.log(mutationValue);
-        console.log(windVector);
 
         //create movedPoints
         let movedPoints = [];
@@ -137,7 +140,8 @@ class Traj {
             }else if(i > 0){
                 blend = i/(hardWindSemiWidth-softWindSemiWidth) - softWindSemiWidth/(hardWindSemiWidth-softWindSemiWidth);
             }
-            movedPoints.push(new Point(this.points[currentIndex].x + windVector.x*blend, this.points[currentIndex].y + windVector.y*blend));
+            let originalPoint = Segment.CalcPointAtLateral(Track.extPoints[currentIndex], Track.intPoints[currentIndex], this.laterals[currentIndex]);
+            movedPoints.push(originalPoint.Plus(windVector.Scale(blend)));
         }
 
         //recalculate laterals for these moved points
