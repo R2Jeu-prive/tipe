@@ -10,4 +10,5 @@ window.onload = () => {
     Canvas.DrawBack();
     Canvas.DrawBorder();
     Evolution.Init();
+    Result.Init();
 }

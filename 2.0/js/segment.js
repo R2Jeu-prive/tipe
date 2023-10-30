@@ -7,7 +7,7 @@ class Segment{
     @returns lateral value on lateral latExt-latInt intersected with segment b1-b2 
     */
     static Intersection(latExt, latInt, b1, b2) {
-        let forceOnTrackMargin = 0.01; // if lateral is just below zero or just above 1 we clamp it back to it's extreme value
+        let forceOnTrackMargin = 0; // if lateral is just below zero or just above 1 we clamp it back to it's extreme value
         //algo from https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
         if (latExt.x - latInt.x == b1.x - b2.x && latExt.y - latInt.y == b1.y - b2.y) {
             console.error("trying to calc intersection for two parallel segments");

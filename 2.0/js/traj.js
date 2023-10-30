@@ -73,14 +73,14 @@ class Traj {
             chosenSemiWidth = Math.round(Math.exp(rand()*LN_250));//more small semi width than long
         }
         if(Evolution.mutationMode == "bump"){
-            return this.MutateBump(force, chosenSemiWidth);
+            this.MutateBump(force, chosenSemiWidth);
         }else if(Evolution.mutationMode == "wind"){
-            return this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15);
+            Result.StoreMutationResult("canWind", this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15));
         }else if(Evolution.mutationMode == "both"){
             if(rand() >= 0.5){//coin flip
-                return this.MutateBump(force, chosenSemiWidth);
+                this.MutateBump(force, chosenSemiWidth);
             }else{
-                return this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15);
+                Result.StoreMutationResult("canWind", this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15));
             }
         }
     }
@@ -172,5 +172,7 @@ class Traj {
             let currentIndex = mod(mutationPoint + i, this.n);
             this.laterals[currentIndex] = newLaterals[i + softWindSemiWidth];
         }
+
+        return true;
     }
 }

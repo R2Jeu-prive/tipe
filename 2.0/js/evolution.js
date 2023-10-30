@@ -8,7 +8,7 @@ class Evolution{
         Evolution.Stop();
         this.LoadEvaluationMode();
         this.LoadMutationMode();
-        this.GenerateChildren(5);
+        this.GenerateChildren(1);
         this.loopId = -1;
 
         Canvas.drawnTrajs = this.children;
@@ -52,15 +52,18 @@ class Evolution{
         let mutationForce = parseFloat(document.getElementById("mutationForce").value);
         let mutationWidth = parseFloat(document.getElementById("mutationWidth").value);
         for(let i = 0; i < this.children.length; i++){
-            for(let j = 0; j < 10; j++){
+            for(let j = 0; j < 500; j++){
                 let newTraj = Traj.DeepCopy(this.children[i]);
                 for(let k = 0; k < 5; k++){
                     newTraj.Mutate(mutationForce, mutationWidth);
                 }
-                this.children[i].Evaluate("minCurvature");
-                newTraj.Evaluate("minCurvature");
+                this.children[i].Evaluate(this.evaluationMode);
+                newTraj.Evaluate(this.evaluationMode);
                 if(this.children[i].evaluation > newTraj.evaluation){
                     this.children[i] = newTraj;
+                    Result.StoreMutationResult("global", true);
+                }else{
+                    Result.StoreMutationResult("global", false);
                 }
             }
         }
@@ -68,6 +71,7 @@ class Evolution{
         this.children.sort((a,b) => a.evaluation - b.evaluation);
 
         Result.ShowBestEval(Math.round(this.children[0].evaluation));
+        Result.ShowSuccessRates();
 
         Canvas.drawnTrajs = this.children;
         Canvas.DrawFore();
