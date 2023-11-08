@@ -1,32 +1,33 @@
-const express = require('express');
-const app = express();
-const router = express.Router();
-const path = require('path');
-const mime = require('mime');
+var http = require('http');
+var fs = require('fs');
+let allowedURLsRegex = [/^\/2\.0\/(index|frame)\.(html|css)$/g,/^\/2\.0\/js\/[a-zA-Z]+\.js$/g,/^\/google_earth_fetcher\/villeneuve(|_dezoom_[1-5])\/[0-9_]+\.png$/g,/^\/favicon.ico$/g];
+let contentTypes = {"html" : "text/html", "css" : "text/css", "js" : "text/javascript", "png" : "image/png", "ico" : "image/x-icon"};
 
-let routes = [];
-routes.push(["/","/www/index.html"]);
-routes.push(["/js/uiClass.js","/www/js/uiClass.js"]);
-routes.push(["/js/carClass.js","/www/js/carClass.js"]);
-routes.push(["/js/constants.js","/www/js/constants.js"]);
-routes.push(["/js/familyClass.js","/www/js/familyClass.js"]);
-routes.push(["/js/main.js","/www/js/main.js"]);
-routes.push(["/js/pointClass.js","/www/js/pointClass.js"]);
-routes.push(["/js/tracks.js","/www/js/tracks.js"]);
-routes.push(["/js/trajClass.js","/www/js/trajClass.js"]);
-routes.push(["/js/trackClass.js","/www/js/trackClass.js"]);
-
-routes.push(["/css/style.css","/www/css/style.css"]);
-
-for (let route of routes) {
-	router.get(route[0], function(req, res){
-		res.set('Content-Type', mime.getType(route[1].split(".")[1]));
-		res.sendFile(path.join(__dirname, route[1]));
-	})
-	app.use(route[0], router);
+function getContentType(url){
+    let parts = url.split(".");
+    return contentTypes[parts[parts.length-1]];
 }
 
-let server = app.listen(80, function(){
-  console.log("Web server is running on port 80");
-  console.log("to end press Ctrl + C");
-});
+http.createServer(function (req, res) {
+    if(req.url == "/"){
+        res.writeHead(302, {'Location':'/2.0/index.html'});
+        return res.end();
+    }else if(allowedURLsRegex.find(exp => req.url.match(exp)) != null){
+        fs.readFile(__dirname +  req.url, function(err, data) {
+            if (err) {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.write("404 Not Found");
+                return res.end();
+            } 
+            res.writeHead(200, {'Content-Type': getContentType(req.url)});
+            res.write(data);
+            return res.end();
+        });
+    }else{
+        res.writeHead(403, {'Content-Type': 'text/html'});
+        res.write("403 Forbidden");
+        res.end();
+    }
+}).listen(80);
+
+console.log("TIPE Server Running on localhost:80");
