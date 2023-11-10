@@ -26,7 +26,13 @@ body{
     flex-direction: row;
 }
 
-#params input, #params select, #params button{
+.label{
+    color: #999;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 5px;
+}
+
+#params input, #params select, #params button, #password{
     background-color: #555;
     border: none;
     outline: none;
