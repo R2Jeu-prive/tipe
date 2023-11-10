@@ -1,4 +1,8 @@
-class Villeneuve extends Track{
+let {SmoothBorderLoop} = require("./smoothBorderLoop");
+let {Point} = require("./point");
+let {TrackZone} = require("./trackZone");
+
+class Villeneuve{
     static topleftGoogleEarthTile = new Point(620232, 750141);
     static numOfTiles = [49, 145];
     static pathToTiles = '../google_earth_fetcher/villeneuve';
@@ -23,3 +27,5 @@ class Villeneuve extends Track{
     ];
 
 }
+
+module.exports = {Villeneuve};

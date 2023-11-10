@@ -1,3 +1,6 @@
+let {CubicBezier} = require("./cubicBezier");
+let {Point} = require("./point");
+
 class SmoothBorderLoop{
     constructor(ctrlPoints = []){
         if(ctrlPoints.length % 3 != 0){console.error("can't create loop with invalid number of control points (not divisible by 3)")}
@@ -99,3 +102,5 @@ class SmoothBorderLoop{
         }
     }
 }
+
+module.exports = {SmoothBorderLoop};

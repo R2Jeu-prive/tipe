@@ -4,55 +4,45 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>replit</title>
-    <link href="css/style.css" rel="stylesheet" type="text/css" />
-    <script src="data/imola.js"></script>
-    <script src="js/constants.js"></script>
-    <script src="js/tracks.js"></script>
-    <script src="js/pointClass.js"></script>
-    <script src="js/vectorClass.js"></script>
-    <script src="js/trackClass.js"></script>
-    <script src="js/uiClass.js"></script>
-    <script src="js/carClass.js"></script>
-    <script src="js/familyClass.js"></script>
-    <script src="js/trajClass.js"></script>
-    <img id="imola" src="img/imola cropped.jpg" style="display:none;"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>TIPE</title>
+    <link href="index.css" rel="stylesheet" type="text/css">
+    <script src="js/canvas.js"></script>
+    <script src="js/ui.js"></script>
 </head>
 
 <body>
-    <h1 id="title">TIPE</h1>
-    <div id="track-window">
-        <canvas id="traj-canvas" width="1000" height="500"></canvas>
-        <canvas id="track-canvas" width="1000" height="500"></canvas>
-        <form action="javascript:void(0);" id="track-inputs">
-            <label>Scale : <input id="scale" type="number" value="22" step=any onchange="ui.DrawAll(true)" /></label>
-            <label>Offset X : <input id="offsetX" type="number" value="0" step=any onchange="ui.DrawAll(true)" /></label>
-            <label>Offset Y : <input id="offsetY" type="number" value="0" step=any onchange="ui.DrawAll(true)" /></label>
-
-            <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.2" step=any /></label><br>
-            <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="50" value="20" step="1" /></label><br>
-            <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="50" step="1" /></label><br>
-            <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="10" step="1" /></label><br>
-            <button onclick="family.GenForward()">Gen Start</button>
-            <button onclick="family.StopGen()">Gen Stop</button>
-            <label>Traj Color Indicator<select id="trajColorIndicator" onchange="ui.DrawAll(true)">
-                <option value="curvature">Curvature</option>
-                <option value="speed">Speed</option>
-                <option value="acceleration">Acceleration</option>
-            </select></label>
-            <label>Evaluation Mode<select id="evaluationMode" onchange="family.ResetEvaluations()">
-                <option value="minCurvature">Min Curvature</option>
-                <option value="minDistance">Min Distance</option>
-                <option value="minTime">Min Time (f1)</option>
-            </select></label>
-            <label>Visual Scale : <input id="visualScaler" type="number" value="1" step=any onchange="ui.DrawAll(false)" /></label>
-        </form>
+    <canvas height="768" width="1792" id="canvasBack"></canvas>
+    <canvas height="768" width="1792" id="canvasMid"></canvas>
+    <canvas height="768" width="1792" id="canvasFore"></canvas>
+    <div id="params">
+        <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.1" step=any /></label><br>
+        <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="256" value="0" step="1" /></label><br>
+        <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="200" step="1" /></label><br>
+        <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="1" step="1" /></label><br>
+        <button onclick="Evolution.Step()">Gen Start</button>
+        <button onclick="Evolution.Stop()">Gen Stop</button>
+        <button onclick="Evolution.Init()">Gen Reset</button>
+        <label>Traj Color Indicator<select id="trajColorIndicator" onchange="Canvas.ChangeTrajColorIndicator()">
+            <option value="curvature">Curvature</option>
+            <option value="speed">Speed</option>
+            <option value="acceleration">Acceleration</option>
+        </select></label>
+        <label>Evaluation Mode<select id="evaluationMode" onchange="Evolution.LoadEvaluationMode()">
+            <option value="minCurvature">Min Curvature</option>
+            <option value="minDistance">Min Distance</option>
+            <option value="minTime">Min Time (f1)</option>
+        </select></label>
+        <label>Mutation Mode<select id="mutationMode" onchange="Evolution.LoadMutationMode()">
+            <option value="bump">Bump</option>
+            <option value="both">Bump & Wind</option>
+            <option value="wind">Wind</option>
+        </select></label>
+        <p id="successRate">0%</p>
+        <p id="bestEval">No data</p>
     </div>
-    <p>Best Times</p>
-    <ul id="timeboard">
-    </ul>
-    <p id="mutationSuccessRate">Mutation Success Rate : 0%</p>
-    <script src="js/main.js"></script>
+    <script src="js/index.js"></script>
 </body>
 
 </html>

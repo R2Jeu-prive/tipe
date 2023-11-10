@@ -21,3 +21,5 @@ class Line{
         return this;
     }
 }
+
+module.exports = {Line};

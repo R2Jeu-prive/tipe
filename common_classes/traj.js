@@ -1,3 +1,8 @@
+let {Point} = require("./point");
+let {Track} = require("./track");
+let {signedCurvatureBetween, mod} = require("./utils");
+const LN_250 = Math.log(250);
+
 class Traj {
     constructor() {
         this.n = Track.extPoints.length;
@@ -37,12 +42,12 @@ class Traj {
 
     CalcCurvature(){
         let physicallyPossible = true;
-        this.absCurves = [Math.abs(SignedCurvatureBetween(this.points[this.n-1], this.points[0], this.points[1]))];
+        this.absCurves = [Math.abs(signedCurvatureBetween(this.points[this.n-1], this.points[0], this.points[1], Track.pxToMetersRatio))];
         for(let i = 1; i < this.n-1; i++){
-            this.absCurves.push(Math.abs(SignedCurvatureBetween(this.points[i-1], this.points[i], this.points[i+1])))
+            this.absCurves.push(Math.abs(signedCurvatureBetween(this.points[i-1], this.points[i], this.points[i+1], Track.pxToMetersRatio)))
             physicallyPossible = physicallyPossible && Math.abs(this.absCurves[i]) < 0.5;//not tighter than 2m radius turn
         }
-        this.absCurves.push(Math.abs(SignedCurvatureBetween(this.points[this.n-2], this.points[this.n-1], this.points[0])))
+        this.absCurves.push(Math.abs(signedCurvatureBetween(this.points[this.n-2], this.points[this.n-1], this.points[0], Track.pxToMetersRatio)))
         return physicallyPossible;//TODO not checking first and last
     }
 
@@ -67,20 +72,20 @@ class Traj {
     }
 
 
-    Mutate(force = 0.2, semiWidth = 20) {
+    Mutate(force = 0.2, semiWidth = 20, evolutionMode = "bump") {
         let chosenSemiWidth = semiWidth;
         if(semiWidth == 0){
             chosenSemiWidth = Math.round(Math.exp(rand()*LN_250));//more small semi width than long
         }
-        if(Evolution.mutationMode == "bump"){
+        if(mutationMode == "bump"){
             this.MutateBump(force, chosenSemiWidth);
-        }else if(Evolution.mutationMode == "wind"){
-            Result.StoreMutationResult("canWind", this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15));
-        }else if(Evolution.mutationMode == "both"){
+        }else if(mutationMode == "wind"){
+            this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15);
+        }else if(mutationMode == "both"){
             if(rand() >= 0.5){//coin flip
                 this.MutateBump(force, chosenSemiWidth);
             }else{
-                Result.StoreMutationResult("canWind", this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15));
+                this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15)
             }
         }
     }
@@ -176,3 +181,5 @@ class Traj {
         return true;
     }
 }
+
+module.exports = {Traj};

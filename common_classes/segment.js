@@ -1,3 +1,5 @@
+let {Point} = require("./point");
+
 class Segment{
 
     /**
@@ -39,3 +41,5 @@ class Segment{
         return onePoint.Scale(lateral).Plus(zeroPoint.Scale(1-lateral));
     }
 }
+
+module.exports = {Segment};

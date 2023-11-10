@@ -1,3 +1,10 @@
+let {Track} = require("./common_classes/track");
+let {Villeneuve} = require("./common_classes/villeneuve");
+let {Traj} = require("./common_classes/traj");
+let {Engine} = require("./server_scripts/engine");
+
+let eng = new Engine();
+
 var http = require('http');
 var fs = require('fs');
 let allowedURLsRegex = [/^\/2\.0\/(index|frame)\.(html|css)$/g,/^\/2\.0\/js\/[a-zA-Z]+\.js$/g,/^\/google_earth_fetcher\/villeneuve(|_dezoom_[1-5])\/[0-9_]+\.png$/g,/^\/favicon.ico$/g];
@@ -9,7 +16,22 @@ function getContentType(url){
 }
 
 http.createServer(function (req, res) {
-    if(req.url == "/"){
+    if(req.url == "/start"){
+        res.writeHead(200, {'Content-Type': "text/html"});
+        res.write("started");
+        res.end();
+        eng.Start();
+    }else if(req.url == "/stop"){
+        res.writeHead(200, {'Content-Type': "text/html"});
+        res.write("stopped");
+        res.end();
+        eng.Stop();
+    }else if(req.url == "/tps"){
+        res.writeHead(200, {'Content-Type': "text/html"});
+        res.write("fetching tps");
+        res.end();
+        eng.ShowTps();
+    }else if(req.url == "/"){
         res.writeHead(302, {'Location':'/2.0/index.html'});
         return res.end();
     }else if(allowedURLsRegex.find(exp => req.url.match(exp)) != null){

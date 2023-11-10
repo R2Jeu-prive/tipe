@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>replit</title>
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <script src="data/imola.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/tracks.js"></script>
+    <script src="js/pointClass.js"></script>
+    <script src="js/vectorClass.js"></script>
+    <script src="js/trackClass.js"></script>
+    <script src="js/uiClass.js"></script>
+    <script src="js/carClass.js"></script>
+    <script src="js/familyClass.js"></script>
+    <script src="js/trajClass.js"></script>
+    <img id="imola" src="img/imola cropped.jpg" style="display:none;"/>
+</head>
+
+<body>
+    <h1 id="title">TIPE</h1>
+    <div id="track-window">
+        <canvas id="traj-canvas" width="1000" height="500"></canvas>
+        <canvas id="track-canvas" width="1000" height="500"></canvas>
+        <form action="javascript:void(0);" id="track-inputs">
+            <label>Scale : <input id="scale" type="number" value="22" step=any onchange="ui.DrawAll(true)" /></label>
+            <label>Offset X : <input id="offsetX" type="number" value="0" step=any onchange="ui.DrawAll(true)" /></label>
+            <label>Offset Y : <input id="offsetY" type="number" value="0" step=any onchange="ui.DrawAll(true)" /></label>
+
+            <label>Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.2" step=any /></label><br>
+            <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="50" value="20" step="1" /></label><br>
+            <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="50" step="1" /></label><br>
+            <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="10" step="1" /></label><br>
+            <button onclick="family.GenForward()">Gen Start</button>
+            <button onclick="family.StopGen()">Gen Stop</button>
+            <label>Traj Color Indicator<select id="trajColorIndicator" onchange="ui.DrawAll(true)">
+                <option value="curvature">Curvature</option>
+                <option value="speed">Speed</option>
+                <option value="acceleration">Acceleration</option>
+            </select></label>
+            <label>Evaluation Mode<select id="evaluationMode" onchange="family.ResetEvaluations()">
+                <option value="minCurvature">Min Curvature</option>
+                <option value="minDistance">Min Distance</option>
+                <option value="minTime">Min Time (f1)</option>
+            </select></label>
+            <label>Visual Scale : <input id="visualScaler" type="number" value="1" step=any onchange="ui.DrawAll(false)" /></label>
+        </form>
+    </div>
+    <p>Best Times</p>
+    <ul id="timeboard">
+    </ul>
+    <p id="mutationSuccessRate">Mutation Success Rate : 0%</p>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

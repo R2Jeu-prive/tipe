@@ -1,25 +1,34 @@
-class Track{
-    static topleftGoogleEarthTile;
-    static numOfTiles;
-    static pathToTiles;
-    static intBorder = new SmoothBorderLoop(); // values are set to see types
-    static extBorder = new SmoothBorderLoop();
-    static extPoints = [new Point()];
-    static intPoints = [new Point()];
-    static zones = [new TrackZone()];
-    static lateralZoneWeights = [];
-    //weights typically between 0 and n-1 (n zones) 2.3 -> 0.7*zone2 + 0.3*zone3
-    //if between -1 and 0 this means it's a mix between lastzone (-1) and first zone (0)
+let {SmoothBorderLoop} = require("./smoothBorderLoop");
+let {Point} = require("./point");
+let {TrackZone} = require("./trackZone");
+let {Villeneuve} = require("./villeneuve");
+let {hexMix} = require("./utils");
 
-    static Init(trackClass){
-        for(let prop in trackClass){
-            Track[prop] = trackClass[prop];
+class Track_{
+    constructor(staticTrackClass){
+        //values are placeholders
+        this.topleftGoogleEarthTile = new Point();
+        this.numOfTiles = -1;
+        this.pathToTiles = "path";
+        this.pxToMetersRatio = 0.2;
+        this.intBorder = new SmoothBorderLoop();
+        this.extBorder = new SmoothBorderLoop();
+        this.intPoints = [new Point()];
+        this.extPoint = [new Point()];
+        this.zones = [new TrackZone()];
+        this.lateralZoneWeights = [0.1];
+        //weights typically between 0 and n-1 (n zones) 2.3 -> 0.7*zone2 + 0.3*zone3
+        //if between -1 and 0 this means it's a mix between lastzone (-1) and first zone (0)
+        
+        //copy real values from staticTrackClass
+        for(let prop in staticTrackClass){
+            this[prop] = staticTrackClass[prop];
         }
         this.GenerateBorderPoints(48);//48 (empirical) to void last and first lateral being too close or too far appart
         this.GenerateZoneWeights();
     }
 
-    static DrawTile(u,v,canvasX,canvasY){
+    /*static DrawTile(u,v,canvasX,canvasY){
         let img = new Image();
         let tileSize = Math.max(256*Math.pow(2,UI.zoom), 256);
         let x = u + this.topleftGoogleEarthTile.x;
@@ -32,9 +41,9 @@ class Track{
             Canvas.ctxBack.drawImage(img, canvasX, canvasY, tileSize, tileSize);
         });
         img.src = path + '/' + x + '_' + y + '.png';
-    }
+    }*/
 
-    static GenerateBorderPoints(maxDistBetweenPoints = 20){
+    GenerateBorderPoints(maxDistBetweenPoints = 20){
         let quadDistConstraint = maxDistBetweenPoints*maxDistBetweenPoints;
         let precision = 1;
         //set first lateral at intBorder t=0;
@@ -68,9 +77,7 @@ class Track{
                 }else if(quadDistExt < quadDistConstraint - precision){
                     intTMin = intT;
                 }else{
-                    console.error("could not handle case");
-                    console.error([quadDistInt,quadDistExt]);
-                    debugger;
+                    throw new Error("Fatal Error When Building Track Border Points");
                 }
             }
 
@@ -87,7 +94,7 @@ class Track{
         this.GenerateZoneLateralIntervals(tIntList);//do this while we have tIntList available
     }
 
-    static GenerateZoneLateralIntervals(tList){
+    GenerateZoneLateralIntervals(tList){
         //transforms zone starts and ends from tvalues to lateral indexes
 
         //set zone 0 to start at lateral 0
@@ -108,7 +115,7 @@ class Track{
         }
     }
 
-    static GenerateZoneWeights(){
+    GenerateZoneWeights(){
         const CalcZoneWeight = function(indexA, indexB, currentIndex, zoneA){
             let a = 1/(indexB-indexA);
             let b = -indexA*a;
@@ -137,7 +144,7 @@ class Track{
         }
     }
 
-    static GetLateralColor(i){
+    GetLateralColor(i){
         let zoneWeight = this.lateralZoneWeights[i];
 
         if(zoneWeight < 0){
@@ -153,7 +160,7 @@ class Track{
         }
     }
 
-    static GenerateShortestTraj(){
+    /*static GenerateShortestTraj(){
         let midTraj = new Traj();
         let shortestPath = new Traj();
         midTraj.BuildPoints();
@@ -172,5 +179,11 @@ class Track{
         //copy first and last point
         shortestPath.laterals[0] = shortestPath.laterals[1];
         shortestPath.laterals[midTraj.points.length-1] = shortestPath.laterals[midTraj.points.length-2];
-    }
+    }*/
 }
+
+const Track = new Track_(Villeneuve);
+
+console.log("Built Track");
+
+module.exports = {Track};

@@ -16,3 +16,5 @@ class TrackZone{
         this.endLateral = _end;
     }
 }
+
+module.exports = {TrackZone};

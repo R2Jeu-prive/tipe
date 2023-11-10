@@ -1,3 +1,7 @@
+let {Point} = require("./point");
+let {Line} = require("./line");
+let {solveCubic} = require("./utils")
+
 class CubicBezier{
     constructor(_p0, _p1, _p2, _p3){
         this.ctrlPoints = [_p0,_p1,_p2,_p3];
@@ -49,3 +53,5 @@ class CubicBezier{
         return tIntersects;
     }
 }
+
+module.exports = {CubicBezier};

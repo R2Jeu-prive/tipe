@@ -53,3 +53,5 @@ class PoweredSmoothSquare extends BumpFunction{
 
     static base = new PoweredSmoothSquare(0.5, 3);
 }
+
+module.exports = {BumpFunction, TriangleBump, CosBump, SmoothSquare, PoweredSmoothSquare};
