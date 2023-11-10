@@ -2,7 +2,6 @@ let {SmoothBorderLoop} = require("./smoothBorderLoop");
 let {Point} = require("./point");
 let {TrackZone} = require("./trackZone");
 let {Villeneuve} = require("./villeneuve");
-let {hexMix} = require("./utils");
 
 class Track_{
     constructor(staticTrackClass){
@@ -141,22 +140,6 @@ class Track_{
                 //we are in currenZoneId only
                 this.lateralZoneWeights.push(currentZoneId);
             }
-        }
-    }
-
-    GetLateralColor(i){
-        let zoneWeight = this.lateralZoneWeights[i];
-
-        if(zoneWeight < 0){
-            return hexMix(this.zones[this.zones.length-1].color, this.zones[0].color, 1+zoneWeight);
-        }
-
-        let floorWeight = Math.floor(zoneWeight);
-        if(zoneWeight == floorWeight){
-            return this.zones[floorWeight].color;
-        }
-        else{
-            return hexMix(this.zones[floorWeight].color, this.zones[floorWeight+1].color, zoneWeight-floorWeight);
         }
     }
 

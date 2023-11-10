@@ -5,7 +5,15 @@ class UI{
     static panStartY = 0;
     static panning = false;
     static zoom = 0;
-    static pointings = []; //list of clicked points for pointing
+    //static pointings = []; //list of clicked points for pointing
+
+    static Init(){
+        document.addEventListener("mousedown", UI.MouseDown.bind(this));
+        document.addEventListener("mousemove", UI.MouseMove.bind(this));
+        document.addEventListener("mouseup", UI.MouseUp.bind(this));
+        document.addEventListener("keydown", UI.KeyDown.bind(this));
+        document.addEventListener("contextmenu", e => e.shiftKey ? e.preventDefault() : false);
+    }
 
     static KeyDown(e){
         if(e.key == "+" && !UI.panning){
@@ -23,11 +31,11 @@ class UI{
             Canvas.DrawBack();
         }else if(e.key == " "){
             UI.pointings = [];
-            Canvas.DrawFore();
+            //Canvas.DrawFore();
         }else if(e.key == "c"){
-            UI.CopyPointings();
+            //UI.CopyPointings();
         }else if(e.key == "v"){
-            UI.FetchResultPointings();
+            //UI.FetchResultPointings();
         }
     }
 
@@ -35,7 +43,7 @@ class UI{
         if(e.button == 0){
             UI.PanStart(e);
         }else if(e.button == 1){
-            UI.AddPointing(e);
+            //UI.AddPointing(e);
         }
     }
     
@@ -82,10 +90,10 @@ class UI{
         let mapX = (UI.panX + e.pageX)*Math.pow(2, -UI.zoom);
         let mapY = (UI.panY + e.pageY)*Math.pow(2, -UI.zoom);
         this.pointings.push([mapX, mapY]);
-        Canvas.DrawFore();
+        //Canvas.DrawFore();
     }
 
-    static CopyPointings(){
+    /*static CopyPointings(){
         if(this.pointings.length != 4){
             alert("4 pointings needed");
             return;
@@ -117,5 +125,5 @@ class UI{
             22410.162840113408]
         ]
         Canvas.DrawFore();
-    }
+    }*/
 }

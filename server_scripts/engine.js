@@ -13,6 +13,14 @@ class Engine{
         this.tickCount = 0;
     }
 
+    GetState(){
+        let state = {};
+        state.running = this.running;
+        state.trajs = this.trajs;
+        state.track = Track;
+        return state;
+    }
+
     SetInitTrajs(count){
         this.trajs = [];
         for(let i = 0; i < count; i++){

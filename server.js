@@ -7,7 +7,13 @@ var http = require("http");
 var https = require("https");
 var fs = require('fs');
 
-let allowedURLs = [{regex:/^\/index\.(html|css)$/g, prefix:"/www"}, {regex:/^\/favicon\.ico$/g, prefix:"/www"}, {regex:/^\/google_earth_fetcher\/villeneuve(|_dezoom_[1-5])\/[0-9_]+\.png$/g, prefix:""}]
+let allowedURLs = [
+    {regex:/^\/index\.(html|css)$/g, prefix:"/www"},
+    {regex:/^\/js\/[a-zA-Z]+\.js$/g, prefix:"/www"},
+    {regex:/^\/favicon\.ico$/g, prefix:"/www"},
+    {regex:/^\/google_earth_fetcher\/villeneuve(|_dezoom_[1-5])\/[0-9_]+\.png$/g, prefix:""},
+    {regex:/^\/common_classes\/[a-zA-Z]+\.js/g, prefix:""}
+];
 let contentTypes = {"html" : "text/html", "css" : "text/css", "js" : "text/javascript", "png" : "image/png", "ico" : "image/x-icon"};
 
 let engine = new Engine();
@@ -26,6 +32,11 @@ function handleRequest(req, res){
         if(req.url == "/state"){
             res.writeHead(200, {'Content-Type':"application/json"});
             res.write(JSON.stringify(engine.GetState()));
+            return res.end();
+        }
+        if(req.url == "/track"){
+            res.writeHead(200, {'Content-Type':"application/json"});
+            res.write(JSON.stringify(Track));
             return res.end();
         }
         let validURL = true;

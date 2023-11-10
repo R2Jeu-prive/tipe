@@ -1,10 +1,12 @@
 class Canvas{
     static canvasBack;
     static ctxBack;
+    static canvasMid;
+    static ctxMid;
     static canvasFore;
     static ctxFore;
-    static drawnTrajs;
     static trajColorIndicator = "curvature";
+    static track = {};
 
     static Init(){
         Canvas.canvasBack = document.getElementById('canvasBack');
@@ -13,19 +15,33 @@ class Canvas{
         Canvas.ctxMid = Canvas.canvasMid.getContext('2d');
         Canvas.canvasFore = document.getElementById('canvasFore');
         Canvas.ctxFore = Canvas.canvasFore.getContext('2d');
-        Canvas.drawnTrajs = [];
+    }
+
+    static DrawTile(u,v,canvasX,canvasY){
+        let img = new Image();
+        let tileSize = Math.max(256*Math.pow(2,UI.zoom), 256);
+        let x = u + Canvas.track.topleftGoogleEarthTile.x;
+        let y = v + Canvas.track.topleftGoogleEarthTile.y;
+        let path = Canvas.track.pathToTiles
+        if(UI.zoom < 0){
+            path += "_dezoom_" + (-UI.zoom);
+        }
+        img.addEventListener('load', function() {
+            Canvas.ctxBack.drawImage(img, canvasX, canvasY, tileSize, tileSize);
+        });
+        img.src = path + '/' + x + '_' + y + '.png';
     }
 
     static DrawBack(){
-        let canvasW = this.canvasBack.width
-        let canvasH = this.canvasBack.height
+        let canvasW = Canvas.canvasBack.width
+        let canvasH = Canvas.canvasBack.height
         if(UI.zoom >= 0){
             let tileSize = 256*Math.pow(2,UI.zoom)
             let baseU = Math.floor(UI.panX/tileSize);
             let baseV = Math.floor(UI.panY/tileSize);
             for(let u = baseU; u < baseU+(8*Math.pow(2,-UI.zoom))+1; u++){
                 for(let v = baseV; v < baseV+(4*Math.pow(2,-UI.zoom))+1; v++){
-                    Track.DrawTile(u,v, -(UI.panX % tileSize) + (u-baseU)*tileSize, -(UI.panY % tileSize) + (v-baseV)*tileSize);
+                    Canvas.DrawTile(u,v, -(UI.panX % tileSize) + (u-baseU)*tileSize, -(UI.panY % tileSize) + (v-baseV)*tileSize);
                 }
             }
         }
@@ -36,7 +52,7 @@ class Canvas{
             let baseV = Math.floor(UI.panY/256) * incr;
             for(let deltaU = 0; 0 < canvasW-(((deltaU/incr)-1)*tileSize); deltaU+=incr){
                 for(let deltaV = 0; 0 < canvasH-(((deltaV/incr)-1)*tileSize); deltaV+=incr){
-                    Track.DrawTile(baseU + deltaU, baseV + deltaV, -(UI.panX % 256) + deltaU*256/incr, -(UI.panY % 256) + deltaV*256/incr);
+                    Canvas.DrawTile(baseU + deltaU, baseV + deltaV, -(UI.panX % 256) + deltaU*256/incr, -(UI.panY % 256) + deltaV*256/incr);
                 }
             }
         }
@@ -46,14 +62,30 @@ class Canvas{
     static DrawMid(){
         Canvas.ctxMid.clearRect(0, 0, Canvas.canvasMid.width, Canvas.canvasMid.height);
         Canvas.DrawBorder();
-        Canvas.DrawFore();
+        //Canvas.DrawFore();
     }
 
-    static DrawFore(){
+    /*static DrawFore(){
         Canvas.ctxFore.clearRect(0, 0, Canvas.canvasMid.width, Canvas.canvasMid.height);
         Canvas.DrawTrajs();
         for(let i = 0; i < UI.pointings.length; i++){
             this.DrawPoint(UI.pointings[i][0], UI.pointings[i][1], i)
+        }
+    }*/
+
+    static GetTrackBorderColor(i){
+        let zoneWeight = Canvas.track.lateralZoneWeights[i];
+
+        if(zoneWeight < 0){
+            return hexMix(Canvas.track.zones[Canvas.track.zones.length-1].color, Canvas.track.zones[0].color, 1+zoneWeight);
+        }
+
+        let floorWeight = Math.floor(zoneWeight);
+        if(zoneWeight == floorWeight){
+            return Canvas.track.zones[floorWeight].color;
+        }
+        else{
+            return hexMix(Canvas.track.zones[floorWeight].color, Canvas.track.zones[floorWeight+1].color, zoneWeight-floorWeight);
         }
     }
     
@@ -62,12 +94,12 @@ class Canvas{
         let zoomFactor = Math.pow(2,UI.zoom);
     
         if (style == 1) {//PERP TRACK LINES
-            for (let i = 0; i < Track.intPoints.length; i++) {
-                Canvas.ctxMid.strokeStyle = "#" + Track.GetLateralColor(i);
-                let x1 = Track.extPoints[i].x*zoomFactor - UI.panX;
-                let y1 = Track.extPoints[i].y*zoomFactor - UI.panY;
-                let x2 = Track.intPoints[i].x*zoomFactor - UI.panX;
-                let y2 = Track.intPoints[i].y*zoomFactor - UI.panY;
+            for (let i = 0; i < Canvas.track.intPoints.length; i++) {
+                Canvas.ctxMid.strokeStyle = "#" + Canvas.GetTrackBorderColor(i);
+                let x1 = Canvas.track.extPoints[i].x*zoomFactor - UI.panX;
+                let y1 = Canvas.track.extPoints[i].y*zoomFactor - UI.panY;
+                let x2 = Canvas.track.intPoints[i].x*zoomFactor - UI.panX;
+                let y2 = Canvas.track.intPoints[i].y*zoomFactor - UI.panY;
                 Canvas.ctxMid.beginPath();
                 Canvas.ctxMid.moveTo(x1, y1);
                 Canvas.ctxMid.lineTo(x2, y2);
@@ -80,16 +112,16 @@ class Canvas{
         }
     
         if (style == 2) {//TRACK LIMIT LINES
-            for (let i = 1; i < Track.intPoints.length; i++) {
-                Canvas.ctxMid.strokeStyle = "#" + Track.GetLateralColor(i);
-                let x1 = Track.intPoints[i-1].x*zoomFactor - UI.panX;
-                let x2 = Track.intPoints[i].x*zoomFactor - UI.panX;
-                let y1 = Track.intPoints[i-1].y*zoomFactor - UI.panY;
-                let y2 = Track.intPoints[i].y*zoomFactor - UI.panY;
-                let x3 = Track.extPoints[i-1].x*zoomFactor - UI.panX;
-                let x4 = Track.extPoints[i].x*zoomFactor - UI.panX;
-                let y3 = Track.extPoints[i-1].y*zoomFactor - UI.panY;
-                let y4 = Track.extPoints[i].y*zoomFactor - UI.panY;
+            for (let i = 1; i < Canvas.track.intPoints.length; i++) {
+                Canvas.ctxMid.strokeStyle = "#" + Canvas.GetTrackBorderColor(i);
+                let x1 = Canvas.track.intPoints[i-1].x*zoomFactor - UI.panX;
+                let x2 = Canvas.track.intPoints[i].x*zoomFactor - UI.panX;
+                let y1 = Canvas.track.intPoints[i-1].y*zoomFactor - UI.panY;
+                let y2 = Canvas.track.intPoints[i].y*zoomFactor - UI.panY;
+                let x3 = Canvas.track.extPoints[i-1].x*zoomFactor - UI.panX;
+                let x4 = Canvas.track.extPoints[i].x*zoomFactor - UI.panX;
+                let y3 = Canvas.track.extPoints[i-1].y*zoomFactor - UI.panY;
+                let y4 = Canvas.track.extPoints[i].y*zoomFactor - UI.panY;
                 Canvas.ctxMid.beginPath();
                 Canvas.ctxMid.moveTo(x1, y1);
                 Canvas.ctxMid.lineTo(x2, y2);
@@ -101,7 +133,7 @@ class Canvas{
         }
     }
 
-    static ChangeTrajColorIndicator(){
+    /*static ChangeTrajColorIndicator(){
         this.trajColorIndicator = document.getElementById("trajColorIndicator").value;
         this.DrawFore();
     }
@@ -163,5 +195,5 @@ class Canvas{
         Canvas.ctxFore.font = "12px serif";
         Canvas.ctxFore.fillStyle = "#00ffff";
         Canvas.ctxFore.fillText(id+1, x+7, y-7);
-    }
+    }*/
 }
