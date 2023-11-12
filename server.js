@@ -73,7 +73,7 @@ function handleRequest(req, res){
         });
         req.on("end", () => {
             const dataBuffer = Buffer.concat(chunks);
-            const data = JSON.parse(dataBuffer.toString());
+            const data = JSON.parse(dataBuffer.toString());//TODO Protect from weird packets crash with try catch ?
             if(data.password != process.env.PASSWORD){
                 res.writeHead(403, {'Content-Type': 'text/html'});
                 res.write("Wrong Password");
@@ -94,6 +94,24 @@ function handleRequest(req, res){
                     return res.end();
                 }else{
                     res.writeHead(409);//engine already running
+                    return res.end();
+                }
+            }
+            if(req.url == "/cleartasks"){
+                if(engine.ClearTasks()){
+                    res.writeHead(200);
+                    return res.end();
+                }else{
+                    res.writeHead(409);//engine is running so can't change tasks
+                    return res.end();
+                }
+            }
+            if(req.url == "/addtasks"){
+                if(engine.AddTasks(data.taskList)){
+                    res.writeHead(200);
+                    return res.end();
+                }else{
+                    res.writeHead(409);//engine is running so can't change tasks
                     return res.end();
                 }
             }

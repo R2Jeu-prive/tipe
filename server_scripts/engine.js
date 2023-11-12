@@ -4,7 +4,7 @@ let {Task} = require("./task");
 
 class Engine{
     constructor(){
-        this.tasks = [new Task()];
+        this.tasks = [new Task("stop")];
         this.running = false;
         this.trajs = [new Traj()];
 
@@ -61,6 +61,20 @@ class Engine{
         if(!this.running){return false;}
         this.running = false;
         return true;
+    }
+
+    ClearTasks(){
+        if(this.running){return false;}
+        this.tasks = [];
+        return true;
+    }
+
+    AddTasks(taskList){
+        if(this.running){return false;}
+        let newTasks = taskList.split("\n");
+        for(let i = 0; i < newTasks.length; i++){
+            this.tasks.push(new Task(newTasks[i]));
+        }
     }
 }
 

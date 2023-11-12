@@ -5,10 +5,10 @@ class UI{
     static panStartY = 0;
     static panning = false;
     static zoom = 0;
-    //static pointings = []; //list of clicked points for pointing
+    static pointings = []; //list of clicked points for pointing
 
     static Init(){
-        document.addEventListener("mousedown", UI.MouseDown.bind(this));
+        Canvas.canvasFore.addEventListener("mousedown", UI.MouseDown.bind(this));
         document.addEventListener("mousemove", UI.MouseMove.bind(this));
         document.addEventListener("mouseup", UI.MouseUp.bind(this));
         document.addEventListener("keydown", UI.KeyDown.bind(this));

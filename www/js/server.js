@@ -1,5 +1,3 @@
-a = 10;
-
 class Server{
     static async RequestTrack(){
         let response = await fetch("/track", {
@@ -37,16 +35,22 @@ class Server{
         alert(notifs[response.status]);
     }
 
-    /*static RequestStart(){
-        fetch("/command", {
+    static async OrderClearTasks(){
+        let response = await fetch("/cleartasks", {
             method: "POST",
-            body: JSON.stringify({
-                command: "startEngine",
-                password: document.getElementById("password").value
-            }),
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
+            body:JSON.stringify({password:this.GetPassword()})
         });
-    }*/
+        let notifs = {403:"Incorrect Password", 409:"Engine is running", 200:"Tasks Clear"};
+        alert(notifs[response.status]);
+    }
+
+    static async OrderAddTasks(){
+        let taskList = document.getElementById("new-tasks").value;
+        let response = await fetch("/cleartasks", {
+            method: "POST",
+            body:JSON.stringify({password:this.GetPassword(), taskList:taskList})
+        });
+        let notifs = {403:"Incorrect Password", 409:"Engine is running", 200:"Tasks Added"};
+        alert(notifs[response.status]);
+    }
 }

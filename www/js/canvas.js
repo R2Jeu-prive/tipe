@@ -7,6 +7,7 @@ class Canvas{
     static ctxFore;
     static trajColorIndicator = "curvature";
     static track = {};
+    static trajs = [];
 
     static Init(){
         Canvas.canvasBack = document.getElementById('canvasBack');
@@ -62,16 +63,16 @@ class Canvas{
     static DrawMid(){
         Canvas.ctxMid.clearRect(0, 0, Canvas.canvasMid.width, Canvas.canvasMid.height);
         Canvas.DrawBorder();
-        //Canvas.DrawFore();
+        Canvas.DrawFore();
     }
 
-    /*static DrawFore(){
+    static DrawFore(){
         Canvas.ctxFore.clearRect(0, 0, Canvas.canvasMid.width, Canvas.canvasMid.height);
         Canvas.DrawTrajs();
         for(let i = 0; i < UI.pointings.length; i++){
             this.DrawPoint(UI.pointings[i][0], UI.pointings[i][1], i)
         }
-    }*/
+    }
 
     static GetTrackBorderColor(i){
         let zoneWeight = Canvas.track.lateralZoneWeights[i];
@@ -133,43 +134,38 @@ class Canvas{
         }
     }
 
-    /*static ChangeTrajColorIndicator(){
-        this.trajColorIndicator = document.getElementById("trajColorIndicator").value;
-        this.DrawFore();
-    }
-
     static DrawTrajs(){
-        let mode = this.trajColorIndicator;
+        let mode = "curvature";
         let visualScaler;
         let zoomFactor = Math.pow(2,UI.zoom);
-        for(let k = 0; k < Canvas.drawnTrajs.length; k++){
-            for (let i = 1; i < Canvas.drawnTrajs[k].points.length; i++) {
-                let x1 = Canvas.drawnTrajs[k].points[i - 1].x * zoomFactor - UI.panX;
-                let y1 = Canvas.drawnTrajs[k].points[i - 1].y * zoomFactor - UI.panY;
-                let x2 = Canvas.drawnTrajs[k].points[i].x * zoomFactor - UI.panX;
-                let y2 = Canvas.drawnTrajs[k].points[i].y * zoomFactor - UI.panY;
+        for(let k = 0; k < Canvas.trajs.length; k++){
+            for (let i = 1; i < Canvas.trajs[k].points.length; i++) {
+                let x1 = Canvas.trajs[k].points[i - 1].x * zoomFactor - UI.panX;
+                let y1 = Canvas.trajs[k].points[i - 1].y * zoomFactor - UI.panY;
+                let x2 = Canvas.trajs[k].points[i].x * zoomFactor - UI.panX;
+                let y2 = Canvas.trajs[k].points[i].y * zoomFactor - UI.panY;
                 if(mode == "curvature"){
                     visualScaler = 3000;
-                    let rgb = hslToRgb(120-visualScaler*Canvas.drawnTrajs[k].absCurves[i],100,50)
+                    let rgb = hslToRgb(120-visualScaler*Canvas.trajs[k].absCurves[i],100,50)
                     let r = toHex(Math.floor(rgb[0]));
                     let g = toHex(Math.floor(rgb[1]));
                     let b = toHex(Math.floor(rgb[2]));
                     Canvas.ctxFore.strokeStyle = "#" + r + g + b;
-                }else if(mode == "speed"){
+                }/*else if(mode == "speed"){
                     visualScaler = 6;
-                    let rgb = hslToRgb(visualScaler*Canvas.drawnTrajs[k].speeds[i],100,50)
+                    let rgb = hslToRgb(visualScaler*Canvas.trajs[k].speeds[i],100,50)
                     let r = toHex(Math.floor(rgb[0]));
                     let g = toHex(Math.floor(rgb[1]));
                     let b = toHex(Math.floor(rgb[2]));
                     Canvas.ctxFore.strokeStyle = "#" + r + g + b;
                 }else if(mode == "acceleration"){
                     visualScaler = 6;
-                    let acceleration = visualScaler*(Canvas.drawnTrajs[k].speeds[i] - Canvas.drawnTrajs[k].speeds[i-1])*(Canvas.drawnTrajs[k].speeds[i] + Canvas.drawnTrajs[k].speeds[i-1])/Canvas.drawnTrajs[k].dists[i-1]
+                    let acceleration = visualScaler*(Canvas.trajs[k].speeds[i] - Canvas.trajs[k].speeds[i-1])*(Canvas.trajs[k].speeds[i] + Canvas.trajs[k].speeds[i-1])/Canvas.trajs[k].dists[i-1]
                     let r = toHex(Math.ceil(Math.min(0,acceleration)));
                     let g = toHex(Math.ceil(Math.max(0,acceleration)));
                     let b = toHex(0);
                     Canvas.ctxFore.strokeStyle = "#" + r + g + b;
-                }
+                }*/
                 Canvas.ctxFore.lineWidth = 1;
                 Canvas.ctxFore.beginPath();
                 Canvas.ctxFore.moveTo(x1, y1);
@@ -195,5 +191,5 @@ class Canvas{
         Canvas.ctxFore.font = "12px serif";
         Canvas.ctxFore.fillStyle = "#00ffff";
         Canvas.ctxFore.fillText(id+1, x+7, y-7);
-    }*/
+    }
 }

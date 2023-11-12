@@ -1,8 +1,8 @@
 class Task{
-    constructor(){
-        this.mutationMode = "both";
-        this.evaluationMode = "curvature";
-        this.clientUpdateInterval = 500;
+    constructor(fullCommand_){
+        //TODO robust parse check of command
+        this.fullCommand = fullCommand_;
+        this.command = fullCommand_.split(" "); //start, stop, save, setparam, waitnoprogress
     }
 }
 
