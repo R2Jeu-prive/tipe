@@ -3,6 +3,7 @@ let {Villeneuve} = require("./common_classes/villeneuve");
 let {Traj} = require("./common_classes/traj");
 let {Engine} = require("./server_scripts/engine");
 
+require('dotenv').config();
 var http = require("http");
 var https = require("https");
 var fs = require('fs');
@@ -66,9 +67,37 @@ function handleRequest(req, res){
             res.end();
         }
     }else if(req.method == "POST"){
-        console.log(req.body);
-        res.writeHead(200);
-        return res.end();
+        let chunks = [];
+        req.on("data", (chunk) => {
+            chunks.push(chunk);
+        });
+        req.on("end", () => {
+            const dataBuffer = Buffer.concat(chunks);
+            const data = JSON.parse(dataBuffer.toString());
+            if(data.password != process.env.PASSWORD){
+                res.writeHead(403, {'Content-Type': 'text/html'});
+                res.write("Wrong Password");
+                return res.end();
+            }
+            if(req.url == "/start"){
+                if(engine.Start()){
+                    res.writeHead(200);
+                    return res.end();
+                }else{
+                    res.writeHead(409);//engine already running
+                    return res.end();
+                }
+            }
+            if(req.url == "/stop"){
+                if(engine.Stop()){
+                    res.writeHead(200);
+                    return res.end();
+                }else{
+                    res.writeHead(409);//engine already running
+                    return res.end();
+                }
+            }
+        })
     }
 }
 

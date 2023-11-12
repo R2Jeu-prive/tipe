@@ -20,9 +20,8 @@
     <canvas height="768" width="1792" id="canvasFore"></canvas>
     <div id="params">
         <label class="label">Interact Key :<input id="password" type="password"/></label>
-        <button onclick="Evolution.Step()">Start</button>
-        <button onclick="Evolution.Stop()">Stop</button>
-        <button onclick="Evolution.Init()">Clear</button>
+        <button onclick="Server.OrderStart()">Start</button>
+        <button onclick="Server.OrderStop()">Stop</button>
         <label class="label">Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.1" step=any /></label><br>
         <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="256" value="0" step="1" /></label><br>
         <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="200" step="1" /></label><br>

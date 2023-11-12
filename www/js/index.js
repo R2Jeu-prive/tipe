@@ -5,6 +5,12 @@ window.onload = () => {
         UI.Init();
         Canvas.Init();
         Canvas.DrawBack();
+
+        setInterval(function(){
+            Server.RequestState().then(function(state){
+                console.log(state.trajs);
+            })
+        }, 1000);//state refresh interval
     });
 
     /*Track.Init(Villeneuve);

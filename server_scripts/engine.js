@@ -37,9 +37,10 @@ class Engine{
     }
 
     Start(){
-        if(this.running){return;}
+        if(this.running){return false;}
         this.running = true;
-        this.Step(0);
+        setImmediate(() => {this.Step()});
+        return true;
     }
 
     Step(){
@@ -48,8 +49,6 @@ class Engine{
         this.tickCount += 1;
         if(this.running){
             setImmediate(() => {this.Step()});
-        }else{
-            console.log("Engine Paused");
         }
     }
 
@@ -59,7 +58,9 @@ class Engine{
     }
 
     Stop(){
+        if(!this.running){return false;}
         this.running = false;
+        return true;
     }
 }
 
