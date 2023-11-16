@@ -1,6 +1,7 @@
 let {Track} = require("./common_classes/track");
 let {Villeneuve} = require("./common_classes/villeneuve");
 let {Traj} = require("./common_classes/traj");
+let {Task} = require
 let {Engine} = require("./server_scripts/engine");
 
 require('dotenv').config();
@@ -43,7 +44,7 @@ function handleRequest(req, res){
         let validURL = true;
         let urlPrefix = "";
         for(let i = 0; i < allowedURLs.length; i++){
-            if(req.url.match(allowedURLs[i].regex)){
+            if(req.url.match(allowedURLs[i].regex) != null){
                 urlPrefix = allowedURLs[i].prefix;
                 validURL = true;
                 break;
