@@ -1,13 +1,13 @@
 let {Track} = require("./common_classes/track");
 let {Villeneuve} = require("./common_classes/villeneuve");
 let {Traj} = require("./common_classes/traj");
-let {Task} = require
 let {Engine} = require("./server_scripts/engine");
 
 require('dotenv').config();
 var http = require("http");
 var https = require("https");
 var fs = require('fs');
+var engine = new Engine();
 
 let allowedURLs = [
     {regex:/^\/index\.(html|css)$/g, prefix:"/www"},
@@ -17,8 +17,6 @@ let allowedURLs = [
     {regex:/^\/common_classes\/[a-zA-Z]+\.js/g, prefix:""}
 ];
 let contentTypes = {"html" : "text/html", "css" : "text/css", "js" : "text/javascript", "png" : "image/png", "ico" : "image/x-icon"};
-
-let engine = new Engine();
 
 function getContentType(url){
     let parts = url.split(".");
@@ -79,24 +77,6 @@ function handleRequest(req, res){
                 res.writeHead(403, {'Content-Type': 'text/html'});
                 res.write("Wrong Password");
                 return res.end();
-            }
-            if(req.url == "/start"){
-                if(engine.Start()){
-                    res.writeHead(200);
-                    return res.end();
-                }else{
-                    res.writeHead(409);//engine already running
-                    return res.end();
-                }
-            }
-            if(req.url == "/stop"){
-                if(engine.Stop()){
-                    res.writeHead(200);
-                    return res.end();
-                }else{
-                    res.writeHead(409);//engine already running
-                    return res.end();
-                }
             }
             if(req.url == "/cleartasks"){
                 if(engine.ClearTasks()){

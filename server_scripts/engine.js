@@ -4,13 +4,28 @@ let {Task} = require("./task");
 
 class Engine{
     constructor(){
-        this.tasks = [new Task("stop")];
+        this.tasks = [];
+        this.taskWaiting = false;
+        this.taskWaitingEndTime = -1;
+
         this.running = false;
         this.trajs = [new Traj()];
 
         this.SetInitTrajs(10);
         this.tasks = [];
         this.tickCount = 0;
+
+        this.HandleTasks();
+    }
+
+    HandleTasks(){
+        if(this.tasks.length > 0){
+            let completed = Task.Execute(this, this.tasks[0]);
+            if(completed){
+                this.tasks.shift();
+            }
+        }
+        setImmediate(() => {this.HandleTasks()});
     }
 
     GetState(){
@@ -22,6 +37,7 @@ class Engine{
     }
 
     SetInitTrajs(count){
+        if(this.running){return false;}
         this.trajs = [];
         for(let i = 0; i < count; i++){
             this.trajs.push(new Traj());
@@ -34,6 +50,7 @@ class Engine{
             this.trajs[i].CalcCurvature();
             this.trajs[i].isBuilt = true;
         }
+        return true;
     }
 
     Start(){
@@ -64,16 +81,19 @@ class Engine{
     }
 
     ClearTasks(){
-        if(this.running){return false;}
+        this.taskWaiting = false;
+        this.taskWaitingEndTime = -1;
         this.tasks = [];
         return true;
     }
 
-    AddTasks(taskList){
-        if(this.running){return false;}
-        let newTasks = taskList.split("\n");
-        for(let i = 0; i < newTasks.length; i++){
-            this.tasks.push(new Task(newTasks[i]));
+    AddTasks(tasks){
+        let validTasks = Task.ParseValidTasks(tasks);
+        if(validTasks.length == 0){
+            return false;
+        }else{
+            this.tasks = this.tasks.concat(validTasks);
+            return true;
         }
     }
 }
