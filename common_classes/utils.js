@@ -1,5 +1,11 @@
 let {Point} = require("./point");
 
+function IEEEtoHex(x){
+    let buf = new ArrayBuffer(8);
+    (new Float64Array(buf)[0]) = x;
+    return [(new Uint32Array(buf))[0],(new Uint32Array(buf))[1]];
+}
+
 function cubeRoot(x){
     var y = Math.pow(Math.abs(x), 1/3);
     return x < 0 ? -y : y;

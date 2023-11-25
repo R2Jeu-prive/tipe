@@ -15,6 +15,10 @@ class Traj {
         this.evaluation = -1;
     }
 
+    ToString(){
+        
+    }
+
     static DeepCopy(originTraj){
         let copy = new Traj();
         for(let i = 0; i < originTraj.n; i++){
@@ -58,12 +62,12 @@ class Traj {
         this.BuildPoints();
         this.CalcDists();
         this.CalcCurvature();
-        if(mode == "minDistance"){
+        if(mode == "distance"){
             this.evaluation = 0;
             for(let i = 0; i < this.n; i++){
                 this.evaluation += this.dists[i];
             }
-        }else if(mode == "minCurvature"){
+        }else if(mode == "curvature"){
             this.evaluation = 0;
             for(let i = 0; i < this.points.length; i++){
                 this.evaluation += Math.pow(this.absCurves[i]*100, 2)*this.dists[i];

@@ -1,4 +1,5 @@
 let {Engine} = require("./engine");
+const { SaveSystem } = require("./saveSystem");
 
 class Task{
     static waiting = false;
@@ -6,7 +7,7 @@ class Task{
 
     static ParseValidTasks(str){
         const commandListRegex = /^([a-zAZ0-9 \.\-]*;\n)*$/g;
-        const commandRegex = /^((start|stop|save)|(execute [a-zA-Z]+( [\-a-zA-Z0-9\.]+)?)|((waitNoProgress|wait) [1-9][0-9]?))$/g;
+        const commandRegex = /^((start|stop)|(save [a-zA-Z0-9]+\- (true|false))|(execute [a-zA-Z]+( [\-a-zA-Z0-9\.]+)?)|((waitNoProgress|wait) [1-9][0-9]?))$/g;
         const floatRegex = /^(\-)?[1-9]*[0-9](\.[0-9]+)?$/g;
         const float01Regex = /^(1|(0(\.[0-9]+)?))$/g;
         const strictPosIntRegex = /^[1-9][0-9]*$/g
@@ -98,6 +99,17 @@ class Task{
             }else{
                 console.error("Auto Task Failed: " + command);
             }
+            return true;
+        }
+        if(command.match(/^save/g)){
+            let bestTraj = engine.trajs[0];
+            let saveJson = {
+                evaluation: bestTraj.evaluation,
+                mutationLength: engine.mutationLength,
+                mutationMode: engine.mutationMode,
+                mutationForce: engine.mutationForce
+            }
+            engine.savesystem.SaveTraj(bestTraj.evaluation, {eval:bestTraj.evaluation, mutationLength:engine.mutationLength})
             return true;
         }
         console.error("Command Not Implemented");

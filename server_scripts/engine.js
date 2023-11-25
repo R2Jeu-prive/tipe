@@ -1,20 +1,29 @@
 let {Track} = require("../common_classes/track");
 let {Traj} = require("../common_classes/traj");
+let {SaveSystem} = require("./saveSystem");
 let {Task} = require("./task");
 
 class Engine{
     constructor(){
-        this.tasks = [];
-        this.taskWaiting = false;
-        this.taskWaitingEndTime = -1;
+        //EVOLUTION
+        this.mutationForce = 0.1;
+        this.mutationSemiLength = 10;
+        this.mutationTries = 100;
+        this.evaluationMode = "curvature";
+        this.mutationMode = "bump";
 
+        //BASE
         this.running = false;
         this.trajs = [new Traj()];
 
-        this.SetInitTrajs(10);
-        this.tasks = [];
+        //MONITORING
         this.tickCount = 0;
+        this.savesystem = new SaveSystem();
 
+        //TASKS
+        this.tasks = [];
+        this.taskWaiting = false;
+        this.taskWaitingEndTime = -1;
         this.HandleTasks();
     }
 
@@ -55,13 +64,24 @@ class Engine{
 
     Start(){
         if(this.running){return false;}
+        if(this.trajs.length == 0){
+            console.warn("Tried to start engine without any trajs");
+            return false;
+        }
         this.running = true;
         setImmediate(() => {this.Step()});
         return true;
     }
 
     Step(){
-        //TODO STEP CODE
+        let chosenTrajIndex = Math.floor(rand()*this.trajs.length);
+
+        if(this.mutationMode == "bump"){
+            let copiedOriginalTraj = this.trajs[chosenTrajIndex];
+            for(let i = 0; i < this.mutationTries; i++){
+
+            }
+        }
 
         this.tickCount += 1;
         if(this.running){
