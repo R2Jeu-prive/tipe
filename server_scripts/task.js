@@ -7,7 +7,7 @@ class Task{
 
     static ParseValidTasks(str){
         const commandListRegex = /^([a-zA-Z0-9 \.\-]*;\n)*$/g;
-        const commandRegex = /^((start|stop)|(save [a-zA-Z0-9]+ (true|false))|(execute [a-zA-Z]+( [\-a-zA-Z0-9\.]+)?)|((waitNoProgress|wait) [1-9][0-9]?))$/g;
+        const commandRegex = /^((start|stop)|(save [a-zA-Z0-9]+ (true|false))|(execute [a-zA-Z]+( [\-a-zA-Z0-9\.]+)?)|((waitNoProgress|wait) [1-9][0-9]*))$/g;
         const floatRegex = /^(\-)?[1-9]*[0-9](\.[0-9]+)?$/g;
         const float01Regex = /^(1|(0(\.[0-9]+)?))$/g;
         const strictPosIntRegex = /^[1-9][0-9]*$/g
