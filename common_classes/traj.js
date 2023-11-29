@@ -1,26 +1,24 @@
 let {Point} = require("./point");
 let {Track} = require("./track");
 let {signedCurvatureBetween, mod} = require("./utils");
+let {SmoothSquare} = require("./bumps");
 const LN_250 = Math.log(250);
 
 class Traj {
-    constructor() {
+    constructor(setCreationTimestamp = false) {
         this.n = Track.extPoints.length;
         this.laterals = []; //array of lateral placement values [n]
         this.points = []; //array of Points [n]
         this.absCurves = []; //array of curvuture values [n]
         this.dists = []; //array of distances to next point [n]
         this.speeds = []; //array of speed between each point [n]
-        this.isBuilt = false;
-        this.evaluation = -1;
+        this.evaluation = -1; //-1 if not yet calculated
+        this.creationTimestamp = setCreationTimestamp ? Date.now() : -1;
     }
 
-    ToString(){
-        
-    }
-
-    static DeepCopy(originTraj){
-        let copy = new Traj();
+    static DeepCopy(originTraj, resetCreationTimestamp = false){
+        let copy = new Traj(resetCreationTimestamp);
+        if(!resetCreationTimestamp){copy.creationTimestamp = originTraj.creationTimestamp;}
         for(let i = 0; i < originTraj.n; i++){
             copy.laterals[i] = originTraj.laterals[i];
         }
@@ -75,15 +73,24 @@ class Traj {
         }
     }
 
+    ResetAsParent(parentTraj, mutateStart, mutateEnd){
+        this.evaluation = -1;//invalidate previous evaluations
+        for(let i = mutateStart; i < mutateEnd; i = mod(i+1, this.n)){
+            this.laterals[i] = parentTraj.laterals[i];
+        }
+    }
 
-    Mutate(force = 0.2, semiWidth = 20, evolutionMode = "bump") {
+    Mutate(force = 0.2, semiWidth = 20, mutationMode = "bump") {
+        this.evaluation = -1;//invalidate previous evaluations
         let chosenSemiWidth = semiWidth;
         if(semiWidth == 0){
-            chosenSemiWidth = Math.round(Math.exp(rand()*LN_250));//more small semi width than long
+            chosenSemiWidth = Math.round(Math.exp(Math.random()*LN_250));//more small semi width than long
         }
         if(mutationMode == "bump"){
-            this.MutateBump(force, chosenSemiWidth);
-        }else if(mutationMode == "wind"){
+            return this.MutateBump(force, chosenSemiWidth);
+        }else{
+            console.log("Mutation Mode Not Yet Implemented");   
+        }/*else if(mutationMode == "wind"){
             this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15);
         }else if(mutationMode == "both"){
             if(rand() >= 0.5){//coin flip
@@ -91,19 +98,17 @@ class Traj {
             }else{
                 this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15)
             }
-        }
+        }*/
     }
 
     MutateBump(force, semiWidth) {
-        this.evaluation = -1;//invalidate evaluation
         //force : force at which mutationPoint if pushed towards mutationValue (must be in [0,1])
         //semiWidth : number of points effected on each side of the mutationPoint (first and last aren't actually effected but start the cos interpolation)
-        let mutationPoint = Math.floor(rand()*this.n);
-        //if(Track.lateralZoneWeights[mutationPoint] > 0.5 && Track.lateralZoneWeights[mutationPoint] < 9.5){return this.MutateBump(force,semiWidth);}//hairpin
-        //if(Track.lateralZoneWeights[mutationPoint] > 1.5 || Track.lateralZoneWeights[mutationPoint] < 0.5){return this.MutateBump(force,semiWidth);}//chicane
-        //if(Track.lateralZoneWeights[mutationPoint] > 4 || Track.lateralZoneWeights[mutationPoint] < 2){return this.MutateBump(force,semiWidth);}//first turns
+        let mutationPoint = Math.floor(Math.random()*this.n);
         let mutateStart = mod((mutationPoint - semiWidth), this.n);
         let mutateEnd = mod((mutationPoint + semiWidth), this.n);
+
+        //set variable mutation value min and max to not unfavor close to track limit trajs 
         let minMutationValue = 0;
         let maxMutationValue = 1;
         if(this.laterals[mutationPoint] >= 0.5){
@@ -111,7 +116,8 @@ class Traj {
         }else{
             maxMutationValue = 2*this.laterals[mutationPoint];
         }
-        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*rand();
+
+        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*Math.random();
         let i = -semiWidth + 1;
         for (let i = -semiWidth + 1; i < semiWidth; i++) {
             let blend = force*SmoothSquare.soft.GetValue(i,semiWidth);
@@ -128,6 +134,7 @@ class Traj {
      * @param {Number} hardWindSemiWidth zone in which points will be moved the same amount as mutationPoint
      * @param {Number} softWindSemiWidth total zone of effect (hardWind + blending)
      */
+    /*
     MutateWind(force, hardWindSemiWidth, softWindSemiWidth){
         this.evaluation = -1;//invalidate evaluation
         let mutationPoint = Math.floor(rand()*this.n);
@@ -183,7 +190,7 @@ class Traj {
         }
 
         return true;
-    }
+    }*/
 }
 
 module.exports = {Traj};

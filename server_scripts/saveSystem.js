@@ -15,7 +15,6 @@ class SaveSystem{
                 this.savedNames.push(trajFile.name.split(".")[0]);
             }
         }
-        console.log(this.savedNames);
     }
 
     /**
@@ -25,18 +24,22 @@ class SaveSystem{
      * @param {String} prefix
      * @param {Boolean} timestampName
      */
-    SaveTraj(traj, data, prefix = "testing_", timestampName = true){
-        //we save two files : name.json and name.dat
+    SaveTraj(traj, data, prefix = "testing", saveLaterals = false){
+        //we save one or two files : name.json and name.dat
         //first one contains few informations
         //second one contains n 64bit floats representing the laterals of the traj
-        let fileName = timestampName ? prefix + Date.now() : prefix;
+        //let fileName = timestampName ? prefix + "_" + Date.now() : prefix;
+        let fileName = prefix + "_" + Date.now();
         let buf = new ArrayBuffer(8*traj.laterals.length);
         for(let i = 0; i < traj.laterals.length; i++){
             (new Float64Array(buf)[i]) = traj.laterals[i];
         }
-        fs.writeFileSync(fileName + ".dat", new Uint8Array(buf));
-        fs.writeFileSync(fileName + ".json", JSON.stringify(data), "utf-8");
-        this.RefreshSavedFiles();
+        if(saveLaterals){
+            fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
+            data.fileName = fileName;
+        }
+        fs.writeFileSync("./results/trajs/db.txt", JSON.stringify(data) + "\n", {flag:'a'});
+        this.RefreshSaves();
     }
 
     /*

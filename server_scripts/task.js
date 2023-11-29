@@ -6,11 +6,12 @@ class Task{
     static waitStartTime = -1;
 
     static ParseValidTasks(str){
-        const commandListRegex = /^([a-zAZ0-9 \.\-]*;\n)*$/g;
-        const commandRegex = /^((start|stop)|(save [a-zA-Z0-9]+\- (true|false))|(execute [a-zA-Z]+( [\-a-zA-Z0-9\.]+)?)|((waitNoProgress|wait) [1-9][0-9]?))$/g;
+        const commandListRegex = /^([a-zA-Z0-9 \.\-]*;\n)*$/g;
+        const commandRegex = /^((start|stop)|(save [a-zA-Z0-9]+ (true|false))|(execute [a-zA-Z]+( [\-a-zA-Z0-9\.]+)?)|((waitNoProgress|wait) [1-9][0-9]?))$/g;
         const floatRegex = /^(\-)?[1-9]*[0-9](\.[0-9]+)?$/g;
         const float01Regex = /^(1|(0(\.[0-9]+)?))$/g;
         const strictPosIntRegex = /^[1-9][0-9]*$/g
+        const posIntRegex = /^(0|([1-9][0-9]+))$/g
         let validCommands = [];
 
         if(str.match(commandListRegex) == null){
@@ -33,8 +34,12 @@ class Task{
                     validCommands.push(commands[i]);
                     continue;
                 }
-                if(commandWords[1] == "setMutateWidth" && wordCount == 3 && commandWords[2].match(strictPosIntRegex) != null){
-                    validCommands.push(substrs[i]);
+                if(commandWords[1] == "setMutationSemiLength" && wordCount == 3 && commandWords[2].match(posIntRegex) != null){
+                    validCommands.push(commands[i]);
+                    continue;
+                }
+                if(commandWords[1] == "setMutationForce" && wordCount == 3 && commandWords[2].match(float01Regex) != null){
+                    validCommands.push(commands[i]);
                     continue;
                 }
                 return [];
@@ -105,11 +110,24 @@ class Task{
             let bestTraj = engine.trajs[0];
             let saveJson = {
                 evaluation: bestTraj.evaluation,
-                mutationLength: engine.mutationLength,
+                evolutionTime : Date.now() - bestTraj.creationTimestamp,
+                mutationLength: engine.mutationSemiLength,
                 mutationMode: engine.mutationMode,
-                mutationForce: engine.mutationForce
+                mutationForce: engine.mutationForce,
+                savedLaterals: command.split(" ")[2] == "true"
             }
-            engine.savesystem.SaveTraj(bestTraj.evaluation, {eval:bestTraj.evaluation, mutationLength:engine.mutationLength})
+            let prefix = command.split(" ")[1];
+            engine.savesystem.SaveTraj(bestTraj, saveJson, prefix, command.split(" ")[2] == "true");
+            return true;
+        }
+        if(command.match(/^execute setMutationSemiLength/)){
+            engine.mutationSemiLength = parseInt(command.split(" ")[2]);
+            console.log("mutationSemiLength = " + engine.mutationSemiLength);
+            return true;
+        }
+        if(command.match(/^execute setMutationForce/)){
+            engine.mutationForce = parseFloat(command.split(" ")[2]);
+            console.log("mutationForce = " + engine.mutationForce);
             return true;
         }
         console.error("Command Not Implemented");

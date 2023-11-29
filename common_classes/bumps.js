@@ -28,7 +28,7 @@ class TriangleBump extends BumpFunction{
 
 class CosBump extends BumpFunction{
     constructor(){
-        super(function(x){return 0.5 + 0.5*Math.cos(x*pi)});
+        super(function(x){return 0.5 + 0.5*Math.cos(x*Math.PI)});
     }
 
     static base = new CosBump();
@@ -36,7 +36,7 @@ class CosBump extends BumpFunction{
 
 class SmoothSquare extends BumpFunction{
     constructor(_delta){
-        super(function(x){return 0.5 + (0.5*Math.atan(Math.cos(pi*x)/_delta)/Math.atan(1/_delta))});
+        super(function(x){return 0.5 + (0.5*Math.atan(Math.cos(Math.PI*x)/_delta)/Math.atan(1/_delta))});
         this.delta = _delta;
     }
 
@@ -46,7 +46,7 @@ class SmoothSquare extends BumpFunction{
 
 class PoweredSmoothSquare extends BumpFunction{
     constructor(_delta,_k){
-        super(function(x){return Math.pow(0.5 + (0.5*Math.atan(Math.cos(pi*x)/_delta)/Math.atan(1/_delta)), _k)});
+        super(function(x){return Math.pow(0.5 + (0.5*Math.atan(Math.cos(Math.PI*x)/_delta)/Math.atan(1/_delta)), _k)});
         this.delta = _delta;
         this.k = _k;
     }

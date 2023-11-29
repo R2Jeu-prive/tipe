@@ -7,8 +7,8 @@ class Engine{
     constructor(){
         //EVOLUTION
         this.mutationForce = 0.1;
-        this.mutationSemiLength = 10;
-        this.mutationTries = 100;
+        this.mutationSemiLength = 5;
+        this.maxMutationTries = 100;
         this.evaluationMode = "curvature";
         this.mutationMode = "bump";
 
@@ -17,13 +17,14 @@ class Engine{
         this.trajs = [new Traj()];
 
         //MONITORING
-        this.tickCount = 0;
+        this.lastGetStateTickCount = 0;
+        this.lastGetStateTimestamp = -1;
         this.savesystem = new SaveSystem();
 
         //TASKS
         this.tasks = [];
         this.taskWaiting = false;
-        this.taskWaitingEndTime = -1;
+        this.lastGetStateTimestamp = -1;
         this.HandleTasks();
     }
 
@@ -42,6 +43,14 @@ class Engine{
         state.running = this.running;
         state.trajs = this.trajs;
         state.track = Track;
+        if(this.lastGetStateTimestamp == -1){
+            state.tps = 0;
+        }else{
+            state.tps = this.tickCount / (Date.now() - this.lastGetStateTimestamp);
+        }
+
+        this.lastGetStateTimestamp = Date.now();
+        this.lastGetStateTickCount = 0;
         return state;
     }
 
@@ -49,7 +58,7 @@ class Engine{
         if(this.running){return false;}
         this.trajs = [];
         for(let i = 0; i < count; i++){
-            this.trajs.push(new Traj());
+            this.trajs.push(new Traj(true));
             let randomVal = Math.random();
             for(let j = 0; j < Track.extPoints.length; j++){
                 this.trajs[i].laterals[j] = randomVal;
@@ -69,17 +78,27 @@ class Engine{
             return false;
         }
         this.running = true;
+        this.lastGetStateTimestamp = -1;
         setImmediate(() => {this.Step()});
         return true;
     }
 
     Step(){
-        let chosenTrajIndex = Math.floor(rand()*this.trajs.length);
+        let parentTrajIndex = Math.floor(Math.random()*this.trajs.length)
+        let parentTraj = this.trajs[parentTrajIndex];
+        parentTraj.Evaluate(this.evaluationMode);
 
         if(this.mutationMode == "bump"){
-            let copiedOriginalTraj = this.trajs[chosenTrajIndex];
-            for(let i = 0; i < this.mutationTries; i++){
-
+            let currentTraj = Traj.DeepCopy(parentTraj, false);
+            for(let i = 0; i < this.maxMutationTries; i++){
+                let mutationWindow = currentTraj.Mutate(this.mutationForce, this.mutationSemiLength, this.mutationMode);
+                currentTraj.Evaluate(this.evaluationMode);
+                if(currentTraj.evaluation < parentTraj.evaluation){
+                    this.trajs[parentTrajIndex] = currentTraj;
+                    break;
+                }else{
+                    currentTraj.ResetAsParent(parentTraj, mutationWindow[0], mutationWindow[1]);
+                }
             }
         }
 
@@ -89,14 +108,10 @@ class Engine{
         }
     }
 
-    ShowTps(){
-        let startTick = this.tickCount;
-        setTimeout(() => {console.log("currently at "(this.tickCount - startTick) + "tps")},1000)
-    }
-
     Stop(){
         if(!this.running){return false;}
         this.running = false;
+        this.lastGetStateTimestamp = -1;
         return true;
     }
 

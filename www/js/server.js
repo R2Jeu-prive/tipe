@@ -41,7 +41,11 @@ class Server{
             body:JSON.stringify({password:this.GetPassword()})
         });
         let notifs = {403:"Incorrect Password", 200:"Tasks Clear"};
-        alert(notifs[response.status]);
+        if(response.status == 200){
+            console.log(notifs[response.status]);
+        }else{
+            alert(notifs[response.status]);
+        }
     }
 
     static async OrderAddTasks(){
@@ -51,6 +55,10 @@ class Server{
             body:JSON.stringify({password:this.GetPassword(), taskList:taskList})
         });
         let notifs = {403:"Incorrect Password", 409:"Syntax Error", 200:"Tasks Added"};
-        alert(notifs[response.status]);
+        if(response.status == 200){
+            console.log(notifs[response.status]);
+        }else{
+            alert(notifs[response.status]);
+        }
     }
 }
