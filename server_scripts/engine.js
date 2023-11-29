@@ -15,6 +15,7 @@ class Engine{
         //BASE
         this.running = false;
         this.trajs = [new Traj()];
+        this.SetInitTrajs(0);
 
         //MONITORING
         this.lastGetStateTickCount = 0;
@@ -41,8 +42,12 @@ class Engine{
     GetState(){
         let state = {};
         state.running = this.running;
-        state.trajs = this.trajs;
-        state.track = Track;
+        state.trajs = [];
+        for(let i = 0; i < this.trajs.length; i++){
+            state.trajs.push({});
+            state.trajs[i].points = this.trajs[i].points;
+            state.trajs[i].absCurves = this.trajs[i].absCurves;
+        }
         if(this.lastGetStateTimestamp == -1){
             state.tps = 0;
         }else{

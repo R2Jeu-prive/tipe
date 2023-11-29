@@ -69,9 +69,6 @@ class Canvas{
     static DrawFore(){
         Canvas.ctxFore.clearRect(0, 0, Canvas.canvasMid.width, Canvas.canvasMid.height);
         Canvas.DrawTrajs();
-        for(let i = 0; i < UI.pointings.length; i++){
-            this.DrawPoint(UI.pointings[i][0], UI.pointings[i][1], i)
-        }
     }
 
     static GetTrackBorderColor(i){

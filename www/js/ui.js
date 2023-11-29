@@ -5,7 +5,6 @@ class UI{
     static panStartY = 0;
     static panning = false;
     static zoom = 0;
-    static pointings = []; //list of clicked points for pointing
 
     static Init(){
         Canvas.canvasFore.addEventListener("mousedown", UI.MouseDown.bind(this));
@@ -30,12 +29,7 @@ class UI{
             UI.panY /= 2;
             Canvas.DrawBack();
         }else if(e.key == " "){
-            UI.pointings = [];
-            //Canvas.DrawFore();
-        }else if(e.key == "c"){
-            //UI.CopyPointings();
-        }else if(e.key == "v"){
-            //UI.FetchResultPointings();
+            UI.RefreshState();
         }
     }
 
@@ -86,44 +80,11 @@ class UI{
         Canvas.DrawBack();
     }
 
-    static AddPointing(e){
-        let mapX = (UI.panX + e.pageX)*Math.pow(2, -UI.zoom);
-        let mapY = (UI.panY + e.pageY)*Math.pow(2, -UI.zoom);
-        this.pointings.push([mapX, mapY]);
-        //Canvas.DrawFore();
+    static RefreshState(){
+        Server.RequestState().then(function(state){
+            console.log(state);
+            Canvas.trajs = state.trajs;
+            Canvas.DrawFore();
+        })
     }
-
-    /*static CopyPointings(){
-        if(this.pointings.length != 4){
-            alert("4 pointings needed");
-            return;
-        }
-
-        let text = "";
-        for(let i = 0; i < 4; i++){
-            for(let j = 0; j < 2; j++){
-                text += this.pointings[i][j];
-                text += "\n";
-            }
-        }
-        navigator.clipboard.writeText(text);
-    }
-
-    static FetchResultPointings(){
-        this.pointings = [
-            [9877.5428031673,
-            21927.2936696749],
-            [9885.147193074747,
-            21851.27727057673],
-            [9807.580473860351,
-            22135.226800836735],
-            [9800.086283762555,
-            22211.601403166776],
-            [9681.779857792519,
-            22372.638396536284],
-            [9673.617431906157,
-            22410.162840113408]
-        ]
-        Canvas.DrawFore();
-    }*/
 }
