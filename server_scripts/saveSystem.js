@@ -38,7 +38,7 @@ class SaveSystem{
             fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
             data.fileName = fileName;
         }
-        fs.writeFileSync("./results/experiments/"+ prefix + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
+        fs.writeFileSync("./results/logs/"+ prefix + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
         this.RefreshSaves();
     }
 

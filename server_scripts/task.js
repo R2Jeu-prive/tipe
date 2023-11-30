@@ -109,6 +109,7 @@ class Task{
         if(command.match(/^save/g)){
             let bestTraj = engine.trajs[0];
             let saveJson = {
+                time : Date.now(),
                 evaluation: bestTraj.evaluation,
                 evolutionTime : Date.now() - bestTraj.creationTimestamp,
                 mutationLength: engine.mutationSemiLength,
