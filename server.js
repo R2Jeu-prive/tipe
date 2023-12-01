@@ -14,7 +14,6 @@ let allowedURLs = [
     {regex:/^\/js\/[a-zA-Z]+\.js$/g, prefix:"/www"},
     {regex:/^\/favicon\.ico$/g, prefix:"/www"},
     {regex:/^\/google_earth_fetcher\/villeneuve(|_dezoom_[1-5])\/[0-9_]+\.png$/g, prefix:""},
-    {regex:/^\/common_classes\/[a-zA-Z]+\.js/g, prefix:""}
 ];
 let contentTypes = {"html" : "text/html", "css" : "text/css", "js" : "text/javascript", "png" : "image/png", "ico" : "image/x-icon"};
 
@@ -39,7 +38,7 @@ function handleRequest(req, res){
             res.write(JSON.stringify(Track));
             return res.end();
         }
-        let validURL = true;
+        let validURL = false;
         let urlPrefix = "";
         for(let i = 0; i < allowedURLs.length; i++){
             if(req.url.match(allowedURLs[i].regex) != null){
