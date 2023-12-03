@@ -112,7 +112,7 @@ class Task{
                 time : Date.now(),
                 evaluation: bestTraj.evaluation,
                 evolutionTime : Date.now() - bestTraj.creationTimestamp,
-                mutationLength: engine.mutationSemiLength,
+                mutationSemiLength: engine.mutationSemiLength,
                 mutationMode: engine.mutationMode,
                 mutationForce: engine.mutationForce,
                 savedLaterals: command.split(" ")[2] == "true"
