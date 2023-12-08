@@ -49,7 +49,7 @@ class SaveSystem{
         }catch(e){
             console.warn("failed to find experiment");
         }
-        return commands.replaceAll("\r","");
+        return commands.replace(/\r/g,"");
     }
 
     /*
