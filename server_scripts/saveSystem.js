@@ -42,6 +42,16 @@ class SaveSystem{
         this.RefreshSaves();
     }
 
+    FetchExperiment(expName){
+        let commands = "";
+        try{
+            commands = commands + fs.readFileSync("./results/experiments/" + expName + ".txt", { encoding: 'utf8', flag: 'r' });
+        }catch(e){
+            console.warn("failed to find experiment");
+        }
+        return commands.replaceAll("\r","");
+    }
+
     /*
     function load(){
         let buf = fs.readFileSync("test.dat");
