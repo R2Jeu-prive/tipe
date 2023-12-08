@@ -1538,3 +1538,5 @@ wait 300;
 stop;
 wait 1;
 save alpha true;
+wait 6;
+runexp alpha;
