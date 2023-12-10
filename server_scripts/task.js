@@ -12,6 +12,7 @@ class Task{
         const float01Regex = /^(1|(0(\.[0-9]+)?))$/g;
         const strictPosIntRegex = /^[1-9][0-9]*$/g;
         const posIntRegex = /^(0|([1-9][0-9]*))$/g;
+        const mutationModeRegex = /^(bump|wind)$/g;
         let validCommands = [];
 
         if(str.match(commandListRegex) == null){
@@ -39,6 +40,10 @@ class Task{
                     continue;
                 }
                 if(commandWords[1] == "setMutationForce" && wordCount == 3 && commandWords[2].match(float01Regex) != null){
+                    validCommands.push(commands[i]);
+                    continue;
+                }
+                if(commandWords[1] == "setMutationMode" && wordCount == 3 && commandWords[2].match(mutationModeRegex) != null){
                     validCommands.push(commands[i]);
                     continue;
                 }
@@ -125,6 +130,7 @@ class Task{
             let expName = command.split(" ")[1];
             let tasks = engine.savesystem.FetchExperiment(expName);
             engine.AddTasks(tasks);
+            console.log("Added experiment " + expName + " to queue");
             return true;
         }
         if(command.match(/^execute setMutationSemiLength/)){
@@ -135,6 +141,11 @@ class Task{
         if(command.match(/^execute setMutationForce/)){
             engine.mutationForce = parseFloat(command.split(" ")[2]);
             console.log("mutationForce = " + engine.mutationForce);
+            return true;
+        }
+        if(command.match(/^execute setMutationMode/)){
+            engine.mutationMode = command.split(" ")[2];
+            console.log("mutationMode = " + engine.mutationMode);
             return true;
         }
         console.error("Command Not Implemented");

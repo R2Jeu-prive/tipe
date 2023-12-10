@@ -93,17 +93,20 @@ class Engine{
         let parentTraj = this.trajs[parentTrajIndex];
         parentTraj.Evaluate(this.evaluationMode);
 
-        if(this.mutationMode == "bump"){
-            let currentTraj = Traj.DeepCopy(parentTraj, false);
-            for(let i = 0; i < this.maxMutationTries; i++){
-                let mutationWindow = currentTraj.Mutate(this.mutationForce, this.mutationSemiLength, this.mutationMode);
-                currentTraj.Evaluate(this.evaluationMode);
-                if(currentTraj.evaluation < parentTraj.evaluation){
-                    this.trajs[parentTrajIndex] = currentTraj;
-                    break;
-                }else{
-                    currentTraj.ResetAsParent(parentTraj, mutationWindow[0], mutationWindow[1]);
-                }
+        let currentTraj = Traj.DeepCopy(parentTraj, false);
+        for(let i = 0; i < this.maxMutationTries; i++){
+            let mutationWindow = [null, null]
+            try{
+                mutationWindow = currentTraj.Mutate(this.mutationForce, this.mutationSemiLength, this.mutationMode);
+            }catch (e){
+                continue;
+            }
+            currentTraj.Evaluate(this.evaluationMode);
+            if(currentTraj.evaluation < parentTraj.evaluation){
+                this.trajs[parentTrajIndex] = currentTraj;
+                break;
+            }else{
+                currentTraj.ResetAsParent(parentTraj, mutationWindow[0], mutationWindow[1]);
             }
         }
 
