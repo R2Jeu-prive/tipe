@@ -43,7 +43,7 @@ class SaveSystem{
     }
 
     FetchExperiment(expName){
-        let commands = "";
+        let commands = "wait 6;\n";
         try{
             commands = commands + fs.readFileSync("./results/experiments/" + expName + ".txt", { encoding: 'utf8', flag: 'r' });
         }catch(e){

@@ -2,6 +2,7 @@ let {Point} = require("./point");
 let {Track} = require("./track");
 let {signedCurvatureBetween, mod} = require("./utils");
 let {SmoothSquare} = require("./bumps");
+let {Segment} = require("./segment");
 const LN_250 = Math.log(250);
 
 class Traj {
@@ -75,8 +76,8 @@ class Traj {
 
     ResetAsParent(parentTraj, mutateStart, mutateEnd){
         this.evaluation = -1;//invalidate previous evaluations
-        for(let i = mutateStart; i < mutateEnd; i = mod(i+1, this.n)){
-            this.laterals[i] = parentTraj.laterals[i];
+        for(let i = mutateStart; i < mutateEnd; i = i+1){
+            this.laterals[i] = parentTraj.laterals[mod(i, this.n)];
         }
     }
 
@@ -88,11 +89,11 @@ class Traj {
         }
         if(mutationMode == "bump"){
             return this.MutateBump(force, chosenSemiWidth);
+        }else if(mutationMode == "wind"){
+            return this.MutateWind(force, 0, chosenSemiWidth);
         }else{
             console.log("Mutation Mode Not Yet Implemented");   
-        }/*else if(mutationMode == "wind"){
-            this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15);
-        }else if(mutationMode == "both"){
+        }/*else if(mutationMode == "both"){
             if(rand() >= 0.5){//coin flip
                 this.MutateBump(force, chosenSemiWidth);
             }else{
@@ -126,7 +127,7 @@ class Traj {
             if(this.laterals[current] < 0){this.laterals[current] = 0;}
             if(this.laterals[current] > 1){this.laterals[current] = 1;}
         }
-        return [mutateStart, mutateEnd];
+        return [(mutationPoint - semiWidth), (mutationPoint + semiWidth)];//can be outside [0, n-1] but first el must be smaller than second;
     }
 
     /**
@@ -134,12 +135,20 @@ class Traj {
      * @param {Number} hardWindSemiWidth zone in which points will be moved the same amount as mutationPoint
      * @param {Number} softWindSemiWidth total zone of effect (hardWind + blending)
      */
-    /*
     MutateWind(force, hardWindSemiWidth, softWindSemiWidth){
         this.evaluation = -1;//invalidate evaluation
-        let mutationPoint = Math.floor(rand()*this.n);
-        let mutationValue = rand();
+        let mutationPoint = Math.floor(Math.random()*this.n);
+        
+        let minMutationValue = 0;
+        let maxMutationValue = 1;
+        if(this.laterals[mutationPoint] >= 0.5){
+            minMutationValue = 1-(2*this.laterals[mutationPoint]);
+        }else{
+            maxMutationValue = 2*this.laterals[mutationPoint];
+        }
+        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*Math.random();
         mutationValue = this.laterals[mutationPoint] + force*(mutationValue - this.laterals[mutationPoint]);
+        
         let initialMutationPoint = Segment.CalcPointAtLateral(Track.extPoints[mutationPoint], Track.intPoints[mutationPoint], this.laterals[mutationPoint]);
         let wantedMutationPoint = Segment.CalcPointAtLateral(Track.extPoints[mutationPoint], Track.intPoints[mutationPoint], mutationValue);
         let windVector = wantedMutationPoint.Minus(initialMutationPoint);
@@ -161,6 +170,7 @@ class Traj {
         }
 
         //recalculate laterals for these moved points
+        let newLateralsValid = true;
         let newLaterals = [];
         for(let i = -softWindSemiWidth; i <= softWindSemiWidth; i++){
             let currentIndex = mod(mutationPoint + i, this.n);
@@ -177,10 +187,15 @@ class Traj {
             }
             if(newLateralsHere.length != 1){
                 //new traj is off track or zigzags on a lateral
-                return false;
+                newLateralsValid = false;
+                break;
             }else{
                 newLaterals.push(newLateralsHere[0]);
             }
+        }
+        
+        if(!newLateralsValid){
+            throw new Error('Mutation could not be placed back on track');
         }
 
         //modify traj (all laterals exist)
@@ -189,8 +204,8 @@ class Traj {
             this.laterals[currentIndex] = newLaterals[i + softWindSemiWidth];
         }
 
-        return true;
-    }*/
+        return [(mutationPoint - softWindSemiWidth), (mutationPoint + softWindSemiWidth)];//can be outside [0, n-1] but first el must be smaller than second;
+    }
 }
 
 module.exports = {Traj};
