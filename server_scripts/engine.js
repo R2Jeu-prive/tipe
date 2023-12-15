@@ -20,7 +20,7 @@ class Engine{
         //MONITORING
         this.lastGetStateTickCount = 0;
         this.lastGetStateTimestamp = -1;
-        this.savesystem = new SaveSystem();
+        this.saveSystem = new SaveSystem();
 
         //TASKS
         this.tasks = [];
@@ -131,7 +131,7 @@ class Engine{
     }
 
     AddTasks(tasks){
-        let validTasks = Task.ParseValidTasks(tasks);
+        let validTasks = Task.ParseValidTasks(tasks, this.saveSystem);
         if(validTasks.length == 0){
             return false;
         }else{

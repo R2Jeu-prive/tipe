@@ -3,16 +3,15 @@ let {Traj} = require("../common_classes/traj");
 
 class SaveSystem{
     constructor(){
-        this.savedNames = [];
-        this.RefreshSaves();
+        this.savedTrajs = [];
     }
 
     RefreshSaves(){
-        this.savedNames = [];
+        this.savedTrajs = [];
         let trajsFileNames = fs.readdirSync("./results/trajs", {withFileTypes:true});
         for(let trajFile of trajsFileNames){
             if(trajFile.name.match(/\.dat$/)){
-                this.savedNames.push(trajFile.name.split(".")[0]);
+                this.savedTrajs.push(trajFile.name.split(".")[0]);
             }
         }
     }
@@ -39,7 +38,6 @@ class SaveSystem{
             data.fileName = fileName;
         }
         fs.writeFileSync("./results/logs/"+ prefix + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
-        this.RefreshSaves();
     }
 
     FetchExperiment(expName){
@@ -52,9 +50,8 @@ class SaveSystem{
         return commands.replace(/\r/g,"");
     }
 
-    /*
-    function load(){
-        let buf = fs.readFileSync("test.dat");
+    LoadTraj(trajName = "bravo_1702361679064", evaluationMode = "dont"){
+        let buf = fs.readFileSync("./results/trajs/" + trajName + ".dat");
         let lats = [];
         let n = buf.length/8;
         for(let i = 0; i < n; i++){
@@ -64,9 +61,14 @@ class SaveSystem{
             }
             lats.push(new Float64Array(lat)[0]);
         }
-        console.log(lats);
+        let loadedTraj = new Traj(true);
+        loadedTraj.laterals = lats;
+        loadedTraj.BuildPoints();
+        if(evaluationMode != "dont"){
+            loadedTraj.Evaluate(evaluationMode);
+        }
+        return loadedTraj;
     }
-    */
 }
 
 module.exports = {SaveSystem};

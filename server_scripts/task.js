@@ -1,13 +1,20 @@
 let {Engine} = require("./engine");
 const { SaveSystem } = require("./saveSystem");
+let {Traj} = require("../common_classes/traj");
 
 class Task{
     static waiting = false;
     static waitStartTime = -1;
 
-    static ParseValidTasks(str){
-        const commandListRegex = /^([a-zA-Z0-9 \.\-]*;\n)*$/g;
-        const commandRegex = /^((start|stop)|(save [a-zA-Z0-9]+ (true|false))|(runexp [a-zA-Z0-9]+)|(execute [a-zA-Z]+( [\-a-zA-Z0-9\.]+)?)|((waitNoProgress|wait) [1-9][0-9]*))$/g;
+    /**
+     * 
+     * @param {String} str 
+     * @param {SaveSystem} saveSystem 
+     * @returns 
+     */
+    static ParseValidTasks(str, saveSystem){
+        const commandListRegex = /^([a-zA-Z0-9 _\.\-]*;\n)*$/g;
+        const commandRegex = /^((start|stop)|(save [a-zA-Z0-9]+ (true|false))|(runexp [a-zA-Z0-9]+)|(execute [a-zA-Z]+( [\-a-zA-Z0-9_\.]+)?)|((waitNoProgress|wait) [1-9][0-9]*))$/g;
         const floatRegex = /^(\-)?[1-9]*[0-9](\.[0-9]+)?$/g;
         const float01Regex = /^(1|(0(\.[0-9]+)?))$/g;
         const strictPosIntRegex = /^[1-9][0-9]*$/g;
@@ -34,6 +41,13 @@ class Task{
                 if(commandWords[1] == "setRandomTrajs" && wordCount == 3 && commandWords[2].match(strictPosIntRegex) != null){
                     validCommands.push(commands[i]);
                     continue;
+                }
+                if(commandWords[1] == "loadTraj" && wordCount == 3){
+                    saveSystem.RefreshSaves();
+                    if(saveSystem.savedTrajs.indexOf(commandWords[2]) != -1){
+                        validCommands.push(commands[i]);
+                        continue;
+                    }
                 }
                 if(commandWords[1] == "setMutationSemiLength" && wordCount == 3 && commandWords[2].match(posIntRegex) != null){
                     validCommands.push(commands[i]);
@@ -111,6 +125,17 @@ class Task{
             }
             return true;
         }
+        if(command.match(/^execute loadTraj/g)){
+            let trajName = command.split(" ")[2];
+            if(!engine.running){
+                engine.trajs.push(engine.saveSystem.LoadTraj(trajName, engine.evaluationMode));
+
+                console.log("Loaded Traj " + trajName);
+            }else{
+                console.error("Auto Task Failed: " + command);
+            }
+            return true;
+        }
         if(command.match(/^save/g)){
             let bestTraj = engine.trajs[0];
             let saveJson = {
@@ -123,12 +148,12 @@ class Task{
                 savedLaterals: command.split(" ")[2] == "true"
             }
             let prefix = command.split(" ")[1];
-            engine.savesystem.SaveTraj(bestTraj, saveJson, prefix, command.split(" ")[2] == "true");
+            engine.saveSystem.SaveTraj(bestTraj, saveJson, prefix, command.split(" ")[2] == "true");
             return true;
         }
         if(command.match(/^runexp/g)){
             let expName = command.split(" ")[1];
-            let tasks = engine.savesystem.FetchExperiment(expName);
+            let tasks = engine.saveSystem.FetchExperiment(expName);
             engine.AddTasks(tasks);
             console.log("Added experiment " + expName + " to queue");
             return true;
