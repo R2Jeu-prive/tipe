@@ -1,4 +1,4 @@
-#this file is used to collect alpha results and synthesize them with graphs
+#this file is used to collect bravo results and synthesize them with graphs
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -10,8 +10,8 @@ tickColor = "#058C42"
 barColor = "#E0525B88"
 faceColor = "#ffffff"
 
-logFilePath = '../logs/alpha.txt'
-alphaLogs = open(logFilePath, 'r')
+logFilePath = os.path.join('../logs/bravo.txt')
+bravoLogs = open(logFilePath, 'r')
 
 semiLengths = []
 forces = []
@@ -19,7 +19,7 @@ results = []
  
 while True:
     # Get next line from file
-    line = alphaLogs.readline()
+    line = bravoLogs.readline()
  
     # if line is empty
     # end of file is reached
@@ -51,7 +51,7 @@ while True:
     i = forces.index(mF)
     j = semiLengths.index(mSL)
     results[i][j].append(ev)
-alphaLogs.close()
+bravoLogs.close()
 
 
 print(semiLengths)
@@ -73,5 +73,5 @@ for f in range(len(forces)):
 
 plt.setp(axs, xticks=range(len(semiLengths)), xticklabels=semiLengths, xlabel='demi-longueur de mutation', ylabel='eval.')
 fig.tight_layout()
-fig.suptitle("Résultat des experiences Alpha")
+fig.suptitle("Résultat des experiences Bravo")
 plt.show()
