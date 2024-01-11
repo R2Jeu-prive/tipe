@@ -25,6 +25,15 @@ class Track_{
         }
         this.GenerateBorderPoints(48);//48 (empirical) to void last and first lateral being too close or too far appart
         this.GenerateZoneWeights();
+        this.SetStartAt(636);
+    }
+
+    SetStartAt(startIndex){
+        for(let i = 0; i < startIndex; i++){
+            this.intPoints.push(this.intPoints.shift());
+            this.extPoints.push(this.extPoints.shift());
+            this.lateralZoneWeights.push(this.lateralZoneWeights.shift());
+        }
     }
 
     /*static DrawTile(u,v,canvasX,canvasY){

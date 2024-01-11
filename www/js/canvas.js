@@ -94,6 +94,7 @@ class Canvas{
         if (style == 1) {//PERP TRACK LINES
             for (let i = 0; i < Canvas.track.intPoints.length; i++) {
                 Canvas.ctxMid.strokeStyle = "#" + Canvas.GetTrackBorderColor(i);
+                if(i == 0){Canvas.ctxMid.strokeStyle = "#ff00ff";}
                 let x1 = Canvas.track.extPoints[i].x*zoomFactor - UI.panX;
                 let y1 = Canvas.track.extPoints[i].y*zoomFactor - UI.panY;
                 let x2 = Canvas.track.intPoints[i].x*zoomFactor - UI.panX;
