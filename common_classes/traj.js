@@ -26,6 +26,15 @@ class Traj {
         return copy;
     }
 
+    ShiftToStartOffset(){
+        let newLats = []
+        for(let i = 0; i < Track.extPoints.length; i++){
+            newLats.push(this.laterals[mod(i + Track.startOffset, Track.extPoints.length)])
+        }
+        this.laterals = newLats;
+        this.evaluation = -1;//invalidate previous evaluations
+    }
+
     BuildPoints(){
         this.points = [];
         for (let i = 0; i < Track.extPoints.length; i++) {

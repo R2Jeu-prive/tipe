@@ -1,5 +1,7 @@
 const fs = require("fs");
 let {Traj} = require("../common_classes/traj");
+let {Track} = require("../common_classes/track");
+let {mod} = require("../common_classes/utils")
 
 class SaveSystem{
     constructor(){
@@ -31,7 +33,7 @@ class SaveSystem{
         let fileName = prefix + "_" + Date.now();
         let buf = new ArrayBuffer(8*traj.laterals.length);
         for(let i = 0; i < traj.laterals.length; i++){
-            (new Float64Array(buf)[i]) = traj.laterals[i];
+            (new Float64Array(buf)[i]) = traj.laterals[mod(i - Track.startOffset, Track.intPoints.length)];
         }
         if(saveLaterals){
             fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
@@ -63,6 +65,7 @@ class SaveSystem{
         }
         let loadedTraj = new Traj(true);
         loadedTraj.laterals = lats;
+        loadedTraj.ShiftToStartOffset();
         loadedTraj.BuildPoints();
         if(evaluationMode != "dont"){
             loadedTraj.Evaluate(evaluationMode);

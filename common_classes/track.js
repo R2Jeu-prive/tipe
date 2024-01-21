@@ -16,6 +16,7 @@ class Track_{
         this.extPoint = [new Point()];
         this.zones = [new TrackZone()];
         this.lateralZoneWeights = [0.1];
+        this.startOffset = 0;
         //weights typically between 0 and n-1 (n zones) 2.3 -> 0.7*zone2 + 0.3*zone3
         //if between -1 and 0 this means it's a mix between lastzone (-1) and first zone (0)
         
@@ -29,6 +30,7 @@ class Track_{
     }
 
     SetStartAt(startIndex){
+        this.startOffset = startIndex;
         for(let i = 0; i < startIndex; i++){
             this.intPoints.push(this.intPoints.shift());
             this.extPoints.push(this.extPoints.shift());
