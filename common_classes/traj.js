@@ -9,9 +9,9 @@ class Traj {
     constructor(setCreationTimestamp = false) {
         this.n = Track.extPoints.length;
         this.laterals = []; //array of lateral placement values [n]
-        this.points = []; //array of Points [n]
+        this.points = []; //array of Points in pixel cooridnates [n]
         this.absCurves = []; //array of curvuture values [n]
-        this.dists = []; //array of distances to next point [n]
+        this.dists = []; //array of distances in meters to next point [n]
         this.speeds = []; //array of speed between each point [n]
         this.evaluation = -1; //-1 if not yet calculated
         this.creationTimestamp = setCreationTimestamp ? Date.now() : -1;

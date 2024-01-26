@@ -82,4 +82,26 @@ function signedCurvatureBetween(a, b, c, pxToMetersRatio){
     return 4*signedTiangleArea/(ab*bc*ca);
 }
 
-module.exports = {solveCubic, mod, cubeRoot, signedCurvatureBetween};
+/**
+ * @param el a number
+ * @param tab an array of numbers in ascending order
+ * @returns two bounding indexes [i,j] so that tab[i] <= el <= tab[j] and j-i is minimal
+ */
+function findBoundingIndexes(el, tab){
+    if(el < tab[0] || el > tab[tab.length - 1]){return [-1,-1];}
+    let i = 0;
+    let j = tab.length - 1;
+    while(j - i > 1){
+        let half = Math.floor((j - i) / 2);
+        if(tab[i+half] <= el && el <= tab[j]){
+            i += half;
+        }else{
+            j -= half;
+        }
+    }
+    if(el == tab[i]){return [i,i];}
+    if(el == tab[j]){return [j,j];}
+    return [i,j]
+}
+
+module.exports = {solveCubic, mod, cubeRoot, signedCurvatureBetween, findBoundingIndexes};
