@@ -1,11 +1,11 @@
-let {Point} = require("./point");
-let {Track} = require("./track");
-let {signedCurvatureBetween, mod} = require("./utils");
-let {SmoothSquare} = require("./bumps");
-let {Segment} = require("./segment");
+import { Point } from "./point.js";
+import { Track } from "./track.js";
+import { signedCurvatureBetween, mod } from "./utils.js";
+import { SmoothSquare } from "./bumps.js";
+import { Segment } from "./segment.js";
 const LN_250 = Math.log(250);
 
-class Traj {
+export class Traj {
     constructor(setCreationTimestamp = false) {
         this.n = Track.extPoints.length;
         this.laterals = []; //array of lateral placement values [n]
@@ -216,5 +216,3 @@ class Traj {
         return [(mutationPoint - softWindSemiWidth), (mutationPoint + softWindSemiWidth)];//can be outside [0, n-1] but first el must be smaller than second;
     }
 }
-
-module.exports = {Traj};

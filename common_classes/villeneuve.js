@@ -1,8 +1,8 @@
-let {SmoothBorderLoop} = require("./smoothBorderLoop");
-let {Point} = require("./point");
-let {TrackZone} = require("./trackZone");
+import { SmoothBorderLoop } from "./smoothBorderLoop.js";
+import { Point } from "./point.js";
+import { TrackZone } from "./trackZone.js";
 
-class Villeneuve{
+export class Villeneuve{
     static topleftGoogleEarthTile = new Point(620232, 750141);
     static numOfTiles = [49, 145];
     static pathToTiles = '../google_earth_fetcher/villeneuve';
@@ -27,5 +27,3 @@ class Villeneuve{
     ];
 
 }
-
-module.exports = {Villeneuve};

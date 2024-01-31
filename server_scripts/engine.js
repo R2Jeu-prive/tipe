@@ -1,10 +1,13 @@
 let {Track} = require("../common_classes/track");
 let {Traj} = require("../common_classes/traj");
+const { Villeneuve } = require("../common_classes/villeneuve");
 let {SaveSystem} = require("./saveSystem");
 let {Task} = require("./task");
 
 class Engine{
     constructor(){
+        this.track = new Track(Villeneuve);
+
         //EVOLUTION
         this.mutationForce = 0.1;
         this.mutationSemiLength = 5;
@@ -14,8 +17,8 @@ class Engine{
 
         //BASE
         this.running = false;
-        this.trajs = [new Traj()];
-        this.SetInitTrajs(0);
+        /** @type {Traj[]}*/
+        this.trajs = [];
 
         //MONITORING
         this.lastGetStateTickCount = 0;
@@ -24,8 +27,8 @@ class Engine{
 
         //TASKS
         this.tasks = [];
-        this.taskWaiting = false;
-        this.lastGetStateTimestamp = -1;
+        this.tasksPaused = false;
+        this.tasksPauseStartTimestamp = -1;
         this.HandleTasks();
     }
 

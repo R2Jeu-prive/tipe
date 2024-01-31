@@ -15,9 +15,19 @@
 </head>
 
 <body>
-    <canvas height="768" width="1792" id="canvasBack"></canvas>
-    <canvas height="768" width="1792" id="canvasMid"></canvas>
-    <canvas height="768" width="1792" id="canvasFore"></canvas>
+    <div id="left-pannel">
+        <div id="top-pannel">
+            <canvas id="canvasBack"></canvas>
+            <canvas id="canvasMid"></canvas>
+            <canvas id="canvasFore"></canvas>
+        </div>
+        <div id="bottom-pannel">
+            bottom
+        </div>
+    </div>
+    <div id="right-pannel">
+        right
+    </div>
     <div id="params">
         <label class="label">Interact Key :<input id="password" type="password" autocomplete="one-time-code"/></label>
         <button onclick="Server.OrderStart()">Start</button>
@@ -47,7 +57,7 @@
         <p id="successRate">0%</p>
         <p id="bestEval">No data</p>
     </div>
-    <script src="js/index.js"></script>
+    <script src="js/index.js"></script-->
 </body>
 
 </html>

@@ -1,4 +1,4 @@
-class Line{
+export class Line{
     constructor(_u,_v,_w){
         //ux + vy = w
         if(_u == 0 && _v == 0){console.error("u=v=0 doesn't represent a line");}
@@ -21,5 +21,3 @@ class Line{
         return this;
     }
 }
-
-module.exports = {Line};

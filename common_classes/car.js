@@ -1,6 +1,6 @@
-let {findBoundingIndexes} = require("./utils");
+import * as Utils from "./utils.js"
 
-class Car{
+export class Car{
     constructor(){
         this.mass; //in kg
         this.roadFrictionCoef;
@@ -35,7 +35,7 @@ class Car{
 
     GetTorque(engineRotSpeed){
         let engineRPM = engineRotSpeed*30/Math.PI;
-        let [i, j] = findBoundingIndexes(engineRPM, this.engineRPMs);
+        let [i, j] = Utils.findBoundingIndexes(engineRPM, this.engineRPMs);
         if(i == -1 && j == -1){
             return 0;// outside operating range
         }
@@ -47,5 +47,3 @@ class Car{
         return torque;
     }
 }
-
-module.exports = {Car};

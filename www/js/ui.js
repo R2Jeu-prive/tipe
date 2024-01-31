@@ -7,7 +7,7 @@ class UI{
     static zoom = 0;
 
     static Init(){
-        Canvas.canvasFore.addEventListener("mousedown", UI.MouseDown.bind(this));
+        TrackViewer.canvasFore.addEventListener("mousedown", UI.MouseDown.bind(this));
         document.addEventListener("mousemove", UI.MouseMove.bind(this));
         document.addEventListener("mouseup", UI.MouseUp.bind(this));
         document.addEventListener("keydown", UI.KeyDown.bind(this));
@@ -77,14 +77,6 @@ class UI{
         if(UI.panY > tileSize*Track.numOfTiles[1] - Canvas.canvasBack.height){UI.panY = tileSize*Track.numOfTiles[1] - Canvas.canvasBack.height;}*/
         UI.panStartX = e.pageX;
         UI.panStartY = e.pageY;
-        Canvas.DrawBack();
-    }
-
-    static RefreshState(){
-        Server.RequestState().then(function(state){
-            console.log(state);
-            Canvas.trajs = state.trajs;
-            Canvas.DrawFore();
-        })
+        TrackViewer.DrawBack();
     }
 }

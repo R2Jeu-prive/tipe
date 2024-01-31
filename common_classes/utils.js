@@ -1,17 +1,17 @@
-let {Point} = require("./point");
+import { Point } from "./point.js";
 
-function IEEEtoHex(x){
+export function IEEEtoHex(x){
     let buf = new ArrayBuffer(8);
     (new Float64Array(buf)[0]) = x;
     return [(new Uint32Array(buf))[0],(new Uint32Array(buf))[1]];
 }
 
-function cubeRoot(x){
+export function cubeRoot(x){
     var y = Math.pow(Math.abs(x), 1/3);
     return x < 0 ? -y : y;
 }
 
-function solveCubic(a, b, c, d) {
+export function solveCubic(a, b, c, d) {
     if (Math.abs(a) < 1e-8) { // Quadratic case, ax^2+bx+c=0
         a = b; b = c; c = d;
         if (Math.abs(a) < 1e-8) { // Linear case, ax+b=0
@@ -60,7 +60,7 @@ function solveCubic(a, b, c, d) {
     return roots;
 }
 
-function mod(x,n){
+export function mod(x,n){
     //return x % n in [0,n-1]
     return ((x % n) + n) % n;
 }
@@ -71,7 +71,7 @@ function mod(x,n){
  * @param {Point} c 
  * @param {Number} pxToMetersRatio 
  */
-function signedCurvatureBetween(a, b, c, pxToMetersRatio){
+export function signedCurvatureBetween(a, b, c, pxToMetersRatio){
     //https://en.wikipedia.org/wiki/Menger_curvature#Definition
     //https://math.stackexchange.com/questions/2511452/how-do-i-calculate-the-signed-area-of-a-triangle-in-3d-space
     let ab = a.DistTo(b)*pxToMetersRatio;
@@ -87,7 +87,7 @@ function signedCurvatureBetween(a, b, c, pxToMetersRatio){
  * @param tab an array of numbers in ascending order
  * @returns two bounding indexes [i,j] so that tab[i] <= el <= tab[j] and j-i is minimal
  */
-function findBoundingIndexes(el, tab){
+export function findBoundingIndexes(el, tab){
     if(el < tab[0] || el > tab[tab.length - 1]){return [-1,-1];}
     let i = 0;
     let j = tab.length - 1;
@@ -103,5 +103,3 @@ function findBoundingIndexes(el, tab){
     if(el == tab[j]){return [j,j];}
     return [i,j]
 }
-
-module.exports = {solveCubic, mod, cubeRoot, signedCurvatureBetween, findBoundingIndexes};

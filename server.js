@@ -1,6 +1,6 @@
+import { Track } from "./common_classes/track.js";
+
 let {Track} = require("./common_classes/track");
-let {Villeneuve} = require("./common_classes/villeneuve");
-let {Traj} = require("./common_classes/traj");
 let {Engine} = require("./server_scripts/engine");
 
 require('dotenv').config();

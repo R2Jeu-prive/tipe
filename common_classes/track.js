@@ -1,9 +1,9 @@
-let {SmoothBorderLoop} = require("./smoothBorderLoop");
-let {Point} = require("./point");
-let {TrackZone} = require("./trackZone");
-let {Villeneuve} = require("./villeneuve");
+import { SmoothBorderLoop } from "./smoothBorderLoop.js";
+import { Point } from "./point.js";
+import { TrackZone } from "./trackZone.js";
+import { Villeneuve } from "./villeneuve.js";
 
-class Track_{
+export class Track{
     constructor(staticTrackClass){
         //values are placeholders
         this.topleftGoogleEarthTile = new Point();
@@ -37,21 +37,6 @@ class Track_{
             this.lateralZoneWeights.push(this.lateralZoneWeights.shift());
         }
     }
-
-    /*static DrawTile(u,v,canvasX,canvasY){
-        let img = new Image();
-        let tileSize = Math.max(256*Math.pow(2,UI.zoom), 256);
-        let x = u + this.topleftGoogleEarthTile.x;
-        let y = v + this.topleftGoogleEarthTile.y;
-        let path = this.pathToTiles
-        if(UI.zoom < 0){
-            path += "_dezoom_" + (-UI.zoom);
-        }
-        img.addEventListener('load', function() {
-            Canvas.ctxBack.drawImage(img, canvasX, canvasY, tileSize, tileSize);
-        });
-        img.src = path + '/' + x + '_' + y + '.png';
-    }*/
 
     GenerateBorderPoints(maxDistBetweenPoints = 20){
         let quadDistConstraint = maxDistBetweenPoints*maxDistBetweenPoints;
@@ -153,31 +138,4 @@ class Track_{
             }
         }
     }
-
-    /*static GenerateShortestTraj(){
-        let midTraj = new Traj();
-        let shortestPath = new Traj();
-        midTraj.BuildPoints();
-        //calculate if track is turning left or right
-        for(let i = 1; i < midTraj.points.length-1; i++){
-            let vectA = new Point(midTraj.points[i-1].x - midTraj.points[i].x, midTraj.points[i-1].y - midTraj.points[i].y);
-            let vectB = new Point(midTraj.points[i].y - midTraj.points[i+1].y, midTraj.points[i+1].x - midTraj.points[i].x);
-            if(vectA.x*vectB.x + vectA.y*vectB.y > 0){
-                //turning right
-                shortestPath.laterals[i] = 1;
-            }else{
-                //turning left
-                shortestPath.laterals[i] = 0;
-            }
-        }
-        //copy first and last point
-        shortestPath.laterals[0] = shortestPath.laterals[1];
-        shortestPath.laterals[midTraj.points.length-1] = shortestPath.laterals[midTraj.points.length-2];
-    }*/
 }
-
-const Track = new Track_(Villeneuve);
-
-console.log("Built Track");
-
-module.exports = {Track};
