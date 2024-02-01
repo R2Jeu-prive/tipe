@@ -1,11 +1,23 @@
-const fs = require("fs");
-let {Traj} = require("../common_classes/traj");
-let {Track} = require("../common_classes/track");
-let {mod} = require("../common_classes/utils")
+import * as fs from "fs";
+import { Traj } from "../common_classes/traj.js";
+import { Track } from "../common_classes/track.js";
+import { mod } from "../common_classes/utils.js";
+import { Engine } from "./engine.js";
+import { TaskManager } from "./taskManager.js";
+import { exit } from "node:process";
 
-class SaveSystem{
+export class SaveSystem{
     constructor(){
+        //will be set by engine once everything is created
+        /** @type {Engine}*/
+        this.engine = null;
+        /** @type {TaskManager}*/
+        this.taskManager = null;
+
+        /** @type {Traj[]}*/
         this.savedTrajs = [];
+
+        this.RefreshSaves();
     }
 
     RefreshSaves(){
@@ -20,58 +32,72 @@ class SaveSystem{
 
     /**
      * 
-     * @param {Traj} traj 
-     * @param {JSON} data
-     * @param {String} prefix
-     * @param {Boolean} timestampName
+     * @param {Traj} traj to save
+     * @param {Object} data attributes to save to the log file
+     * @param {String} experimentName experiment that has generated this traj or any other prefix to group saved trajs
+     * @param {Boolean} saveLaterals //if true traj laterals will be saved and can be reloaded later 
      */
-    SaveTraj(traj, data, prefix = "testing", saveLaterals = false){
-        //we save one or two files : name.json and name.dat
+    SaveTraj(traj, data, experimentName = "testing", saveLaterals = false){
+        //we save one or two files : fileName.json and fileName.dat
         //first one contains few informations
         //second one contains n 64bit floats representing the laterals of the traj
-        //let fileName = timestampName ? prefix + "_" + Date.now() : prefix;
-        let fileName = prefix + "_" + Date.now();
-        let buf = new ArrayBuffer(8*traj.laterals.length);
-        for(let i = 0; i < traj.laterals.length; i++){
-            (new Float64Array(buf)[i]) = traj.laterals[mod(i - Track.startOffset, Track.intPoints.length)];
+        try{
+            let fileName = experimentName + "_" + Date.now();
+            let buf = new ArrayBuffer(8*traj.laterals.length);
+            for(let i = 0; i < traj.laterals.length; i++){
+                (new Float64Array(buf)[i]) = traj.laterals[mod(i - this.engine.track.startOffset, this.engine.track.length)];
+            }
+            if(saveLaterals){
+                fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
+                data.fileName = fileName;
+            }
+            fs.writeFileSync("./results/logs/"+ prefix + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
+        }catch(e){
+            console.error(e);
+            console.error("SaveSystem : SaveTraj failed and could be critical so exiting");
+            exit(1);
         }
-        if(saveLaterals){
-            fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
-            data.fileName = fileName;
-        }
-        fs.writeFileSync("./results/logs/"+ prefix + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
     }
 
+    /**
+     * 
+     * @param {String} expName name of the experiment to load
+     * @returns the string containing all commands of the experiment
+     */
     FetchExperiment(expName){
         let commands = "wait 6;\n";
         try{
             commands = commands + fs.readFileSync("./results/experiments/" + expName + ".txt", { encoding: 'utf8', flag: 'r' });
         }catch(e){
-            console.warn("failed to find experiment");
+            console.error(e);
+            console.error("SaveSystem : failed to find experiment");
         }
         return commands.replace(/\r/g,"");
     }
 
-    LoadTraj(trajName = "bravo_1702361679064", evaluationMode = "dont"){
-        let buf = fs.readFileSync("./results/trajs/" + trajName + ".dat");
-        let lats = [];
-        let n = buf.length/8;
-        for(let i = 0; i < n; i++){
-            let lat = new ArrayBuffer(8);
-            for(let j = 0; j < 8; j++){
-                (new Uint8Array(lat)[j]) = buf[8*i+j];
+    /**
+     * @param {String} trajName the name of the traj to load as prefix_timestamp
+     * @returns {Traj} a traj that is set with the saved laterals
+     */
+    LoadTraj(trajName){
+        try{
+            let buf = fs.readFileSync("./results/trajs/" + trajName + ".dat");
+            let lats = [];
+            let n = buf.length/8;
+            for(let i = 0; i < n; i++){
+                let lat = new ArrayBuffer(8);
+                for(let j = 0; j < 8; j++){
+                    (new Uint8Array(lat)[j]) = buf[8*i+j];
+                }
+                lats.push(new Float64Array(lat)[0]);
             }
-            lats.push(new Float64Array(lat)[0]);
+            let loadedTraj = new Traj(n, true);
+            loadedTraj.laterals = lats;
+            return loadedTraj;
+        }catch(e){
+            console.error(e);
+            console.error("SaveSystem : LoadTraj failed")
+            return new Traj(1, false);//giving traj of length 1 to raise higher warning
         }
-        let loadedTraj = new Traj(true);
-        loadedTraj.laterals = lats;
-        loadedTraj.ShiftToStartOffset();
-        loadedTraj.BuildPoints();
-        if(evaluationMode != "dont"){
-            loadedTraj.Evaluate(evaluationMode);
-        }
-        return loadedTraj;
     }
 }
-
-module.exports = {SaveSystem};

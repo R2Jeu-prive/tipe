@@ -1,11 +1,18 @@
-let {Track} = require("../common_classes/track");
-let {Traj} = require("../common_classes/traj");
-const { Villeneuve } = require("../common_classes/villeneuve");
-let {SaveSystem} = require("./saveSystem");
-let {Task} = require("./task");
+import { Track } from "../common_classes/track.js";
+import { Traj } from "../common_classes/traj.js";
+import { Villeneuve } from "../common_classes/villeneuve.js";
+import { SaveSystem } from "./saveSystem.js";
+import { TaskManager } from "./taskManager.js";
 
-class Engine{
+export class Engine{
     constructor(){
+        //will be set by server when everything is created
+        /** @type {TaskManager}*/
+        this.taskManager = null;
+        /** @type {SaveSystem}*/
+        this.saveSystem = null;
+
+        /** @type {Track}*/
         this.track = new Track(Villeneuve);
 
         //EVOLUTION
@@ -23,23 +30,6 @@ class Engine{
         //MONITORING
         this.lastGetStateTickCount = 0;
         this.lastGetStateTimestamp = -1;
-        this.saveSystem = new SaveSystem();
-
-        //TASKS
-        this.tasks = [];
-        this.tasksPaused = false;
-        this.tasksPauseStartTimestamp = -1;
-        this.HandleTasks();
-    }
-
-    HandleTasks(){
-        if(this.tasks.length > 0){
-            let completed = Task.Execute(this, this.tasks[0]);
-            if(completed){
-                this.tasks.shift();
-            }
-        }
-        setImmediate(() => {this.HandleTasks()});
     }
 
     GetState(){
@@ -62,19 +52,26 @@ class Engine{
         return state;
     }
 
-    SetInitTrajs(count){
+    ClearTrajs(){
         if(this.running){return false;}
         this.trajs = [];
+        return true;
+    }
+
+    AddRandomTrajs(count){
+        if(this.running){return false;}
         for(let i = 0; i < count; i++){
-            this.trajs.push(new Traj(true));
-            let randomVal = Math.random();
+            let randomConstant = Math.random();
+            let newTraj = new Traj(true);
             for(let j = 0; j < Track.extPoints.length; j++){
-                this.trajs[i].laterals[j] = randomVal;
+                newTraj.laterals[j] = randomConstant;
             }
-            this.trajs[i].BuildPoints();
-            this.trajs[i].CalcDists();
-            this.trajs[i].CalcCurvature();
-            this.trajs[i].isBuilt = true;
+            newTraj.BuildPoints();
+            newTraj.CalcDists();
+            newTraj.CalcCurvature();
+            newTraj.isBuilt = true;
+
+            this.trajs.push(newTraj);
         }
         return true;
     }
@@ -125,6 +122,8 @@ class Engine{
         this.lastGetStateTimestamp = -1;
         return true;
     }
+
+    //////////////////////////////////////
 
     ClearTasks(){
         this.taskWaiting = false;

@@ -1,14 +1,18 @@
 import { Point } from "./point.js";
-import { Track } from "./track.js";
 import { signedCurvatureBetween, mod } from "./utils.js";
 import { SmoothSquare } from "./bumps.js";
 import { Segment } from "./segment.js";
 const LN_250 = Math.log(250);
 
 export class Traj {
-    constructor(setCreationTimestamp = false) {
-        this.n = Track.extPoints.length;
+    /**
+     * @param {Number} n int number of laterals
+     * @param {Boolean} setCreationTimestamp 
+     */
+    constructor(n, setCreationTimestamp = false) {
+        this.n = n;
         this.laterals = []; //array of lateral placement values [n]
+        /** @type {Point[]} */
         this.points = []; //array of Points in pixel cooridnates [n]
         this.absCurves = []; //array of curvuture values [n]
         this.dists = []; //array of distances in meters to next point [n]
@@ -18,7 +22,7 @@ export class Traj {
     }
 
     static DeepCopy(originTraj, resetCreationTimestamp = false){
-        let copy = new Traj(resetCreationTimestamp);
+        let copy = new Traj(originTraj.n, resetCreationTimestamp);
         if(!resetCreationTimestamp){copy.creationTimestamp = originTraj.creationTimestamp;}
         for(let i = 0; i < originTraj.n; i++){
             copy.laterals[i] = originTraj.laterals[i];
@@ -26,10 +30,13 @@ export class Traj {
         return copy;
     }
 
-    ShiftToStartOffset(){
+    /**
+     * @param {Number} offset int that represents the number of laterals to shift 
+     */
+    Shift(offset){
         let newLats = []
-        for(let i = 0; i < Track.extPoints.length; i++){
-            newLats.push(this.laterals[mod(i + Track.startOffset, Track.extPoints.length)])
+        for(let i = 0; i < this.n; i++){
+            newLats.push(this.laterals[mod(i + offset, this.n)])
         }
         this.laterals = newLats;
         this.evaluation = -1;//invalidate previous evaluations

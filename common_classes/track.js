@@ -1,7 +1,6 @@
 import { SmoothBorderLoop } from "./smoothBorderLoop.js";
 import { Point } from "./point.js";
 import { TrackZone } from "./trackZone.js";
-import { Villeneuve } from "./villeneuve.js";
 
 export class Track{
     constructor(staticTrackClass){

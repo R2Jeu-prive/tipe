@@ -1,13 +1,23 @@
 import { Track } from "./common_classes/track.js";
-
-let {Track} = require("./common_classes/track");
-let {Engine} = require("./server_scripts/engine");
+import { Engine } from "./server_scripts/engine.js";
+import { SaveSystem } from "./server_scripts/saveSystem.js";
+import { TaskManager } from "./server_scripts/taskManager.js";
 
 require('dotenv').config();
 var http = require("http");
 var https = require("https");
 var fs = require('fs');
 var engine = new Engine();
+var saveSystem = new SaveSystem();
+var taskManager = new TaskManager();
+
+engine.saveSystem = saveSystem;
+engine.taskManager = taskManager;
+taskManager.engine = engine;
+taskManager.saveSystem = saveSystem;
+saveSystem.engine = engine;
+saveSystem.taskManager = taskManager;
+taskManager.HandleTasks();
 
 let allowedURLs = [
     {regex:/^\/index\.(html|css)$/g, prefix:"/www"},
