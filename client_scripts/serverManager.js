@@ -21,7 +21,7 @@ export class ServerManager{
         ServerManager.trajs = state.trajs;
         ServerManager.engineRunning = state.running;
         ServerManager.engineTps = state.tps
-        TrackViewer.DrawBack();
+        TrackViewer.needsDrawBack = true;
     }
 
     static async OrderClearTasks(){
@@ -41,7 +41,7 @@ export class ServerManager{
 
     static async OrderAddTasks(){
         let userPassword = document.getElementById("password").value;
-        let taskList = document.getElementById("new-tasks").value;
+        let taskList = document.getElementById("tasks").value;
         let response = await fetch("/addtasks", {
             method: "POST",
             body:JSON.stringify({password:userPassword, taskList:taskList})

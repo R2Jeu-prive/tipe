@@ -56,7 +56,7 @@ export class TaskManager{
         const mutationModeRegex = /^(bump|wind)$/g;
         const boolRegex = /^(true|false)$/g;
         const simpleStringRegex = /^[a-zA-Z0-9]+$/g;
-        const trajNameRegex = /^[a-zA-Z0-9]+_[0-9]+\.dat$/g
+        const trajNameRegex = /^[a-zA-Z0-9]+_[0-9]+$/g
         let validCommands = [];
 
         if(str.match(commandListRegex) == null){
@@ -96,9 +96,8 @@ export class TaskManager{
                 if(words[0] == "save"
                 && words[1].match(simpleStringRegex) != null
                 && words[2].match(boolRegex) != null){validCommands.push(commands[i]);continue;}
-            }else{
-                return false;//this command is not correctly formated
             }
+            return false;//this command is not correctly formated
         }
         this.tasks = this.tasks.concat(validCommands);
         return true;
@@ -149,16 +148,16 @@ export class TaskManager{
             }
             return true;
         }
-        if(command.match(/^loadTraj/g)){
-            let trajName = command.split(" ")[2];
+        if(command.match(/^addTraj/g)){
+            let trajName = command.split(" ")[1];
             if(!this.engine.running){
                 let loadedTraj = this.saveSystem.LoadTraj(trajName);
                 if(loadedTraj.n != this.engine.track.n){
                     console.error("Auto Task Failed because traj and track are not the same size !");
                 }else{
                     loadedTraj.Shift(this.engine.track.startOffset);
-                    loadedTraj.BuildPoints();
-                    loadedTraj.Evaluate(this.engine.evaluationMode);
+                    loadedTraj.BuildPoints(this.engine.track);
+                    loadedTraj.Evaluate(this.engine.evaluationMode, this.engine.track);
                     this.engine.trajs.push(loadedTraj);
                     console.log("Loaded Traj " + trajName);
                 }
@@ -183,7 +182,7 @@ export class TaskManager{
             this.engine.saveSystem.SaveTraj(bestTraj, saveJson, prefix, command.split(" ")[2] == "true");
             return true;
         }
-        if(command.match(/^runexp/g)){
+        if(command.match(/^runExp/g)){
             let expName = command.split(" ")[1];
             let expCommands = this.saveSystem.FetchExperiment(expName);
             if(this.ParseCheckAndAddTasks(expCommands)){
@@ -193,19 +192,19 @@ export class TaskManager{
             }
             return true;
         }
-        if(command.match(/^execute setMutationSemiLength/)){
+        if(command.match(/^setMutationSemiLength/)){
             //TODO CHECK ENGINE RUNNING
-            this.engine.mutationSemiLength = parseInt(command.split(" ")[2]);
+            this.engine.mutationSemiLength = parseInt(command.split(" ")[1]);
             console.log("mutationSemiLength = " + engine.mutationSemiLength);
             return true;
         }
-        if(command.match(/^execute setMutationForce/)){
-            engine.mutationForce = parseFloat(command.split(" ")[2]);
+        if(command.match(/^setMutationForce/)){
+            engine.mutationForce = parseFloat(command.split(" ")[1]);
             console.log("mutationForce = " + engine.mutationForce);
             return true;
         }
-        if(command.match(/^execute setMutationMode/)){
-            engine.mutationMode = command.split(" ")[2];
+        if(command.match(/^setMutationMode/)){
+            engine.mutationMode = command.split(" ")[1];
             console.log("mutationMode = " + engine.mutationMode);
             return true;
         }

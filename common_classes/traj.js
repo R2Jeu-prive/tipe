@@ -2,6 +2,7 @@ import { Point } from "./point.js";
 import { signedCurvatureBetween, mod } from "./utils.js";
 import { SmoothSquare } from "./bumps.js";
 import { Segment } from "./segment.js";
+import { Track } from "./track.js";
 const LN_250 = Math.log(250);
 
 export class Traj {
@@ -42,41 +43,55 @@ export class Traj {
         this.evaluation = -1;//invalidate previous evaluations
     }
 
-    BuildPoints(){
+    /**
+     * @param {Track} track 
+     */
+    BuildPoints(track){
         this.points = [];
-        for (let i = 0; i < Track.extPoints.length; i++) {
-            let x = (1-this.laterals[i])*Track.extPoints[i].x + this.laterals[i]*Track.intPoints[i].x;
-            let y = (1-this.laterals[i])*Track.extPoints[i].y + this.laterals[i]*Track.intPoints[i].y;
+        for (let i = 0; i < track.n; i++) {
+            let x = (1-this.laterals[i])*track.extPoints[i].x + this.laterals[i]*track.intPoints[i].x;
+            let y = (1-this.laterals[i])*track.extPoints[i].y + this.laterals[i]*track.intPoints[i].y;
             this.points.push(new Point(x, y));
         }
     }
 
-    CalcDists(){
+    /**
+     * @param {Track} track 
+     */
+    CalcDists(track){
         this.dists = [];
         for (let i = 0; i < this.n-1; i++) {
-            this.dists.push(Track.pxToMetersRatio*this.points[i].DistTo(this.points[i+1]));
+            this.dists.push(track.pxToMetersRatio*this.points[i].DistTo(this.points[i+1]));
         }
-        this.dists.push(Track.pxToMetersRatio*this.points[this.n-1].DistTo(this.points[0]));
+        this.dists.push(track.pxToMetersRatio*this.points[this.n-1].DistTo(this.points[0]));
     }
 
-    CalcCurvature(){
+    /**
+     * @param {Track} track 
+     */
+    CalcCurvature(track){
         let physicallyPossible = true;
-        this.absCurves = [Math.abs(signedCurvatureBetween(this.points[this.n-1], this.points[0], this.points[1], Track.pxToMetersRatio))];
+        this.absCurves = [Math.abs(signedCurvatureBetween(this.points[this.n-1], this.points[0], this.points[1], track.pxToMetersRatio))];
         for(let i = 1; i < this.n-1; i++){
-            this.absCurves.push(Math.abs(signedCurvatureBetween(this.points[i-1], this.points[i], this.points[i+1], Track.pxToMetersRatio)))
+            this.absCurves.push(Math.abs(signedCurvatureBetween(this.points[i-1], this.points[i], this.points[i+1], track.pxToMetersRatio)))
             physicallyPossible = physicallyPossible && Math.abs(this.absCurves[i]) < 0.5;//not tighter than 2m radius turn
         }
-        this.absCurves.push(Math.abs(signedCurvatureBetween(this.points[this.n-2], this.points[this.n-1], this.points[0], Track.pxToMetersRatio)))
+        this.absCurves.push(Math.abs(signedCurvatureBetween(this.points[this.n-2], this.points[this.n-1], this.points[0], track.pxToMetersRatio)))
         return physicallyPossible;//TODO not checking first and last
     }
 
-    Evaluate(mode){
+    /**
+     * 
+     * @param {String} mode 
+     * @param {Track} track 
+     */
+    Evaluate(mode, track){
         if(this.evaluation > 0){
             return;
         }
-        this.BuildPoints();
-        this.CalcDists();
-        this.CalcCurvature();
+        this.BuildPoints(track);
+        this.CalcDists(track);
+        this.CalcCurvature(track);
         if(mode == "distance"){
             this.evaluation = 0;
             for(let i = 0; i < this.n; i++){
@@ -97,7 +112,7 @@ export class Traj {
         }
     }
 
-    Mutate(force = 0.2, semiWidth = 20, mutationMode = "bump") {
+    /*Mutate(force = 0.2, semiWidth = 20, mutationMode = "bump") {
         this.evaluation = -1;//invalidate previous evaluations
         let chosenSemiWidth = semiWidth;
         if(semiWidth == 0){
@@ -109,13 +124,7 @@ export class Traj {
             return this.MutateWind(force, 0, chosenSemiWidth);
         }else{
             console.log("Mutation Mode Not Yet Implemented");   
-        }/*else if(mutationMode == "both"){
-            if(rand() >= 0.5){//coin flip
-                this.MutateBump(force, chosenSemiWidth);
-            }else{
-                this.MutateWind(force, chosenSemiWidth, chosenSemiWidth + 15)
-            }
-        }*/
+        }
     }
 
     MutateBump(force, semiWidth) {
@@ -144,14 +153,14 @@ export class Traj {
             if(this.laterals[current] > 1){this.laterals[current] = 1;}
         }
         return [(mutationPoint - semiWidth), (mutationPoint + semiWidth)];//can be outside [0, n-1] but first el must be smaller than second;
-    }
+    }*/
 
     /**
      * @param {Number} force 0 is no mutation 1 is potentially strong mutation
      * @param {Number} hardWindSemiWidth zone in which points will be moved the same amount as mutationPoint
      * @param {Number} softWindSemiWidth total zone of effect (hardWind + blending)
      */
-    MutateWind(force, hardWindSemiWidth, softWindSemiWidth){
+    /*MutateWind(force, hardWindSemiWidth, softWindSemiWidth){
         this.evaluation = -1;//invalidate evaluation
         let mutationPoint = Math.floor(Math.random()*this.n);
         
@@ -221,5 +230,5 @@ export class Traj {
         }
 
         return [(mutationPoint - softWindSemiWidth), (mutationPoint + softWindSemiWidth)];//can be outside [0, n-1] but first el must be smaller than second;
-    }
+    }*/
 }
