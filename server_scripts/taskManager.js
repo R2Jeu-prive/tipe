@@ -35,6 +35,15 @@ export class TaskManager{
     }
 
     /**
+     * clears all tasks and resets waiting status
+     */
+    ClearTasks(){
+        this.tasks = [];
+        this.waiting = false;
+        this.waitEndTime = -1;
+    }
+
+    /**
      * Adds tasks given in str to tasks array if they are correctly formated
      * @param {String} str 
      * @returns {Boolean} true if all commands are valid and were added to tasks array, false if one failed and everything was aborted
@@ -204,5 +213,3 @@ export class TaskManager{
         return true;
     }
 }
-
-module.exports = {Task};

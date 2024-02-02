@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import { Traj } from "../common_classes/traj.js";
-import { Track } from "../common_classes/track.js";
 import { mod } from "../common_classes/utils.js";
 import { Engine } from "./engine.js";
 import { TaskManager } from "./taskManager.js";

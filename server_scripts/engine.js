@@ -1,6 +1,5 @@
 import { Track } from "../common_classes/track.js";
 import { Traj } from "../common_classes/traj.js";
-import { Villeneuve } from "../common_classes/villeneuve.js";
 import { SaveSystem } from "./saveSystem.js";
 import { TaskManager } from "./taskManager.js";
 
@@ -13,7 +12,7 @@ export class Engine{
         this.saveSystem = null;
 
         /** @type {Track}*/
-        this.track = new Track(Villeneuve);
+        this.track = new Track("Villeneuve");
 
         //EVOLUTION
         this.mutationForce = 0.1;
@@ -34,12 +33,11 @@ export class Engine{
 
     GetState(){
         let state = {};
+        state.trackName = this.track.name
         state.running = this.running;
         state.trajs = [];
         for(let i = 0; i < this.trajs.length; i++){
-            state.trajs.push({});
-            state.trajs[i].points = this.trajs[i].points;
-            state.trajs[i].absCurves = this.trajs[i].absCurves;
+            state.trajs.push(this.trajs[i]);//[TODO] optimise to send only data needed for front-end to rebuild traj, for now sending traj "as is" for debug purposes
         }
         if(this.lastGetStateTimestamp == -1){
             state.tps = 0;
@@ -62,7 +60,7 @@ export class Engine{
         if(this.running){return false;}
         for(let i = 0; i < count; i++){
             let randomConstant = Math.random();
-            let newTraj = new Traj(true);
+            let newTraj = new Traj(this.track.n, true);
             for(let j = 0; j < Track.extPoints.length; j++){
                 newTraj.laterals[j] = randomConstant;
             }
@@ -122,25 +120,4 @@ export class Engine{
         this.lastGetStateTimestamp = -1;
         return true;
     }
-
-    //////////////////////////////////////
-
-    ClearTasks(){
-        this.taskWaiting = false;
-        this.taskWaitingEndTime = -1;
-        this.tasks = [];
-        return true;
-    }
-
-    AddTasks(tasks){
-        let validTasks = Task.ParseValidTasks(tasks, this.saveSystem);
-        if(validTasks.length == 0){
-            return false;
-        }else{
-            this.tasks = this.tasks.concat(validTasks);
-            return true;
-        }
-    }
 }
-
-module.exports = {Engine};
