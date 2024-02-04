@@ -3,6 +3,7 @@ import { signedCurvatureBetween, mod } from "./utils.js";
 import { SmoothSquare } from "./bumps.js";
 import { Segment } from "./segment.js";
 import { Track } from "./track.js";
+import { Car } from "./car.js";
 const LN_250 = Math.log(250);
 
 export class Traj {
@@ -15,9 +16,9 @@ export class Traj {
         this.laterals = []; //array of lateral placement values [n]
         /** @type {Point[]} */
         this.points = []; //array of Points in pixel cooridnates [n]
-        this.absCurves = []; //array of curvuture values [n]
+        this.absCurv = []; //array of curvature values [n]
         this.dists = []; //array of distances in meters to next point [n]
-        this.speeds = []; //array of speed between each point [n]
+        this.speeds = []; //array of speed in m/s at each point [n]
         this.evaluation = -1; //-1 if not yet calculated
         this.creationTimestamp = setCreationTimestamp ? Date.now() : -1;
     }
@@ -71,36 +72,63 @@ export class Traj {
      */
     CalcCurvature(track){
         let physicallyPossible = true;
-        this.absCurves = [Math.abs(signedCurvatureBetween(this.points[this.n-1], this.points[0], this.points[1], track.pxToMetersRatio))];
+        this.absCurv = [Math.abs(signedCurvatureBetween(this.points[this.n-1], this.points[0], this.points[1], track.pxToMetersRatio))];
         for(let i = 1; i < this.n-1; i++){
-            this.absCurves.push(Math.abs(signedCurvatureBetween(this.points[i-1], this.points[i], this.points[i+1], track.pxToMetersRatio)))
-            physicallyPossible = physicallyPossible && Math.abs(this.absCurves[i]) < 0.5;//not tighter than 2m radius turn
+            this.absCurv.push(Math.abs(signedCurvatureBetween(this.points[i-1], this.points[i], this.points[i+1], track.pxToMetersRatio)))
+            physicallyPossible = physicallyPossible && Math.abs(this.absCurv[i]) < 0.5;//not tighter than 2m radius turn
         }
-        this.absCurves.push(Math.abs(signedCurvatureBetween(this.points[this.n-2], this.points[this.n-1], this.points[0], track.pxToMetersRatio)))
+        this.absCurv.push(Math.abs(signedCurvatureBetween(this.points[this.n-2], this.points[this.n-1], this.points[0], track.pxToMetersRatio)))
         return physicallyPossible;//TODO not checking first and last
+    }
+
+    /**
+     * @param {Car} car 
+     */
+    CalcMaxTheoricalSpeed(car){
+        this.speeds = [];
+        for (let i = 0; i < this.n; i++) {
+            if(this.absCurv[i] == 0){
+                this.speeds.push(car.theoricalMaxSpeed);
+                continue;
+            }
+            let maxSpeed = Math.sqrt(car.roadFrictionCoef * car.g / this.absCurv[i]);
+            if(maxSpeed > car.theoricalMaxSpeed){
+                this.speeds.push(car.theoricalMaxSpeed);
+            }else{
+                this.speeds.push(maxSpeed);
+            }
+        }
     }
 
     /**
      * 
      * @param {String} mode 
      * @param {Track} track 
+     * @param {Car} car
      */
-    Evaluate(mode, track){
+    Evaluate(mode, track, car){
         if(this.evaluation > 0){
             return;
         }
         this.BuildPoints(track);
         this.CalcDists(track);
-        this.CalcCurvature(track);
         if(mode == "distance"){
             this.evaluation = 0;
             for(let i = 0; i < this.n; i++){
                 this.evaluation += this.dists[i];
             }
         }else if(mode == "curvature"){
+            this.CalcCurvature(track);
             this.evaluation = 0;
-            for(let i = 0; i < this.points.length; i++){
-                this.evaluation += Math.pow(this.absCurves[i]*100, 2)*this.dists[i];
+            for(let i = 0; i < this.n; i++){
+                this.evaluation += 10000 * Math.pow(this.absCurv[i], 2) * this.dists[i];
+            }
+        }else if(mode == "time"){
+            this.CalcCurvature(track);
+            this.CalcMaxTheoricalSpeed(car);
+            this.evaluation = 0;
+            for(let i = 0; i < this.n; i++){
+                this.evaluation += this.speeds[i] * this.dists[i];
             }
         }
     }

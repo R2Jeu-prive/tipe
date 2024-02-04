@@ -1,5 +1,6 @@
 import { Track } from "../common_classes/track.js";
 import { Traj } from "../common_classes/traj.js";
+import { ChartManager } from "./chartManager.js";
 import { TrackViewer } from "./trackViewer.js";
 
 export class ServerManager{
@@ -19,9 +20,11 @@ export class ServerManager{
             ServerManager.track = new Track(state.trackName);
         }
         ServerManager.trajs = state.trajs;
+        console.log(ServerManager.trajs);
         ServerManager.engineRunning = state.running;
         ServerManager.engineTps = state.tps
         TrackViewer.needsDrawBack = true;
+        ChartManager.Refresh();
     }
 
     static async OrderClearTasks(){

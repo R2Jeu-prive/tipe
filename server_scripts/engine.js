@@ -1,4 +1,5 @@
 import { Track } from "../common_classes/track.js";
+import { Car } from "../common_classes/car.js";
 import { Traj } from "../common_classes/traj.js";
 import { SaveSystem } from "./saveSystem.js";
 import { TaskManager } from "./taskManager.js";
@@ -14,11 +15,14 @@ export class Engine{
         /** @type {Track}*/
         this.track = new Track("Villeneuve");
 
+        /** @type {Car}*/
+        this.car = new Car("Clio");
+
         //EVOLUTION
         this.mutationForce = 0.1;
         this.mutationSemiLength = 5;
         this.maxMutationTries = 100;
-        this.evaluationMode = "curvature";
+        this.evaluationMode = "time";
         this.mutationMode = "bump";
 
         //BASE
@@ -64,10 +68,7 @@ export class Engine{
             for(let j = 0; j < Track.extPoints.length; j++){
                 newTraj.laterals[j] = randomConstant;
             }
-            newTraj.BuildPoints();
-            newTraj.CalcDists();
-            newTraj.CalcCurvature();
-            newTraj.isBuilt = true;
+            newTraj.Evaluate(this.evaluationMode, this.track, this.car);
 
             this.trajs.push(newTraj);
         }
@@ -89,7 +90,7 @@ export class Engine{
     Step(){
         let parentTrajIndex = Math.floor(Math.random()*this.trajs.length)
         let parentTraj = this.trajs[parentTrajIndex];
-        parentTraj.Evaluate(this.evaluationMode);
+        parentTraj.Evaluate(this.evaluationMode, this.track, this.car);
 
         let currentTraj = Traj.DeepCopy(parentTraj, false);
         for(let i = 0; i < this.maxMutationTries; i++){
@@ -99,7 +100,7 @@ export class Engine{
             }catch (e){
                 continue;
             }
-            currentTraj.Evaluate(this.evaluationMode);
+            currentTraj.Evaluate(this.evaluationMode, this.track, this.car);
             if(currentTraj.evaluation < parentTraj.evaluation){
                 this.trajs[parentTrajIndex] = currentTraj;
                 break;

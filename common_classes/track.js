@@ -45,6 +45,7 @@ export class Track{
         for(let prop in staticTrackClass){
             this[prop] = staticTrackClass[prop];
         }
+        
         this.GenerateBorderPoints(this.distBetweenLaterals);
         this.n = this.intPoints.length;
         this.GenerateZoneWeights();

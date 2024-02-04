@@ -157,7 +157,7 @@ export class TaskManager{
                 }else{
                     loadedTraj.Shift(this.engine.track.startOffset);
                     loadedTraj.BuildPoints(this.engine.track);
-                    loadedTraj.Evaluate(this.engine.evaluationMode, this.engine.track);
+                    loadedTraj.Evaluate(this.engine.evaluationMode, this.engine.track, this.engine.car);
                     this.engine.trajs.push(loadedTraj);
                     console.log("Loaded Traj " + trajName);
                 }

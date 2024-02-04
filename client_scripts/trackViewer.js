@@ -90,25 +90,6 @@ export class TrackViewer{
         TrackViewer.needsDrawBack = true;
     }
 
-    static KeyDown(e){
-        if(e.key == "+" && !TrackViewer.panning){
-            TrackViewer.zoom += 1;
-            TrackViewer.panX *= 2;
-            TrackViewer.panY *= 2;
-            TrackViewer.needsDrawBack = true;
-        }else if(e.key == "-" && !TrackViewer.panning){
-            if(TrackViewer.zoom == -5){
-                return;
-            }
-            TrackViewer.zoom -= 1;
-            TrackViewer.panX /= 2;
-            TrackViewer.panY /= 2;
-            TrackViewer.needsDrawBack = true;
-        }else if(e.key == " "){
-            ServerManager.RefreshState();
-        }
-    }
-
     static async DrawTile(tileDrawSize, u, v, canvasX, canvasY){
         if(u < 0 || v < 0 || u >= ServerManager.track.numOfTiles[0] || v >= ServerManager.track.numOfTiles[1]){
             TrackViewer.ctxBack.fillStyle = "black";
@@ -263,7 +244,7 @@ export class TrackViewer{
                 let y2 = ServerManager.trajs[k].points[i].y * zoomFactor - TrackViewer.panY;
                 if(mode == "curvature"){
                     visualScaler = 3000;
-                    let rgb = hslToRgb(120-visualScaler*ServerManager.trajs[k].absCurves[i],100,50)
+                    let rgb = hslToRgb(120-visualScaler*ServerManager.trajs[k].absCurv[i],100,50)
                     let r = toHex(Math.floor(rgb[0]));
                     let g = toHex(Math.floor(rgb[1]));
                     let b = toHex(Math.floor(rgb[2]));
