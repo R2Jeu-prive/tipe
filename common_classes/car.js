@@ -13,7 +13,6 @@ export class Car{
         else{
             console.error("Invalid car name : " + name);
         }
-
         this.mass; //in kg
         this.roadFrictionCoef;
         this.airDragCoef;

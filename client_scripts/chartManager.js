@@ -26,15 +26,23 @@ export class ChartManager{
                         label: 'Traj 0 laterals',
                         data: ServerManager.trajs[0].laterals,
                         fill: false,
-                        borderColor: 'rgb(75, 192, 75)',
+                        borderColor: 'rgb(192, 75, 192)',
                         pointRadius: 0,
                         borderWidth: 1
                     },
                     {
-                        label: 'Traj 0 speed',
-                        data: ServerManager.trajs[0].speeds,
+                        label: 'Traj 0 speed1',
+                        data: ServerManager.trajs[0].speed1,
                         fill: false,
-                        borderColor: 'rgb(75, 192, 192)',
+                        borderColor: 'rgba(192, 75, 75)',
+                        pointRadius: 0,
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Traj 0 speed2',
+                        data: ServerManager.trajs[0].speed2,
+                        fill: false,
+                        borderColor: 'rgb(75, 75, 192)',
                         pointRadius: 0,
                         borderWidth: 1
                     },

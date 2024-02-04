@@ -18,7 +18,9 @@ export class Traj {
         this.points = []; //array of Points in pixel cooridnates [n]
         this.absCurv = []; //array of curvature values [n]
         this.dists = []; //array of distances in meters to next point [n]
-        this.speeds = []; //array of speed in m/s at each point [n]
+        this.speed1 = []; //array of speed  m/s at each point [n] after first pass
+        this.speed2 = []; //array of speed in m/s at each point [n] after second pass
+        this.speed3 = []; //array of speed in m/s at each point [n] after third pass
         this.evaluation = -1; //-1 if not yet calculated
         this.creationTimestamp = setCreationTimestamp ? Date.now() : -1;
     }
@@ -84,18 +86,38 @@ export class Traj {
     /**
      * @param {Car} car 
      */
-    CalcMaxTheoricalSpeed(car){
-        this.speeds = [];
+    CalcSpeeds3Pass(car){
+        this.speed1 = [];
         for (let i = 0; i < this.n; i++) {
             if(this.absCurv[i] == 0){
-                this.speeds.push(car.theoricalMaxSpeed);
+                this.speed1.push(car.theoricalMaxSpeed);
                 continue;
             }
             let maxSpeed = Math.sqrt(car.roadFrictionCoef * car.g / this.absCurv[i]);
             if(maxSpeed > car.theoricalMaxSpeed){
-                this.speeds.push(car.theoricalMaxSpeed);
+                this.speed1.push(car.theoricalMaxSpeed);
             }else{
-                this.speeds.push(maxSpeed);
+                this.speed1.push(maxSpeed);
+            }
+        }
+
+        this.speed2 = this.speed1.map(x => x);
+        for (let i = this.n-1; i > 0; i--){
+            if(this.speed2[i] <= 0){
+                this.speed2[i - 1] = 0;
+                continue;
+            }
+
+            var Rt;
+            let a = Math.pow(car.roadFrictionCoef * car.mass * car.g, 2) - Math.pow(car.mass * this.absCurv[i] * this.speed2[i] * this.speed2[i], 2);
+            if(a < 0){
+                Rt = 0;
+            }else{
+                Rt = -Math.sqrt(a);
+            }
+            this.speed2[i - 1] = -this.dists[i]*(Rt - (car.airDragCoef * this.speed2[i] * this.speed2[i])) / (this.speed2[i] * car.mass) + this.speed2[i]
+            if(this.speed1[i - 1] < this.speed2[i - 1]){
+                this.speed2[i - 1] = this.speed1[i - 1]
             }
         }
     }
@@ -125,10 +147,10 @@ export class Traj {
             }
         }else if(mode == "time"){
             this.CalcCurvature(track);
-            this.CalcMaxTheoricalSpeed(car);
+            this.CalcSpeeds3Pass(car);
             this.evaluation = 0;
             for(let i = 0; i < this.n; i++){
-                this.evaluation += this.speeds[i] * this.dists[i];
+                this.evaluation += this.speed1[i] * this.dists[i];
             }
         }
     }
