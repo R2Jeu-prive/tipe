@@ -13,9 +13,14 @@ export class ChartManager{
     }
 
     static Refresh(){
-        
+        if(ChartManager.chart != null){
+            ChartManager.chart.destroy();
+        }
+
         let indexArray = [];
-        for(let i = 0; i < ServerManager.track.n; i++){indexArray.push(i);}
+        for(let i = 0; i < ServerManager.track.n; i++){
+            indexArray.push(i);
+        }
 
         let config = {
             type: 'line',
@@ -58,6 +63,6 @@ export class ChartManager{
         };
 
 
-        new Chart(ChartManager.ctxChart, config);
+        ChartManager.chart = new Chart(ChartManager.ctxChart, config);
     }
 }

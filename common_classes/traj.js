@@ -150,7 +150,7 @@ export class Traj {
             this.CalcSpeeds3Pass(car);
             this.evaluation = 0;
             for(let i = 0; i < this.n; i++){
-                this.evaluation += this.speed1[i] * this.dists[i];
+                this.evaluation += this.dists[i] / this.speed2[i];
             }
         }
     }

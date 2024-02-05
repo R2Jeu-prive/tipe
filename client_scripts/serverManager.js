@@ -7,9 +7,9 @@ export class ServerManager{
     /** @type {Track} */
     static track = new Track("Villeneuve");
     /** @type {Traj[]} */
-    static trajs;
-    static engineRunning;
-    static engineTps;
+    static trajs = [];
+    static engineRunning = false;
+    static engineTps = -1;
 
     static async RefreshState(){
         let response = await fetch("/state", {
@@ -28,6 +28,7 @@ export class ServerManager{
     }
 
     static async OrderClearTasks(){
+        document.getElementById("clear-tasks").blur();
         let userPassword = document.getElementById("password").value;
         let response = await fetch("/cleartasks", {
             method: "POST",
@@ -43,6 +44,7 @@ export class ServerManager{
     }
 
     static async OrderAddTasks(){
+        document.getElementById("add-tasks").blur();
         let userPassword = document.getElementById("password").value;
         let taskList = document.getElementById("tasks").value;
         let response = await fetch("/addtasks", {
