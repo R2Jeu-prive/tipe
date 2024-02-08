@@ -51,6 +51,30 @@ export class ChartManager{
                         pointRadius: 0,
                         borderWidth: 1
                     },
+                    {
+                        label: 'Traj 0 speed3',
+                        data: ServerManager.trajs[0].speed3,
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 75)',
+                        pointRadius: 0,
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Traj 0 gear',
+                        data: ServerManager.trajs[0].gear,
+                        fill: false,
+                        borderColor: 'rgb(75, 0, 75)',
+                        pointRadius: 0,
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Traj 0 rpm',
+                        data: ServerManager.trajs[0].rpm,
+                        fill: false,
+                        borderColor: 'rgb(0, 0, 192)',
+                        pointRadius: 0,
+                        borderWidth: 1
+                    },
                 ]
             },
             options: {

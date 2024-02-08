@@ -21,6 +21,8 @@ export class Traj {
         this.speed1 = []; //array of speed  m/s at each point [n] after first pass
         this.speed2 = []; //array of speed in m/s at each point [n] after second pass
         this.speed3 = []; //array of speed in m/s at each point [n] after third pass
+        this.gear = []; //array of gear used at each point [n] after third pass
+        this.rpm = []; //array of engineRPM at each point [n] after third pass
         this.evaluation = -1; //-1 if not yet calculated
         this.creationTimestamp = setCreationTimestamp ? Date.now() : -1;
     }
@@ -109,15 +111,42 @@ export class Traj {
             }
 
             var Rt;
-            let a = Math.pow(car.roadFrictionCoef * car.mass * car.g, 2) - Math.pow(car.mass * this.absCurv[i] * this.speed2[i] * this.speed2[i], 2);
-            if(a < 0){
-                Rt = 0;
+            let maxDecel = Math.pow(car.roadFrictionCoef * car.mass * car.g, 2) - Math.pow(car.mass * this.absCurv[i] * this.speed2[i] * this.speed2[i], 2);
+            if(maxDecel < 0){
+                Rt = 0; // we can't decelerate or we will drift
             }else{
-                Rt = -Math.sqrt(a);
+                Rt = -Math.sqrt(maxDecel);
             }
             this.speed2[i - 1] = -this.dists[i]*(Rt - (car.airDragCoef * this.speed2[i] * this.speed2[i])) / (this.speed2[i] * car.mass) + this.speed2[i]
             if(this.speed1[i - 1] < this.speed2[i - 1]){
                 this.speed2[i - 1] = this.speed1[i - 1]
+            }
+        }
+
+        this.speed3 = this.speed2.map(x => x);
+        this.speed3[0] = 3;
+        for (let i = 0; i < this.n - 1; i++){
+            var Rt = 0;
+            var gearSelected = -1;
+            for(let gearId = 0; gearId < car.numOfGears; gearId++){
+                let engineRotSpeed = car.GetEngineRotSpeed(this.speed3[i], gearId);
+                let torque = car.GetTorque(engineRotSpeed);
+                let RtAtGear = ((torque * car.wheelRadius * car.mass) + (car.airDragCoef * this.speed3[i] * this.speed3[i] * car.angularMassJ)) / (car.angularMassJ + (car.wheelRadius * car.wheelRadius * car.mass));
+                if(RtAtGear > Rt){
+                    Rt = RtAtGear;
+                    this.gear[i] = gearId;
+                    this.rpm[i] = engineRotSpeed * 9.549296585513721 // convert rad/s to rpm
+                }
+            }
+            let a = Math.pow(car.roadFrictionCoef * car.mass * car.g, 2) - Math.pow(car.mass * this.absCurv[i] * this.speed3[i] * this.speed3[i], 2);
+            if(a < 0){
+                Rt = 0; // we can't accelerate or we will drift
+            }else{
+                Rt = Math.min(Rt, Math.sqrt(a));
+            }
+            this.speed3[i + 1] = this.dists[i]*(Rt - (car.airDragCoef * this.speed3[i] * this.speed3[i])) / (this.speed3[i] * car.mass) + this.speed3[i]
+            if(this.speed3[i + 1] > this.speed2[i + 1]){
+                this.speed3[i + 1] = this.speed2[i + 1]
             }
         }
     }
@@ -150,7 +179,7 @@ export class Traj {
             this.CalcSpeeds3Pass(car);
             this.evaluation = 0;
             for(let i = 0; i < this.n; i++){
-                this.evaluation += this.dists[i] / this.speed2[i];
+                this.evaluation += this.dists[i] / this.speed3[i];
             }
         }
     }

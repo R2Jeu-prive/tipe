@@ -44,7 +44,7 @@ export class Car{
      * @returns engine rotation speed in rad/s
      */
     GetEngineRotSpeed(s_, gear){
-        let engineRotSpeed = s_/engineRadiusAtGear[gear];
+        let engineRotSpeed = s_/this.engineRadiusAtGear[gear];
         return engineRotSpeed;
     }
 
