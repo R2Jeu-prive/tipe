@@ -142,7 +142,7 @@ export class TaskManager{
         if(command.match(/^addRandomTrajs/g)){
             let count = parseInt(command.split(" ")[1]);
             if(this.engine.AddRandomTrajs(count)){
-                console.log("Added " + nb + " random traj(s)");
+                console.log("Added " + count + " random traj(s)");
             }else{
                 console.error("Auto Task Failed: " + command);
             }

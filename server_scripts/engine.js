@@ -65,7 +65,7 @@ export class Engine{
         for(let i = 0; i < count; i++){
             let randomConstant = Math.random();
             let newTraj = new Traj(this.track.n, true);
-            for(let j = 0; j < Track.extPoints.length; j++){
+            for(let j = 0; j < this.track.n; j++){
                 newTraj.laterals[j] = randomConstant;
             }
             newTraj.Evaluate(this.evaluationMode, this.track, this.car);

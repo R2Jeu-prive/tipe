@@ -127,7 +127,6 @@ export class Traj {
         this.speed3[0] = 3;
         for (let i = 0; i < this.n - 1; i++){
             var Rt = 0;
-            var gearSelected = -1;
             for(let gearId = 0; gearId < car.numOfGears; gearId++){
                 let engineRotSpeed = car.GetEngineRotSpeed(this.speed3[i], gearId);
                 let torque = car.GetTorque(engineRotSpeed);
