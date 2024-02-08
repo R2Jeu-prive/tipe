@@ -195,17 +195,17 @@ export class TaskManager{
         if(command.match(/^setMutationSemiLength/)){
             //TODO CHECK ENGINE RUNNING
             this.engine.mutationSemiLength = parseInt(command.split(" ")[1]);
-            console.log("mutationSemiLength = " + engine.mutationSemiLength);
+            console.log("mutationSemiLength = " + this.engine.mutationSemiLength);
             return true;
         }
         if(command.match(/^setMutationForce/)){
-            engine.mutationForce = parseFloat(command.split(" ")[1]);
-            console.log("mutationForce = " + engine.mutationForce);
+            this.engine.mutationForce = parseFloat(command.split(" ")[1]);
+            console.log("mutationForce = " + this.engine.mutationForce);
             return true;
         }
         if(command.match(/^setMutationMode/)){
-            engine.mutationMode = command.split(" ")[1];
-            console.log("mutationMode = " + engine.mutationMode);
+            this.engine.mutationMode = command.split(" ")[1];
+            console.log("mutationMode = " + this.engine.mutationMode);
             return true;
         }
         console.error("Command Not Implemented");

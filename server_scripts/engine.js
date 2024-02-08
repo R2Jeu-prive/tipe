@@ -21,7 +21,7 @@ export class Engine{
         //EVOLUTION
         this.mutationForce = 0.1;
         this.mutationSemiLength = 5;
-        this.maxMutationTries = 100;
+        this.maxMutationTries = 1000;
         this.evaluationMode = "time";
         this.mutationMode = "bump";
 
@@ -93,7 +93,8 @@ export class Engine{
         parentTraj.Evaluate(this.evaluationMode, this.track, this.car);
 
         let currentTraj = Traj.DeepCopy(parentTraj, false);
-        for(let i = 0; i < this.maxMutationTries; i++){
+        let i;
+        for(i = 0; i < this.maxMutationTries; i++){
             let mutationWindow = [null, null]
             try{
                 mutationWindow = currentTraj.Mutate(this.mutationForce, this.mutationSemiLength, this.mutationMode);
@@ -107,6 +108,9 @@ export class Engine{
             }else{
                 currentTraj.ResetAsParent(parentTraj, mutationWindow[0], mutationWindow[1]);
             }
+        }
+        if(i == this.maxMutationTries){
+            console.log("reached max mutation Tries");
         }
 
         this.tickCount += 1;

@@ -27,6 +27,12 @@ export class Traj {
         this.creationTimestamp = setCreationTimestamp ? Date.now() : -1;
     }
 
+    /**
+     * 
+     * @param {Traj} originTraj 
+     * @param {Boolean} resetCreationTimestamp 
+     * @returns {Traj}
+     */
     static DeepCopy(originTraj, resetCreationTimestamp = false){
         let copy = new Traj(originTraj.n, resetCreationTimestamp);
         if(!resetCreationTimestamp){copy.creationTimestamp = originTraj.creationTimestamp;}
@@ -190,7 +196,7 @@ export class Traj {
         }
     }
 
-    /*Mutate(force = 0.2, semiWidth = 20, mutationMode = "bump") {
+    Mutate(force, semiWidth, mutationMode) {
         this.evaluation = -1;//invalidate previous evaluations
         let chosenSemiWidth = semiWidth;
         if(semiWidth == 0){
@@ -198,8 +204,6 @@ export class Traj {
         }
         if(mutationMode == "bump"){
             return this.MutateBump(force, chosenSemiWidth);
-        }else if(mutationMode == "wind"){
-            return this.MutateWind(force, 0, chosenSemiWidth);
         }else{
             console.log("Mutation Mode Not Yet Implemented");   
         }
@@ -209,8 +213,6 @@ export class Traj {
         //force : force at which mutationPoint if pushed towards mutationValue (must be in [0,1])
         //semiWidth : number of points effected on each side of the mutationPoint (first and last aren't actually effected but start the cos interpolation)
         let mutationPoint = Math.floor(Math.random()*this.n);
-        let mutateStart = mod((mutationPoint - semiWidth), this.n);
-        let mutateEnd = mod((mutationPoint + semiWidth), this.n);
 
         //set variable mutation value min and max to not unfavor close to track limit trajs 
         let minMutationValue = 0;
@@ -222,7 +224,6 @@ export class Traj {
         }
 
         let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*Math.random();
-        let i = -semiWidth + 1;
         for (let i = -semiWidth + 1; i < semiWidth; i++) {
             let blend = force*SmoothSquare.soft.GetValue(i,semiWidth);
             let current = mod((mutationPoint + i), this.n);
@@ -231,8 +232,9 @@ export class Traj {
             if(this.laterals[current] > 1){this.laterals[current] = 1;}
         }
         return [(mutationPoint - semiWidth), (mutationPoint + semiWidth)];//can be outside [0, n-1] but first el must be smaller than second;
-    }*/
+    }
 
+    /*
     /**
      * @param {Number} force 0 is no mutation 1 is potentially strong mutation
      * @param {Number} hardWindSemiWidth zone in which points will be moved the same amount as mutationPoint

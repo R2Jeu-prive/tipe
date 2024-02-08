@@ -1,0 +1,5 @@
+addTraj bravo_1703163030801;
+setMutationMode bump;
+setMutationForce 0.1;
+setMutationSemiLength 7;
+start;
