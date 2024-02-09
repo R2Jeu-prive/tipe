@@ -1,49 +1,70 @@
-let {SmoothBorderLoop} = require("./smoothBorderLoop");
-let {Point} = require("./point");
-let {TrackZone} = require("./trackZone");
-let {Villeneuve} = require("./villeneuve");
+import { SmoothBorderLoop } from "./smoothBorderLoop.js";
+import { Point } from "./point.js";
+import { TrackZone } from "./trackZone.js";
+import { Villeneuve } from "./villeneuve.js";
 
-class Track_{
-    constructor(staticTrackClass){
-        //values are placeholders
-        this.topleftGoogleEarthTile = new Point();
-        this.numOfTiles = -1;
-        this.pathToTiles = "path";
-        this.pxToMetersRatio = 0.2;
+export class Track{
+    /**
+     * @param {String} name 
+     */
+    constructor(name){
+        this.name = name;
+
+        var staticTrackClass;
+        if(name == "Villeneuve"){staticTrackClass = Villeneuve;}
+        else{
+            console.error("Invalid track name : " + name);
+        }
+
+        /** @type {Point} */
+        this.topleftGoogleEarthTile;
+        /** @type {Number} int */
+        this.numOfTiles;
+        /** @type {String} */
+        this.pathToTiles;
+        /** @type {Number} */
+        this.pxToMetersRatio;
+        /** @type {SmoothBorderLoop} */
         this.intBorder = new SmoothBorderLoop();
+        /** @type {SmoothBorderLoop} */
         this.extBorder = new SmoothBorderLoop();
-        this.intPoints = [new Point()];
-        this.extPoint = [new Point()];
-        this.zones = [new TrackZone()];
-        this.lateralZoneWeights = [0.1];
-        //weights typically between 0 and n-1 (n zones) 2.3 -> 0.7*zone2 + 0.3*zone3
-        //if between -1 and 0 this means it's a mix between lastzone (-1) and first zone (0)
+        /** @type {Point[]} */
+        this.intPoints = [];
+        /** @type {Point[]} */
+        this.extPoint = [];
+        /** @type {TrackZone[]} */
+        this.zones = [];
+        /** @type {Number[]} */
+        this.lateralZoneWeights = [];
+        /** @type {Number} int*/
+        this.startOffset;
+        /** @type {Number} int*/
+        this.distBetweenLaterals;
         
         //copy real values from staticTrackClass
         for(let prop in staticTrackClass){
             this[prop] = staticTrackClass[prop];
         }
-        this.GenerateBorderPoints(48);//48 (empirical) to void last and first lateral being too close or too far appart
+        
+        this.GenerateBorderPoints(this.distBetweenLaterals);
+        this.n = this.intPoints.length;
         this.GenerateZoneWeights();
+        this.SetStartAt();
     }
 
-    /*static DrawTile(u,v,canvasX,canvasY){
-        let img = new Image();
-        let tileSize = Math.max(256*Math.pow(2,UI.zoom), 256);
-        let x = u + this.topleftGoogleEarthTile.x;
-        let y = v + this.topleftGoogleEarthTile.y;
-        let path = this.pathToTiles
-        if(UI.zoom < 0){
-            path += "_dezoom_" + (-UI.zoom);
+    /**
+     * Shifts laterals by the start index so that laterals[0] is start finish line
+     */
+    SetStartAt(){
+        for(let i = 0; i < this.startOffset; i++){
+            this.intPoints.push(this.intPoints.shift());
+            this.extPoints.push(this.extPoints.shift());
+            this.lateralZoneWeights.push(this.lateralZoneWeights.shift());
         }
-        img.addEventListener('load', function() {
-            Canvas.ctxBack.drawImage(img, canvasX, canvasY, tileSize, tileSize);
-        });
-        img.src = path + '/' + x + '_' + y + '.png';
-    }*/
+    }
 
-    GenerateBorderPoints(maxDistBetweenPoints = 20){
-        let quadDistConstraint = maxDistBetweenPoints*maxDistBetweenPoints;
+    GenerateBorderPoints(){
+        let quadDistConstraint = this.distBetweenLaterals*this.distBetweenLaterals;
         let precision = 1;
         //set first lateral at intBorder t=0;
         let tIntList = [0];
@@ -54,7 +75,7 @@ class Track_{
         while(true){//loop over number of points
             let lastIndex = tIntList.length - 1;
             let intTMin = tIntList[lastIndex];
-            let intTMax = this.intBorder.GetParamAtDist(maxDistBetweenPoints, tIntList[lastIndex]);
+            let intTMax = this.intBorder.GetParamAtDist(this.distBetweenLaterals, tIntList[lastIndex]);
             let intT;
             let extT;
             let intPoint;
@@ -115,6 +136,8 @@ class Track_{
     }
 
     GenerateZoneWeights(){
+        //weights typically between 0 and n-1 (n zones) 2.3 -> 0.7*zone2 + 0.3*zone3
+        //if between -1 and 0 this means it's a mix between lastzone (-1) and first zone (0)
         const CalcZoneWeight = function(indexA, indexB, currentIndex, zoneA){
             let a = 1/(indexB-indexA);
             let b = -indexA*a;
@@ -130,7 +153,7 @@ class Track_{
         }
 
         //loop on laterals except first few which are in zone n-1 and 0
-        for(let i = this.zones[this.zones.length-1].endLateral + 1; i < this.intPoints.length; i++){
+        for(let i = this.zones[this.zones.length-1].endLateral + 1; i < this.n; i++){
             if(currentZoneId != this.zones.length-1 && this.zones[currentZoneId].endLateral < i){currentZoneId += 1;}//change current zone if left
 
             if(currentZoneId < (this.zones.length-1) && this.zones[currentZoneId+1].startLateral <= i){
@@ -142,31 +165,4 @@ class Track_{
             }
         }
     }
-
-    /*static GenerateShortestTraj(){
-        let midTraj = new Traj();
-        let shortestPath = new Traj();
-        midTraj.BuildPoints();
-        //calculate if track is turning left or right
-        for(let i = 1; i < midTraj.points.length-1; i++){
-            let vectA = new Point(midTraj.points[i-1].x - midTraj.points[i].x, midTraj.points[i-1].y - midTraj.points[i].y);
-            let vectB = new Point(midTraj.points[i].y - midTraj.points[i+1].y, midTraj.points[i+1].x - midTraj.points[i].x);
-            if(vectA.x*vectB.x + vectA.y*vectB.y > 0){
-                //turning right
-                shortestPath.laterals[i] = 1;
-            }else{
-                //turning left
-                shortestPath.laterals[i] = 0;
-            }
-        }
-        //copy first and last point
-        shortestPath.laterals[0] = shortestPath.laterals[1];
-        shortestPath.laterals[midTraj.points.length-1] = shortestPath.laterals[midTraj.points.length-2];
-    }*/
 }
-
-const Track = new Track_(Villeneuve);
-
-console.log("Built Track");
-
-module.exports = {Track};

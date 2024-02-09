@@ -1,17 +1,17 @@
-let {Point} = require("./point");
+import { Point } from "./point.js";
 
-function IEEEtoHex(x){
+export function IEEEtoHex(x){
     let buf = new ArrayBuffer(8);
     (new Float64Array(buf)[0]) = x;
     return [(new Uint32Array(buf))[0],(new Uint32Array(buf))[1]];
 }
 
-function cubeRoot(x){
+export function cubeRoot(x){
     var y = Math.pow(Math.abs(x), 1/3);
     return x < 0 ? -y : y;
 }
 
-function solveCubic(a, b, c, d) {
+export function solveCubic(a, b, c, d) {
     if (Math.abs(a) < 1e-8) { // Quadratic case, ax^2+bx+c=0
         a = b; b = c; c = d;
         if (Math.abs(a) < 1e-8) { // Linear case, ax+b=0
@@ -60,7 +60,7 @@ function solveCubic(a, b, c, d) {
     return roots;
 }
 
-function mod(x,n){
+export function mod(x,n){
     //return x % n in [0,n-1]
     return ((x % n) + n) % n;
 }
@@ -71,7 +71,7 @@ function mod(x,n){
  * @param {Point} c 
  * @param {Number} pxToMetersRatio 
  */
-function signedCurvatureBetween(a, b, c, pxToMetersRatio){
+export function signedCurvatureBetween(a, b, c, pxToMetersRatio){
     //https://en.wikipedia.org/wiki/Menger_curvature#Definition
     //https://math.stackexchange.com/questions/2511452/how-do-i-calculate-the-signed-area-of-a-triangle-in-3d-space
     let ab = a.DistTo(b)*pxToMetersRatio;
@@ -82,4 +82,53 @@ function signedCurvatureBetween(a, b, c, pxToMetersRatio){
     return 4*signedTiangleArea/(ab*bc*ca);
 }
 
-module.exports = {solveCubic, mod, cubeRoot, signedCurvatureBetween};
+/**
+ * @param el a number
+ * @param tab an array of numbers in ascending order
+ * @returns two bounding indexes [i,j] so that tab[i] <= el <= tab[j] and j-i is minimal
+ */
+export function findBoundingIndexes(el, tab){
+    if(el < tab[0] || el > tab[tab.length - 1]){return [-1,-1];}
+    let i = 0;
+    let j = tab.length - 1;
+    while(j - i > 1){
+        let half = Math.floor((j - i) / 2);
+        if(tab[i+half] <= el && el <= tab[j]){
+            i += half;
+        }else{
+            j -= half;
+        }
+    }
+    if(el == tab[i]){return [i,i];}
+    if(el == tab[j]){return [j,j];}
+    return [i,j]
+}
+
+//https://codepen.io/chambaz/pen/EyNeNw
+export function hexMix(colorFrom, colorTo, ratio) {
+	const hex = function(x) {
+		x = x.toString(16);
+		return (x.length == 1) ? '0' + x : x;
+	};
+
+	let r = Math.ceil(parseInt(colorTo.substring(0, 2), 16) * ratio + parseInt(colorFrom.substring(0, 2), 16) * (1 - ratio)),
+		g = Math.ceil(parseInt(colorTo.substring(2, 4), 16) * ratio + parseInt(colorFrom.substring(2, 4), 16) * (1 - ratio)),
+		b = Math.ceil(parseInt(colorTo.substring(4, 6), 16) * ratio + parseInt(colorFrom.substring(4, 6), 16) * (1 - ratio));
+
+	return hex(r) + hex(g) + hex(b);
+}
+
+//https://www.30secondsofcode.org/js/s/hsl-to-rgb/
+export function hslToRgb(h, s, l){
+    s /= 100;
+    l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n =>
+        l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return [255 * f(0), 255 * f(8), 255 * f(4)];
+};
+
+export function toHex(num) {
+    return  ("0"+(Number(num).toString(16))).slice(-2)
+}

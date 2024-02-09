@@ -1,6 +1,6 @@
-let {Point} = require("./point");
+import { Point } from "./point.js";
 
-class Segment{
+export class Segment{
 
     /**
     @param latExt {Point} extTrackPoint
@@ -41,5 +41,3 @@ class Segment{
         return onePoint.Scale(lateral).Plus(zeroPoint.Scale(1-lateral));
     }
 }
-
-module.exports = {Segment};

@@ -1,4 +1,4 @@
-class BumpFunction{
+export class BumpFunction{
     constructor(_normalisedFunction){
         //_normalisedFunction is a pair smooth bump function: f(0) = 1, f(1) = 0
         this.maxSemiWidth = 256;
@@ -18,7 +18,7 @@ class BumpFunction{
     }
 }
 
-class TriangleBump extends BumpFunction{
+export class TriangleBump extends BumpFunction{
     constructor(){
         super(function(x){return 1-x});
     }
@@ -26,7 +26,7 @@ class TriangleBump extends BumpFunction{
     static base = new TriangleBump();
 }
 
-class CosBump extends BumpFunction{
+export class CosBump extends BumpFunction{
     constructor(){
         super(function(x){return 0.5 + 0.5*Math.cos(x*Math.PI)});
     }
@@ -34,7 +34,7 @@ class CosBump extends BumpFunction{
     static base = new CosBump();
 }
 
-class SmoothSquare extends BumpFunction{
+export class SmoothSquare extends BumpFunction{
     constructor(_delta){
         super(function(x){return 0.5 + (0.5*Math.atan(Math.cos(Math.PI*x)/_delta)/Math.atan(1/_delta))});
         this.delta = _delta;
@@ -44,7 +44,7 @@ class SmoothSquare extends BumpFunction{
     static soft = new SmoothSquare(0.6);
 }
 
-class PoweredSmoothSquare extends BumpFunction{
+export class PoweredSmoothSquare extends BumpFunction{
     constructor(_delta,_k){
         super(function(x){return Math.pow(0.5 + (0.5*Math.atan(Math.cos(Math.PI*x)/_delta)/Math.atan(1/_delta)), _k)});
         this.delta = _delta;
@@ -53,5 +53,3 @@ class PoweredSmoothSquare extends BumpFunction{
 
     static base = new PoweredSmoothSquare(0.5, 3);
 }
-
-module.exports = {BumpFunction, TriangleBump, CosBump, SmoothSquare, PoweredSmoothSquare};

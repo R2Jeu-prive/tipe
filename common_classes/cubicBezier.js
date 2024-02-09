@@ -1,8 +1,8 @@
-let {Point} = require("./point");
-let {Line} = require("./line");
-let {solveCubic} = require("./utils")
+import { Point } from "./point.js";
+import { Line } from "./line.js";
+import * as Utils from "./utils.js"
 
-class CubicBezier{
+export class CubicBezier{
     constructor(_p0, _p1, _p2, _p3){
         this.ctrlPoints = [_p0,_p1,_p2,_p3];
         this.p0 = _p0;
@@ -44,7 +44,7 @@ class CubicBezier{
         let d = line.u*this.p0.x + line.v*this.p0.y - line.w;
 
         //solve and remove solutions outside [0,1[
-        let solutions = solveCubic(a,b,c,d);
+        let solutions = Utils.solveCubic(a,b,c,d);
         let tIntersects = [];
         for(let j = solutions.length-1; j >= 0; j--){
             if(solutions[j] < 0 || solutions[j] >= 1){continue;}
@@ -53,5 +53,3 @@ class CubicBezier{
         return tIntersects;
     }
 }
-
-module.exports = {CubicBezier};

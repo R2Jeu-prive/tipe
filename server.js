@@ -1,17 +1,32 @@
-let {Track} = require("./common_classes/track");
-let {Villeneuve} = require("./common_classes/villeneuve");
-let {Traj} = require("./common_classes/traj");
-let {Engine} = require("./server_scripts/engine");
+import { Engine } from "./server_scripts/engine.js";
+import { SaveSystem } from "./server_scripts/saveSystem.js";
+import { TaskManager } from "./server_scripts/taskManager.js";
+import 'dotenv/config'
+import * as http from 'http';
+import * as https from 'https';
+import * as fs from "fs";
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-require('dotenv').config();
-var http = require("http");
-var https = require("https");
-var fs = require('fs');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 var engine = new Engine();
+var saveSystem = new SaveSystem();
+var taskManager = new TaskManager();
+
+engine.saveSystem = saveSystem;
+engine.taskManager = taskManager;
+taskManager.engine = engine;
+taskManager.saveSystem = saveSystem;
+saveSystem.engine = engine;
+saveSystem.taskManager = taskManager;
+taskManager.HandleTasks();
 
 let allowedURLs = [
     {regex:/^\/index\.(html|css)$/g, prefix:"/www"},
-    {regex:/^\/js\/[a-zA-Z]+\.js$/g, prefix:"/www"},
+    {regex:/^\/common_classes\/[a-zA-Z]+\.js$/g, prefix:"/"},
+    {regex:/^\/client_scripts\/[a-zA-Z]+\.js$/g, prefix:"/"},
     {regex:/^\/favicon\.ico$/g, prefix:"/www"},
     {regex:/^\/google_earth_fetcher\/villeneuve(|_dezoom_[1-5])\/[0-9_]+\.png$/g, prefix:""},
 ];
@@ -33,11 +48,6 @@ function handleRequest(req, res){
             res.write(JSON.stringify(engine.GetState()));
             return res.end();
         }
-        if(req.url == "/track"){
-            res.writeHead(200, {'Content-Type':"application/json"});
-            res.write(JSON.stringify(Track));
-            return res.end();
-        }
         let validURL = false;
         let urlPrefix = "";
         for(let i = 0; i < allowedURLs.length; i++){
@@ -50,6 +60,7 @@ function handleRequest(req, res){
         if(validURL){
             fs.readFile(__dirname + urlPrefix + req.url, function(err, data) {
                 if(err){
+                    console.log(err);
                     res.writeHead(404, {'Content-Type': 'text/html'});
                     res.write("404 Not Found");
                     return res.end();
@@ -72,33 +83,30 @@ function handleRequest(req, res){
         req.on("end", () => {
             const dataBuffer = Buffer.concat(chunks);
             try{
-                const data = JSON.parse(dataBuffer.toString());//TODO Protect from weird packets crash with try catch ?
+                const data = JSON.parse(dataBuffer.toString());
                 if(data.password != process.env.PASSWORD){
-                    res.writeHead(403, {'Content-Type': 'text/html'});
+                    res.writeHead(401, {'Content-Type': 'text/html'});
                     res.write("Wrong Password");
                     return res.end();
                 }
                 if(req.url == "/cleartasks"){
-                    if(engine.ClearTasks()){
-                        res.writeHead(200);
-                        return res.end();
-                    }else{
-                        res.writeHead(409);//engine is running so can't change tasks
-                        return res.end();
-                    }
+                    taskManager.ClearTasks();
+                    res.writeHead(200);
+                    return res.end();
                 }
                 if(req.url == "/addtasks"){
-                    if(engine.AddTasks(data.taskList)){
+                    if(taskManager.ParseCheckAndAddTasks(data.taskList)){
                         res.writeHead(200);
                         return res.end();
                     }else{
-                        res.writeHead(409);//engine is running so can't change tasks
+                        res.writeHead(400);//syntax error in commands given
                         return res.end();
                     }
                 }
             }
             catch (err){
                 console.warn("weird request");
+                res.writeHead(400)
                 return res.end();
             }
         })

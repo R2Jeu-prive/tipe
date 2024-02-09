@@ -1,4 +1,4 @@
-class TrackZone{
+export class TrackZone{
     constructor(_name, _color, _start, _end){
         this.name = _name;
         this.color = _color;
@@ -16,5 +16,3 @@ class TrackZone{
         this.endLateral = _end;
     }
 }
-
-module.exports = {TrackZone};

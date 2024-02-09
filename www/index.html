@@ -8,46 +8,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>TIPE</title>
     <link href="index.css" rel="stylesheet" type="text/css">
-    <script src="js/utils.js"></script>
-    <script src="js/server.js"></script>
-    <script src="js/canvas.js"></script>
-    <script src="js/ui.js"></script>
+    <script type="module" src="client_scripts/client.js"></script>
 </head>
 
 <body>
-    <canvas height="768" width="1792" id="canvasBack"></canvas>
-    <canvas height="768" width="1792" id="canvasMid"></canvas>
-    <canvas height="768" width="1792" id="canvasFore"></canvas>
-    <div id="params">
-        <label class="label">Interact Key :<input id="password" type="password" autocomplete="one-time-code"/></label>
-        <button onclick="Server.OrderStart()">Start</button>
-        <button onclick="Server.OrderStop()">Stop</button>
-        <button onclick="Server.OrderClearTasks()">Clear Tasks</button>
-        <button onclick="Server.OrderAddTasks()">Add Tasks</button>
-        <label class="label"><textarea id="new-tasks"></textarea></label>
-        <label class="label">Mutate Force : <input id="mutationForce" type="number" min="0" max="1" value="0.1" step=any /></label><br>
-        <label>Mutate Width : <input id="mutationWidth" type="number" min="1" max="256" value="0" step="1" /></label><br>
-        <label>Children Count Per Parent<input id="childrenCountPerParent" type="number" min="2" max="500" value="200" step="1" /></label><br>
-        <label>Parent Count<input id="parentCount" type="number" min="1" max="100" value="1" step="1" /></label><br>
-        <label>Traj Color Indicator<select id="trajColorIndicator" onchange="Canvas.ChangeTrajColorIndicator()">
-            <option value="curvature">Curvature</option>
-            <option value="speed">Speed</option>
-            <option value="acceleration">Acceleration</option>
-        </select></label>
-        <label>Evaluation Mode<select id="evaluationMode" onchange="Evolution.LoadEvaluationMode()">
-            <option value="minCurvature">Min Curvature</option>
-            <option value="minDistance">Min Distance</option>
-            <option value="minTime">Min Time (f1)</option>
-        </select></label>
-        <label>Mutation Mode<select id="mutationMode" onchange="Evolution.LoadMutationMode()">
-            <option value="bump">Bump</option>
-            <option value="both">Bump & Wind</option>
-            <option value="wind">Wind</option>
-        </select></label>
-        <p id="successRate">0%</p>
-        <p id="bestEval">No data</p>
+    <div id="left-pannel">
+        <canvas id="canvasBack"></canvas>
+        <canvas id="canvasMid"></canvas>
+        <canvas id="canvasFore"></canvas>
     </div>
-    <script src="js/index.js"></script>
+    <div id="right-pannel">
+        <div id="top-pannel">
+            <canvas id="canvasChart"></canvas>
+        </div>
+        <div id="bottom-pannel" class="param-style">
+            <label class="label">Interact Key :<input id="password" type="password" autocomplete="one-time-code"/></label>
+            <button id="clear-tasks">Clear Tasks</button>
+            <button id="add-tasks">Add Tasks</button>
+            <textarea id="tasks">addTraj bravo_1703163030801;&#10;</textarea>
+        </div>
+    </div>
 </body>
+<footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</footer>
 
 </html>

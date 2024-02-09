@@ -1,0 +1,9 @@
+{"time":1707482926491,"evaluation":275.09009229560314,"evaluationMode":"time","evolutionTime":11022,"mutationSemiLength":2,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":false}
+{"time":1707482947500,"evaluation":270.9967265768028,"evaluationMode":"time","evolutionTime":32031,"mutationSemiLength":2,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":false}
+{"time":1707482978511,"evaluation":270.46842066372426,"evaluationMode":"time","evolutionTime":63042,"mutationSemiLength":2,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":false}
+{"time":1707483039516,"evaluation":269.84296385122303,"evaluationMode":"time","evolutionTime":124047,"mutationSemiLength":2,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":false}
+{"time":1707483220534,"evaluation":269.07666114643627,"evaluationMode":"time","evolutionTime":305065,"mutationSemiLength":2,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":false}
+{"time":1707483521551,"evaluation":268.8110127001107,"evaluationMode":"time","evolutionTime":606082,"mutationSemiLength":2,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":true,"fileName":"charlie_1707483521551"}
+{"time":1707483532560,"evaluation":255.09620893981514,"evaluationMode":"time","evolutionTime":11008,"mutationSemiLength":8,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":false}
+{"time":1707483553566,"evaluation":249.8006586237942,"evaluationMode":"time","evolutionTime":32014,"mutationSemiLength":8,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":false}
+{"time":1707483584867,"evaluation":247.3082723347188,"evaluationMode":"time","evolutionTime":63315,"mutationSemiLength":8,"mutationMode":"bump","mutationForce":0.03,"savedLaterals":false}
