@@ -50,7 +50,7 @@ export class SaveSystem{
                 fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
                 data.fileName = fileName;
             }
-            fs.writeFileSync("./results/logs/"+ prefix + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
+            fs.writeFileSync("./results/logs/"+ experimentName + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
         }catch(e){
             console.error(e);
             console.error("SaveSystem : SaveTraj failed and could be critical so exiting");

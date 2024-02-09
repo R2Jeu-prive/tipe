@@ -174,9 +174,9 @@ export class TaskManager{
                 evaluation: bestTraj.evaluation,
                 evaluationMode: this.engine.evaluationMode,
                 evolutionTime : Date.now() - bestTraj.creationTimestamp,//[CHECK]
-                mutationSemiLength: engine.mutationSemiLength,
-                mutationMode: engine.mutationMode,
-                mutationForce: engine.mutationForce,
+                mutationSemiLength: this.engine.mutationSemiLength,
+                mutationMode: this.engine.mutationMode,
+                mutationForce: this.engine.mutationForce,
                 savedLaterals: command.split(" ")[2] == "true"
             }
             this.engine.saveSystem.SaveTraj(bestTraj, saveJson, prefix, command.split(" ")[2] == "true");
