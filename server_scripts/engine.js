@@ -3,6 +3,7 @@ import { Car } from "../common_classes/car.js";
 import { Traj } from "../common_classes/traj.js";
 import { SaveSystem } from "./saveSystem.js";
 import { TaskManager } from "./taskManager.js";
+import { mod } from "../common_classes/utils.js";
 
 export class Engine{
     constructor(){
@@ -60,13 +61,59 @@ export class Engine{
         return true;
     }
 
-    AddRandomTrajs(count){
+    AddRandomConstantTrajs(count){
         if(this.running){return false;}
         for(let i = 0; i < count; i++){
             let randomConstant = Math.random();
             let newTraj = new Traj(this.track.n, true);
             for(let j = 0; j < this.track.n; j++){
                 newTraj.laterals[j] = randomConstant;
+            }
+            newTraj.Evaluate(this.evaluationMode, this.track, this.car);
+
+            this.trajs.push(newTraj);
+        }
+        return true;
+    }
+
+    AddRandomTrajs(count){
+        let numOfCheckPoints = 100;
+        let jitter = 0.2;
+        if(this.running){return false;}
+        for(let i = 0; i < count; i++){
+            let newTraj = new Traj(this.track.n, true);
+            let checkPoints = [];
+            let checkPointValues = [];
+            for(let j = 0; j < numOfCheckPoints; j++){
+                checkPointValues.push(Math.sin(Math.random()*Math.PI/2)*Math.sin(Math.random()*Math.PI/2));
+            }
+            let randomShift = Math.floor(Math.random() * this.track.n) * 0;
+            for(let j = 0; j < numOfCheckPoints; j++){
+                checkPoints.push(Math.floor(j * this.track.n / numOfCheckPoints));
+                checkPoints[j] += randomShift + Math.floor(Math.random() * jitter * this.track.n / numOfCheckPoints);
+            }
+
+            let nextCheckPoint = 1;
+            let previousCheckPoint = 0;
+            for(let j = checkPoints[0]; j < checkPoints[0] + this.track.n; j++){
+                if(j == checkPoints[nextCheckPoint]){
+                    newTraj.laterals[mod(j, this.track.n)] = checkPointValues[nextCheckPoint];
+                    nextCheckPoint += 1;
+                    previousCheckPoint += 1;
+                    if(nextCheckPoint == numOfCheckPoints){
+                        nextCheckPoint = 0;
+                    }
+                }else{
+                    let alpha = 0;
+                    if(nextCheckPoint == 0){
+                        alpha = (j - checkPoints[previousCheckPoint]) / ((checkPoints[0] + this.track.n) - checkPoints[previousCheckPoint]);
+                    }else{
+                        alpha = (j - checkPoints[previousCheckPoint]) / (checkPoints[nextCheckPoint] - checkPoints[previousCheckPoint]);
+                    }
+                    alpha = Math.sin(alpha*Math.PI/2) * Math.sin(alpha*Math.PI/2);
+                    let lat = alpha*checkPointValues[nextCheckPoint] + (1 - alpha)*checkPointValues[previousCheckPoint];
+                    newTraj.laterals[mod(j, this.track.n)] = lat
+                }
             }
             newTraj.Evaluate(this.evaluationMode, this.track, this.car);
 
