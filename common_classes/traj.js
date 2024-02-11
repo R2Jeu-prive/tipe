@@ -43,6 +43,44 @@ export class Traj {
     }
 
     /**
+     * Generates a crossover between parentTrajs. Each track zone is assigned one random parent from the given list
+     * @param {Traj[]} parentTrajs all the parentTrajs selected for crossover
+     * @param {Track} track the track (to acces it's zones)
+     * @returns {Traj} the child crossover
+     */
+    static Crossover(parentTrajs, track){
+        let parentAtZone = [];
+        let childTraj = new Traj(track.n, true);
+
+        //first choose a parent for each track zone
+        for(let i = 0; i < track.zones.length; i++){
+            parentAtZone.push(Math.floor(Math.random() * parentTrajs.length));
+        }
+
+        //then do the crossover on each lateral
+        for(let i = 0; i < track.n; i++){
+            if(Number.isInteger(track.lateralZoneWeights[i])){//in a single zone
+                let zone = mod(track.lateralZoneWeights[i], track.zones.length);
+                let lat = parentTrajs[parentAtZone[zone]].laterals[i]
+                
+                childTraj.laterals.push(lat);
+            }else{//between two zones (we interpolate between previous and next)
+                let previousZone = mod(Math.floor(track.lateralZoneWeights[i]), track.zones.length);
+                let nextZone = mod(Math.ceil(track.lateralZoneWeights[i]), track.zones.length);
+                let previousLat = parentTrajs[parentAtZone[previousZone]].laterals[i];
+                let nextLat = parentTrajs[parentAtZone[nextZone]].laterals[i];
+                
+                let alpha = track.lateralZoneWeights[i] - Math.floor(track.lateralZoneWeights[i]);
+                alpha = Math.sin(alpha*Math.PI/2)*Math.sin(alpha*Math.PI/2);// makes this interpolation smooth with a Math.sin
+                
+                childTraj.laterals.push(alpha * nextLat + (1 - alpha) * previousLat);
+            }
+            childTraj.laterals.push()
+        }
+        return childTraj;
+    }
+
+    /**
      * @param {Number} offset int that represents the number of laterals to shift 
      */
     Shift(offset){
@@ -217,11 +255,11 @@ export class Traj {
         //set variable mutation value min and max to not unfavor close to track limit trajs 
         let minMutationValue = 0;
         let maxMutationValue = 1;
-        if(this.laterals[mutationPoint] >= 0.5){
+        /*if(this.laterals[mutationPoint] >= 0.5){
             minMutationValue = 1-(2*this.laterals[mutationPoint]);
         }else{
             maxMutationValue = 2*this.laterals[mutationPoint];
-        }
+        }*/
 
         let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*Math.random();
         for (let i = -semiWidth + 1; i < semiWidth; i++) {
