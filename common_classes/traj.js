@@ -43,12 +43,76 @@ export class Traj {
     }
 
     /**
+     * 
+     * @param {Traj[]} parentTrajs number of transitionPoints, must be even and shuffled
+     * @param {Number} crossoverSmoothZone number of laterals to interpolate between parents at transitionPoints
+     * @returns {Traj} the child crossover
+     */
+    static Crossover(parentTrajs, crossoverSmoothZone){
+        let trackN = parentTrajs[0].n;
+
+        //GENERATE TRANSITION POINTS
+        let transitionPoints = [];
+        GenerateTransitionPoints :
+        while(true){
+            transitionPoints = [];
+            for(let i = 0; i < parentTrajs.length; i++){
+                let newTransitionPoint = Math.floor(Math.random() * trackN);
+                for(let j = 0; j < i; j++){
+                    if(Math.abs(transitionPoints[j] - newTransitionPoint) <= 2*crossoverSmoothZone){
+                        continue GenerateTransitionPoints;
+                    }
+                    if(Math.abs(transitionPoints[j] - newTransitionPoint + trackN) <= 2*crossoverSmoothZone){//[TODO] can probably be reduced to edge 2 cases
+                        continue GenerateTransitionPoints;
+                    }
+                    if(Math.abs(transitionPoints[j] - newTransitionPoint - trackN) <= 2*crossoverSmoothZone){
+                        continue GenerateTransitionPoints;
+                    }
+                }
+                transitionPoints.push(newTransitionPoint);
+            }
+            transitionPoints.sort((a, b) => a - b);
+            break;
+        }
+
+        //BUILD CHILD
+        let newTraj = new Traj(trackN, false);
+        let currentParent = 0;
+        for(let i = transitionPoints[0]; i < transitionPoints[transitionPoints.length - 1]; i++){//between first and last transition points
+            let distanceToNextTransitionPoint = transitionPoints[currentParent + 1] - i
+            let alpha;
+            if(distanceToNextTransitionPoint == 0){
+                alpha = 0;
+                currentParent++;
+            }else if(distanceToNextTransitionPoint > crossoverSmoothZone){
+                alpha = 0;
+            }else{
+                alpha = 1 - (distanceToNextTransitionPoint / crossoverSmoothZone);
+                alpha = Math.sin(alpha*Math.PI/2) * Math.sin(alpha*Math.PI/2);
+            }
+            newTraj.laterals[i] = alpha * parentTrajs[currentParent + 1].laterals[i] + (1 - alpha) * parentTrajs[currentParent].laterals[i];
+        }
+        for(let i = transitionPoints[transitionPoints.length - 1]; i < transitionPoints[0] + trackN; i++){//last transition point loop back to first transition point
+            let distanceToNextTransitionPoint = transitionPoints[0] + trackN - i
+            let alpha;
+            if(distanceToNextTransitionPoint > crossoverSmoothZone){
+                alpha = 0;
+            }else{
+                alpha = 1 - (distanceToNextTransitionPoint / crossoverSmoothZone);
+                alpha = Math.sin(alpha*Math.PI/2) * Math.sin(alpha*Math.PI/2);
+            }
+            newTraj.laterals[mod(i, trackN)] = alpha * parentTrajs[0].laterals[mod(i, trackN)] + (1 - alpha) * parentTrajs[transitionPoints.length - 1].laterals[mod(i, trackN)];
+        }
+        return newTraj;
+    }
+
+    /**
      * Generates a crossover between parentTrajs. Each track zone is assigned one random parent from the given list
      * @param {Traj[]} parentTrajs all the parentTrajs selected for crossover
      * @param {Track} track the track (to acces it's zones)
      * @returns {Traj} the child crossover
      */
-    static Crossover(parentTrajs, track){
+    /*static CrossoverZone(parentTrajs, track){
         let parentAtZone = [];
         let childTraj = new Traj(track.n, true);
 
@@ -75,10 +139,10 @@ export class Traj {
                 
                 childTraj.laterals.push(alpha * nextLat + (1 - alpha) * previousLat);
             }
-            childTraj.laterals.push()
+            childTraj.laterals.push()//[WTF ?]
         }
         return childTraj;
-    }
+    }*/
 
     /**
      * @param {Number} offset int that represents the number of laterals to shift 

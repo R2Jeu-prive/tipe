@@ -20,10 +20,18 @@ export class Engine{
         this.car = new Car("Clio");
 
         //EVOLUTION
+        this.genCount = 0;
+        this.genSize = 0;
+        this.evaluationMode = "time"; // fitness function
+        this.elitismProportion = 0.03; // proportion of best trajs to keep in next generation
+        this.selectionMode = "tournement"; // selection mode
+        this.selectionPressure = 0.05; // between 0 and 1 : low values tend to give a chance to every traj for crossover, high values gives more importance to better trajs in selection
+        this.parentCount = 4; // number of parents that win tournement and get selected for crossover
+        this.crossoverSmoothZone = 15; // number of points for smooth crossover interpolation
+        
+        this.mutationProbability = 0.1; // chance for every child (excludes elit) to get mutated
         this.mutationForce = 0.1;
         this.mutationSemiLength = 5;
-        this.maxMutationTries = 1000;
-        this.evaluationMode = "time";
         this.mutationMode = "bump";
 
         //BASE
@@ -34,6 +42,8 @@ export class Engine{
         //MONITORING
         this.lastGetStateTickCount = 0;
         this.lastGetStateTimestamp = -1;
+
+        this.AddRandomConstantTrajs(100);
     }
 
     GetState(){
@@ -58,11 +68,13 @@ export class Engine{
     ClearTrajs(){
         if(this.running){return false;}
         this.trajs = [];
+        this.genSize = 0;
         return true;
     }
 
     AddRandomConstantTrajs(count){
         if(this.running){return false;}
+        this.genSize += count;
         for(let i = 0; i < count; i++){
             let randomConstant = Math.random();
             let newTraj = new Traj(this.track.n, true);
@@ -77,9 +89,10 @@ export class Engine{
     }
 
     AddRandomTrajs(count){
+        if(this.running){return false;}
         let numOfCheckPoints = 100;
         let jitter = 0.2;
-        if(this.running){return false;}
+        this.genSize += count;
         for(let i = 0; i < count; i++){
             let newTraj = new Traj(this.track.n, true);
             let checkPoints = [];
@@ -87,7 +100,7 @@ export class Engine{
             for(let j = 0; j < numOfCheckPoints; j++){
                 checkPointValues.push(Math.sin(Math.random()*Math.PI/2)*Math.sin(Math.random()*Math.PI/2));
             }
-            let randomShift = Math.floor(Math.random() * this.track.n) * 0;
+            let randomShift = Math.floor(Math.random() * this.track.n);
             for(let j = 0; j < numOfCheckPoints; j++){
                 checkPoints.push(Math.floor(j * this.track.n / numOfCheckPoints));
                 checkPoints[j] += randomShift + Math.floor(Math.random() * jitter * this.track.n / numOfCheckPoints);
@@ -135,32 +148,77 @@ export class Engine{
     }
 
     Step(){
-        let parentTrajIndex = Math.floor(Math.random()*this.trajs.length)
-        let parentTraj = this.trajs[parentTrajIndex];
-        parentTraj.Evaluate(this.evaluationMode, this.track, this.car);
-
-        let currentTraj = Traj.DeepCopy(parentTraj, false);
-        let i;
-        for(i = 0; i < this.maxMutationTries; i++){
-            let mutationWindow = [null, null]
-            try{
-                mutationWindow = currentTraj.Mutate(this.mutationForce, this.mutationSemiLength, this.mutationMode);
-            }catch (e){
-                continue;
-            }
-            currentTraj.Evaluate(this.evaluationMode, this.track, this.car);
-            if(currentTraj.evaluation < parentTraj.evaluation){
-                this.trajs[parentTrajIndex] = currentTraj;
-                break;
-            }else{
-                currentTraj.ResetAsParent(parentTraj, mutationWindow[0], mutationWindow[1]);
+        //STATS of current gen
+        let genSize = this.trajs.length;
+        let bestEval = Infinity;
+        let avgEval = 0;
+        for(let i = 0; i < genSize; i++){
+            this.trajs[i].Evaluate(this.evaluationMode, this.track, this.car);
+            avgEval += this.trajs[i].evaluation;
+            if(this.trajs[i].evaluation < bestEval){
+                bestEval = this.trajs[i].evaluation;
             }
         }
-        if(i == this.maxMutationTries){
-            console.log("reached max mutation Tries");
+        avgEval /= genSize;
+
+        console.log([bestEval, avgEval]);
+
+        //ELITISM
+        let children = [];
+        let eliteIndexes = [];
+        let nbOfEliteChildren = Math.floor(genSize * this.elitismProportion);
+        if(nbOfEliteChildren > 0){
+            for(let i = 0; i < genSize; i++){
+                let rank = eliteIndexes.length;
+                eliteIndexes.push(i);
+                while(rank > 0 && this.trajs[eliteIndexes[rank]].evaluation < this.trajs[eliteIndexes[rank - 1]].evaluation){
+                    //[OPTI] could be optimised to insert in ordered eliteIndexes with dichotomy instead of rank ascend
+                    let temp = eliteIndexes[rank - 1];
+                    eliteIndexes[rank - 1] = eliteIndexes[rank];
+                    eliteIndexes[rank] = temp;
+                    rank -= 1;
+                }
+                if(eliteIndexes.length == nbOfEliteChildren + 1){
+                    eliteIndexes.pop();
+                }
+            }
+        }
+        for(let i = 0; i < eliteIndexes.length; i++){
+            children.push(this.trajs[eliteIndexes[i]]);
         }
 
-        this.tickCount += 1;
+        //CROSSOVER
+        while(children.length < genSize){
+            //TOURNEMENT
+            let parents = [];
+            let potentialParentIndexes = [];
+            let nbPotentialParents = 1 + Math.floor(genSize * this.selectionPressure);
+            for(let i = 0; i < nbPotentialParents; i++){
+                potentialParentIndexes.push(Math.floor(genSize * Math.random()))
+            }
+            while(parents.length < this.parentCount){
+                let winnerIndex = potentialParentIndexes[0];
+                let indexToRemove = 0;
+                for(let i = 1; i < potentialParentIndexes.length; i++){
+                    if(this.trajs[winnerIndex].evaluation > this.trajs[potentialParentIndexes[i]].evaluation){
+                        winnerIndex = potentialParentIndexes[i];
+                        indexToRemove = i;
+                    }
+                }
+                if(potentialParentIndexes.length > 1){
+                    potentialParentIndexes.splice(indexToRemove, 1);
+                }
+                parents.push(this.trajs[winnerIndex]);
+            }
+
+            let newChild = Traj.Crossover(parents, this.crossoverSmoothZone);
+            newChild.Evaluate(this.evaluationMode, this.track, this.car);
+            children.push(newChild);
+        }
+        this.trajs = children;
+
+        this.genCount += 1;
+        console.log(this.genCount);
         if(this.running){
             setImmediate(() => {this.Step()});
         }
