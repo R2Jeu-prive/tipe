@@ -150,4 +150,16 @@ export function shuffle(array) {
     }
   
     return array;
-  }
+}
+
+export function getRandomMutationZoneSemiLength(min, med, max){
+    let alpha = Math.log(Math.log(min/max)/Math.log(med/max))/Math.log(2);
+    let beta = Math.log(max);
+    let lambda = Math.log(max/min);
+    let x = Math.random();
+
+    return Math.exp(-lambda*Math.pow(x, alpha) + beta);
+}
+
+export function linearJoin(x){return x;}
+export function squaredSinJoin(x){return Math.sin(x*Math.PI/2)**2;}
