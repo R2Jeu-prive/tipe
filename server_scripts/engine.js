@@ -29,7 +29,7 @@ export class Engine{
         this.selectionMode = "tournement"; // selection mode
         this.selectionPressure = 0.05; // between 0 and 1 : low values tend to give a chance to every traj for crossover, high values gives more importance to better trajs in selection
         this.parentCount = 4; // number of parents that win tournement and get selected for crossover
-        this.crossoverSmoothZone = 15; // number of points for smooth crossover interpolation
+        this.crossoverSmoothZone = 15; // number of points for smooth crossover junction
         
         //MUTATION PARAMS
         this.mutationShiftProbability = 0.1; // chance for every child (excludes elit) to get shift mutated
@@ -51,7 +51,12 @@ export class Engine{
         this.lastGetStateTickCount = 0;
         this.lastGetStateTimestamp = -1;
 
-        this.AddRandomConstantTrajs(100);
+        this.AddRandomConstantTrajs(1);
+        this.trajs[0].MutateBump(230, 20, 1);
+        this.trajs.push(Traj.DeepCopy(this.trajs[0]));
+        this.trajs[1].MutateShift(230, 20, 0.7);
+        this.trajs[0].Evaluate("time", this.track, this.car);
+        this.trajs[1].Evaluate("time", this.track, this.car);
     }
 
     GetState(){

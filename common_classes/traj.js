@@ -328,18 +328,24 @@ export class Traj {
             oldLaterals.push(this.laterals[mod(center + i, this.n)]);
         }
         for (let i = -semiLength + 1; i < semiLength; i++) {//skipping first and last indexes because they wouldn't actually be moved
-            let alpha = (i - centerShift) / (semiLength - centerShift)
-            if(alpha >= 0){
-                alpha = squaredSinJoin(alpha);
-            }else{
-                alpha = -squaredSinJoin(-alpha);
-            }
-            
-            // lat[c+i] = lat[c+alpha*l]
-
-            let blend = force * squaredSinJoin(1 - (Math.abs(i)/semiLength));
+            let alpha;
             let currentPoint = mod((center + i), this.n);
-            this.laterals[currentPoint] = blend*mutationValue + (1-blend)*this.laterals[currentPoint];
+            if(i >= centerShift){
+                alpha = (i - centerShift) / (semiLength - centerShift);
+                //alpha = squaredSinJoin(alpha);
+            }else{
+                alpha = (i - centerShift) / (centerShift + semiLength)
+                //alpha = -squaredSinJoin(-alpha);
+            }
+            let oldLateralFloat = alpha*semiLength + semiLength;
+            if(Number.isInteger(oldLateralFloat)){
+                this.laterals[currentPoint] = oldLaterals[oldLateralFloat];
+            }else{
+                let previous = Math.floor(oldLateralFloat);
+                let next = Math.ceil(oldLateralFloat);
+                let blend = oldLateralFloat - previous;
+                this.laterals[currentPoint] = (1-blend) * oldLaterals[previous] + blend * oldLaterals[next];
+            }
             if(this.laterals[currentPoint] < 0){this.laterals[currentPoint] = 0;} // safety (float approx)
             if(this.laterals[currentPoint] > 1){this.laterals[currentPoint] = 1;}
         }
