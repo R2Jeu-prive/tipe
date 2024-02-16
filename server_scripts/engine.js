@@ -16,29 +16,25 @@ export class Engine{
 
         /** @type {Track}*/
         this.track = new Track("Villeneuve");
-
         /** @type {Car}*/
         this.car = new Car("Clio");
-
-        //BASE PARAMS
-        this.genCount = 0; // number of current gen
-        this.evaluationMode = "time"; // fitness function
         
         //SELECTION PARAMS
+        this.evaluationMode = "time"; // fitness function
         this.elitismProportion = 0.03; // proportion of best trajs to keep in next generation
         this.selectionMode = "tournement"; // selection mode
-        this.selectionPressure = 0.05; // between 0 and 1 : low values tend to give a chance to every traj for crossover, high values gives more importance to better trajs in selection
-        this.parentCount = 4; // number of parents that win tournement and get selected for crossover
+        this.selectionPressure = 0.06; // between 0 and 1 : low values tend to give a chance to every traj for crossover, high values gives more importance to better trajs in selection
+        this.parentCount = 2; // number of parents that win tournement and get selected for crossover
         this.crossoverSmoothZone = 15; // number of points for smooth crossover junction
         
         //MUTATION PARAMS
-        this.mutationShiftProbability = 0.1; // chance for every child (excludes elit) to get shift mutated
-        this.mutationBumpProbability = 0.1; // chance for every child (excludes elit) to bump get mutated
-        this.mutationShiftForce = 0.5; // shift range in semilength zone
-        this.mutationBumpForce = 0.5; // bump range in semilength
+        this.mutationShiftProbability = 0.8; // chance for every child (excludes elit) to get shift mutated
+        this.mutationBumpProbability = 0.8; // chance for every child (excludes elit) to bump get mutated
+        this.mutationShiftForce = 0.3; // shift range in semilength zone
+        this.mutationBumpForce = 0.3; // bump range in semilength
         
         //MUTATION ZONE
-        this.mutationMinSemiLength = 5; //
+        this.mutationMinSemiLength = 1;
         this.mutationMedSemiLength = 40;
         this.mutationMaxSemiLength = 200;
 
@@ -48,15 +44,13 @@ export class Engine{
         this.trajs = [];
 
         //MONITORING
+        this.firstGenTimestamp = -1;
+        this.genCount = 0; // number of current gen
+        this.currentExp = "none"; // if none than no monitoring data will be logged else it will be saved in the corresponding file in results
         this.lastGetStateTickCount = 0;
         this.lastGetStateTimestamp = -1;
 
-        this.AddRandomConstantTrajs(1);
-        this.trajs[0].MutateBump(230, 20, 1);
-        this.trajs.push(Traj.DeepCopy(this.trajs[0]));
-        this.trajs[1].MutateShift(230, 20, 0.7);
-        this.trajs[0].Evaluate("time", this.track, this.car);
-        this.trajs[1].Evaluate("time", this.track, this.car);
+        this.AddRandomConstantTrajs(200);
     }
 
     GetState(){
@@ -66,6 +60,7 @@ export class Engine{
         state.trajs = [];
         for(let i = 0; i < this.trajs.length; i++){
             state.trajs.push(this.trajs[i]);//[TODO] optimise to send only data needed for front-end to rebuild traj, for now sending traj "as is" for debug purposes
+            break;
         }
         if(this.lastGetStateTimestamp == -1){
             state.tps = 0;
@@ -145,7 +140,11 @@ export class Engine{
         return true;
     }
 
-    Start(){
+    /**
+     * Starts the genetic algorithm engine
+     * @returns {Boolean} if engine start succeeded
+     */
+    Start(monitor){
         if(this.running){return false;}
         if(this.trajs.length == 0){
             console.warn("Tried to start engine without any trajs");
@@ -227,17 +226,17 @@ export class Engine{
         }
 
         //MUTATION BUMP
-        for(let i = 0; i < genSize; i++){
+        for(let i = nbOfEliteChildren; i < genSize; i++){
             if(Math.random() > this.mutationBumpProbability){continue;}
-            let mutationPoint = Math.abs(Math.random() * this.track.n);
+            let mutationPoint = Math.floor(Math.random() * this.track.n);
             let mutationZoneSemiLength = getRandomMutationZoneSemiLength(this.mutationMinSemiLength, this.mutationMedSemiLength, this.mutationMaxSemiLength);
             children[i].MutateBump(mutationPoint, mutationZoneSemiLength, this.mutationBumpForce);
         }
 
         //MUTATION SHIFT
-        for(let i = 0; i < genSize; i++){
+        for(let i = nbOfEliteChildren; i < genSize; i++){
             if(Math.random() > this.mutationBumpProbability){continue;}
-            let mutationPoint = Math.abs(Math.random() * this.track.n);
+            let mutationPoint = Math.floor(Math.random() * this.track.n);
             let mutationZoneSemiLength = getRandomMutationZoneSemiLength(this.mutationMinSemiLength, this.mutationMedSemiLength, this.mutationMaxSemiLength);
             children[i].MutateShift(mutationPoint, mutationZoneSemiLength, this.mutationShiftForce);
         }
@@ -247,7 +246,9 @@ export class Engine{
         this.genCount += 1;
         console.log(this.genCount);
         if(this.running){
-            setImmediate(() => {this.Step()});
+            setTimeout(() => {
+                this.Step();
+            }, "30");
         }
     }
 

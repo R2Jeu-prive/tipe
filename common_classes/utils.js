@@ -158,7 +158,7 @@ export function getRandomMutationZoneSemiLength(min, med, max){
     let lambda = Math.log(max/min);
     let x = Math.random();
 
-    return Math.exp(-lambda*Math.pow(x, alpha) + beta);
+    return Math.floor(Math.exp(-lambda*Math.pow(x, alpha) + beta));
 }
 
 export function linearJoin(x){return x;}

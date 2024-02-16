@@ -256,6 +256,7 @@ export class TrackViewer{
                 TrackViewer.ctxFore.lineTo(x2, y2);
                 TrackViewer.ctxFore.stroke();
             }
+            break;
         }
     }
 

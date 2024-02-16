@@ -1,6 +1,5 @@
 import { Engine } from "./engine.js";
 import { SaveSystem } from "./saveSystem.js";
-import { Traj } from "../common_classes/traj.js";
 
 export class TaskManager{
     constructor(){
