@@ -46,8 +46,6 @@ export class SaveSystem{
             for(let i = 0; i < traj.n; i++){
                 (new Float64Array(buf)[i]) = traj.laterals[mod(i - this.engine.track.startOffset, this.engine.track.n)];
             }
-            console.log(buf);
-            console.log(traj.laterals.length);
             fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
             fs.writeFileSync("./results/trajs/list.txt", JSON.stringify(data) + "\n", {flag:'a'});
         }catch(e){
