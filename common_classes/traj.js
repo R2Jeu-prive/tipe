@@ -1,10 +1,8 @@
 import { Point } from "./point.js";
 import { signedCurvatureBetween, mod } from "./utils.js";
-import { SmoothSquare } from "./bumps.js";
-import { Segment } from "./segment.js";
+import { squaredSinJoin } from "./utils.js";
 import { Track } from "./track.js";
 import { Car } from "./car.js";
-const LN_250 = Math.log(250);
 
 export class Traj {
     /**
@@ -41,6 +39,108 @@ export class Traj {
         }
         return copy;
     }
+
+    /**
+     * 
+     * @param {Traj[]} parentTrajs number of transitionPoints, must be even and shuffled
+     * @param {Number} crossoverSmoothZone number of laterals to interpolate between parents at transitionPoints
+     * @returns {Traj} the child crossover
+     */
+    static Crossover(parentTrajs, crossoverSmoothZone){
+        let trackN = parentTrajs[0].n;
+
+        //GENERATE TRANSITION POINTS
+        let transitionPoints = [];
+        GenerateTransitionPoints :
+        while(true){
+            transitionPoints = [];
+            for(let i = 0; i < parentTrajs.length; i++){
+                let newTransitionPoint = Math.floor(Math.random() * trackN);
+                for(let j = 0; j < i; j++){
+                    if(Math.abs(transitionPoints[j] - newTransitionPoint) <= 2*crossoverSmoothZone){
+                        continue GenerateTransitionPoints;
+                    }
+                    if(Math.abs(transitionPoints[j] - newTransitionPoint + trackN) <= 2*crossoverSmoothZone){//[TODO] can probably be reduced to edge 2 cases
+                        continue GenerateTransitionPoints;
+                    }
+                    if(Math.abs(transitionPoints[j] - newTransitionPoint - trackN) <= 2*crossoverSmoothZone){
+                        continue GenerateTransitionPoints;
+                    }
+                }
+                transitionPoints.push(newTransitionPoint);
+            }
+            transitionPoints.sort((a, b) => a - b);
+            break;
+        }
+
+        //BUILD CHILD
+        let newTraj = new Traj(trackN, false);
+        let currentParent = 0;
+        for(let i = transitionPoints[0]; i < transitionPoints[transitionPoints.length - 1]; i++){//between first and last transition points
+            let distanceToNextTransitionPoint = transitionPoints[currentParent + 1] - i
+            let alpha;
+            if(distanceToNextTransitionPoint == 0){
+                alpha = 0;
+                currentParent++;
+            }else if(distanceToNextTransitionPoint > crossoverSmoothZone){
+                alpha = 0;
+            }else{
+                alpha = 1 - (distanceToNextTransitionPoint / crossoverSmoothZone);
+                alpha = Math.sin(alpha*Math.PI/2) * Math.sin(alpha*Math.PI/2);
+            }
+            newTraj.laterals[i] = alpha * parentTrajs[currentParent + 1].laterals[i] + (1 - alpha) * parentTrajs[currentParent].laterals[i];
+        }
+        for(let i = transitionPoints[transitionPoints.length - 1]; i < transitionPoints[0] + trackN; i++){//last transition point loop back to first transition point
+            let distanceToNextTransitionPoint = transitionPoints[0] + trackN - i
+            let alpha;
+            if(distanceToNextTransitionPoint > crossoverSmoothZone){
+                alpha = 0;
+            }else{
+                alpha = 1 - (distanceToNextTransitionPoint / crossoverSmoothZone);
+                alpha = Math.sin(alpha*Math.PI/2) * Math.sin(alpha*Math.PI/2);
+            }
+            newTraj.laterals[mod(i, trackN)] = alpha * parentTrajs[0].laterals[mod(i, trackN)] + (1 - alpha) * parentTrajs[transitionPoints.length - 1].laterals[mod(i, trackN)];
+        }
+        return newTraj;
+    }
+
+    /**
+     * Generates a crossover between parentTrajs. Each track zone is assigned one random parent from the given list
+     * @param {Traj[]} parentTrajs all the parentTrajs selected for crossover
+     * @param {Track} track the track (to acces it's zones)
+     * @returns {Traj} the child crossover
+     */
+    /*static CrossoverZone(parentTrajs, track){
+        let parentAtZone = [];
+        let childTraj = new Traj(track.n, true);
+
+        //first choose a parent for each track zone
+        for(let i = 0; i < track.zones.length; i++){
+            parentAtZone.push(Math.floor(Math.random() * parentTrajs.length));
+        }
+
+        //then do the crossover on each lateral
+        for(let i = 0; i < track.n; i++){
+            if(Number.isInteger(track.lateralZoneWeights[i])){//in a single zone
+                let zone = mod(track.lateralZoneWeights[i], track.zones.length);
+                let lat = parentTrajs[parentAtZone[zone]].laterals[i]
+                
+                childTraj.laterals.push(lat);
+            }else{//between two zones (we interpolate between previous and next)
+                let previousZone = mod(Math.floor(track.lateralZoneWeights[i]), track.zones.length);
+                let nextZone = mod(Math.ceil(track.lateralZoneWeights[i]), track.zones.length);
+                let previousLat = parentTrajs[parentAtZone[previousZone]].laterals[i];
+                let nextLat = parentTrajs[parentAtZone[nextZone]].laterals[i];
+                
+                let alpha = track.lateralZoneWeights[i] - Math.floor(track.lateralZoneWeights[i]);
+                alpha = Math.sin(alpha*Math.PI/2)*Math.sin(alpha*Math.PI/2);// makes this interpolation smooth with a Math.sin
+                
+                childTraj.laterals.push(alpha * nextLat + (1 - alpha) * previousLat);
+            }
+            childTraj.laterals.push()//[WTF ?]
+        }
+        return childTraj;
+    }*/
 
     /**
      * @param {Number} offset int that represents the number of laterals to shift 
@@ -189,49 +289,66 @@ export class Traj {
         }
     }
 
-    ResetAsParent(parentTraj, mutateStart, mutateEnd){
+    /*ResetAsParent(parentTraj, mutateStart, mutateEnd){
         this.evaluation = -1;//invalidate previous evaluations
         for(let i = mutateStart; i < mutateEnd; i = i+1){
             this.laterals[i] = parentTraj.laterals[mod(i, this.n)];
         }
+    }*/
+
+    /**
+     * Makes bump mutation
+     * @param {Number} center int of lateral where the mutation is centered
+     * @param {Number} semiLength int defining half the number of laterals that will be modified 
+     * @param {Number} force in [0,1], 0 is no modifications, 1 is potentially harsh modifications 
+     */
+    MutateBump(center, semiLength, force) {
+        this.evaluation = -1;
+        let mutationValue = Math.random();
+        for (let i = -semiLength + 1; i < semiLength; i++) {//skipping first and last indexes because they wouldn't actually be moved
+            let blend = force * squaredSinJoin(1 - (Math.abs(i)/semiLength));
+            let currentPoint = mod((center + i), this.n);
+            this.laterals[currentPoint] = blend*mutationValue + (1-blend)*this.laterals[currentPoint];
+            if(this.laterals[currentPoint] < 0){this.laterals[currentPoint] = 0;} // safety (float approx)
+            if(this.laterals[currentPoint] > 1){this.laterals[currentPoint] = 1;}
+        }
     }
 
-    Mutate(force, semiWidth, mutationMode) {
-        this.evaluation = -1;//invalidate previous evaluations
-        let chosenSemiWidth = semiWidth;
-        if(semiWidth == 0){
-            chosenSemiWidth = Math.round(Math.exp(Math.random()*LN_250));//more small semi width than long
+    /**
+     * Makes shift mutation
+     * @param {Number} center int of lateral where the mutation is centered
+     * @param {Number} semiLength int defining half the number of laterals that will be modified 
+     * @param {Number} force in [0,1], 0 is no modifications, 1 is potentially harsh modifications 
+     */
+    MutateShift(center, semiLength, force) {
+        this.evaluation = -1;
+        let centerShift = (2 * Math.random() - 1) * force * semiLength; // in [-semiLength, semiLength]
+        let oldLaterals = [];
+        for(let i = -semiLength; i <= semiLength; i++){
+            oldLaterals.push(this.laterals[mod(center + i, this.n)]);
         }
-        if(mutationMode == "bump"){
-            return this.MutateBump(force, chosenSemiWidth);
-        }else{
-            console.log("Mutation Mode Not Yet Implemented");   
+        for (let i = -semiLength + 1; i < semiLength; i++) {//skipping first and last indexes because they wouldn't actually be moved
+            let alpha;
+            let currentPoint = mod((center + i), this.n);
+            if(i >= centerShift){
+                alpha = (i - centerShift) / (semiLength - centerShift);
+                //alpha = squaredSinJoin(alpha);
+            }else{
+                alpha = (i - centerShift) / (centerShift + semiLength)
+                //alpha = -squaredSinJoin(-alpha);
+            }
+            let oldLateralFloat = alpha*semiLength + semiLength;
+            if(Number.isInteger(oldLateralFloat)){
+                this.laterals[currentPoint] = oldLaterals[oldLateralFloat];
+            }else{
+                let previous = Math.floor(oldLateralFloat);
+                let next = Math.ceil(oldLateralFloat);
+                let blend = oldLateralFloat - previous;
+                this.laterals[currentPoint] = (1-blend) * oldLaterals[previous] + blend * oldLaterals[next];
+            }
+            if(this.laterals[currentPoint] < 0){this.laterals[currentPoint] = 0;} // safety (float approx)
+            if(this.laterals[currentPoint] > 1){this.laterals[currentPoint] = 1;}
         }
-    }
-
-    MutateBump(force, semiWidth) {
-        //force : force at which mutationPoint if pushed towards mutationValue (must be in [0,1])
-        //semiWidth : number of points effected on each side of the mutationPoint (first and last aren't actually effected but start the cos interpolation)
-        let mutationPoint = Math.floor(Math.random()*this.n);
-
-        //set variable mutation value min and max to not unfavor close to track limit trajs 
-        let minMutationValue = 0;
-        let maxMutationValue = 1;
-        if(this.laterals[mutationPoint] >= 0.5){
-            minMutationValue = 1-(2*this.laterals[mutationPoint]);
-        }else{
-            maxMutationValue = 2*this.laterals[mutationPoint];
-        }
-
-        let mutationValue = minMutationValue + (maxMutationValue - minMutationValue)*Math.random();
-        for (let i = -semiWidth + 1; i < semiWidth; i++) {
-            let blend = force*SmoothSquare.soft.GetValue(i,semiWidth);
-            let current = mod((mutationPoint + i), this.n);
-            this.laterals[current] = blend*mutationValue + (1-blend)*this.laterals[current];
-            if(this.laterals[current] < 0){this.laterals[current] = 0;}
-            if(this.laterals[current] > 1){this.laterals[current] = 1;}
-        }
-        return [(mutationPoint - semiWidth), (mutationPoint + semiWidth)];//can be outside [0, n-1] but first el must be smaller than second;
     }
 
     /*

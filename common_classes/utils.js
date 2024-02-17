@@ -132,3 +132,34 @@ export function hslToRgb(h, s, l){
 export function toHex(num) {
     return  ("0"+(Number(num).toString(16))).slice(-2)
 }
+
+//https://bost.ocks.org/mike/shuffle/
+export function shuffle(array) {
+    var m = array.length, t, i;
+  
+    // While there remain elements to shuffle…
+    while (m) {
+  
+      // Pick a remaining element…
+      i = Math.floor(Math.random() * m--);
+  
+      // And swap it with the current element.
+      t = array[m];
+      array[m] = array[i];
+      array[i] = t;
+    }
+  
+    return array;
+}
+
+export function getRandomMutationZoneSemiLength(min, med, max){
+    let alpha = Math.log(Math.log(min/max)/Math.log(med/max))/Math.log(2);
+    let beta = Math.log(max);
+    let lambda = Math.log(max/min);
+    let x = Math.random();
+
+    return Math.floor(Math.exp(-lambda*Math.pow(x, alpha) + beta));
+}
+
+export function linearJoin(x){return x;}
+export function squaredSinJoin(x){return Math.sin(x*Math.PI/2)**2;}
