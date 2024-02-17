@@ -40,17 +40,14 @@ export class Engine{
 
         //BASE
         this.running = false;
+        this.stopGen = -1;
         /** @type {Traj[]}*/
         this.trajs = [];
 
         //MONITORING
         this.firstGenTimestamp = -1;
-        this.genCount = 0; // number of current gen
-        this.currentExp = "none"; // if none than no monitoring data will be logged else it will be saved in the corresponding file in results
-        this.lastGetStateTickCount = 0;
-        this.lastGetStateTimestamp = -1;
-
-        this.AddRandomConstantTrajs(200);
+        this.genNum = 0; // number of current gen
+        this.logName = "none"; // if none than no monitoring data will be logged else it will be saved in the corresponding file in results
     }
 
     GetState(){
@@ -73,9 +70,28 @@ export class Engine{
         return state;
     }
 
+    /**
+     * @returns object containing all current engine params and stats
+     */
+    GetEngineParamsAndStats(){
+        let obj = {params:{}, stats:{}};
+        let copiedProps = ["evaluationMode","elitismProportion","selectionMode","selectionPressure","parentCount","crossoverSmoothZone","mutationShiftProbability","mutationBumpProbability","mutationShiftForce","mutationBumpForce","mutationMinSemiLength","mutationMedSemiLength","mutationMaxSemiLength"]
+        for(let i = 0; i < copiedProps.length; i++){
+            obj.params[copiedProps[i]] = this[copiedProps[i]];
+        }
+        obj.params["carName"] = this.car.name;
+        obj.params["trackName"] = this.track.name;
+        obj.stats["genNum"] = this.genNum;
+        obj.stats["genSize"] = this.trajs.length;
+        obj.stats["timeSinceFirstGen"] = Date.now() - this.firstGenTimestamp;
+        
+        return obj;
+    }
+
     ClearTrajs(){
         if(this.running){return false;}
         this.trajs = [];
+        this.genNum = 0;
         return true;
     }
 
@@ -144,33 +160,54 @@ export class Engine{
      * Starts the genetic algorithm engine
      * @returns {Boolean} if engine start succeeded
      */
-    Start(monitor){
+    Start(logName){
         if(this.running){return false;}
         if(this.trajs.length == 0){
             console.warn("Tried to start engine without any trajs");
             return false;
         }
+        this.logName = logName;
         this.running = true;
-        this.lastGetStateTimestamp = -1;
         setImmediate(() => {this.Step()});
         return true;
     }
 
     Step(){
-        //STATS of current gen
+        if(this.stopGen != -1 && this.stopGen <= this.genNum){
+            this.Stop();
+            return;
+        }
+
+        if(this.genNum == 0){
+            this.firstGenTimestamp = Date.now();
+        }
+
+        //EVALUATE GEN
         let genSize = this.trajs.length;
         let bestEval = Infinity;
         let avgEval = 0;
+        let sdEval = 0;
         for(let i = 0; i < genSize; i++){
             this.trajs[i].Evaluate(this.evaluationMode, this.track, this.car);
             avgEval += this.trajs[i].evaluation;
+            sdEval += this.trajs[i].evaluation * this.trajs[i].evaluation;
             if(this.trajs[i].evaluation < bestEval){
                 bestEval = this.trajs[i].evaluation;
             }
         }
-        avgEval /= genSize;
 
-        console.log([bestEval, avgEval]);
+        //LOG
+        if(this.logName != "none" && this.genNum % 25 == 0){
+            avgEval /= genSize;
+            sdEval = Math.sqrt((sdEval / genSize) - (avgEval * avgEval)) // standard_dev = sqrt(E(x²) - E(x)²)
+            
+            let loggedObject = this.GetEngineParamsAndStats();
+            loggedObject.stats["bestEval"] = bestEval;
+            loggedObject.stats["avgEval"] = avgEval;
+            loggedObject.stats["sdEval"] = sdEval;
+            
+            this.saveSystem.SaveLog(loggedObject, this.logName);
+        }
 
         //ELITISM
         let children = [];
@@ -243,8 +280,8 @@ export class Engine{
 
         this.trajs = children;
 
-        this.genCount += 1;
-        console.log(this.genCount);
+        this.genNum += 1;
+        console.log(this.genNum);
         if(this.running){
             setTimeout(() => {
                 this.Step();
@@ -255,7 +292,7 @@ export class Engine{
     Stop(){
         if(!this.running){return false;}
         this.running = false;
-        this.lastGetStateTimestamp = -1;
+        this.stopGen = -1;
         return true;
     }
 }

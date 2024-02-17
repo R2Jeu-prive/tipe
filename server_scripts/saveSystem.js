@@ -30,30 +30,43 @@ export class SaveSystem{
     }
 
     /**
-     * 
+     * Saves a traj with its laterals and additional data
      * @param {Traj} traj to save
      * @param {Object} data attributes to save to the log file
-     * @param {String} experimentName experiment that has generated this traj or any other prefix to group saved trajs
-     * @param {Boolean} saveLaterals //if true traj laterals will be saved and can be reloaded later 
+     * @param {String} prefix experiment that has generated this traj or any other prefix to group saved trajs
      */
-    SaveTraj(traj, data, experimentName = "testing", saveLaterals = false){
-        //we save one or two files : fileName.json and fileName.dat
-        //first one contains few informations
-        //second one contains n 64bit floats representing the laterals of the traj
+    SaveTraj(traj, data, prefix = "testing"){
+        //we write data in two files : list.txt and [prefix]_[timestamp].dat
+        //in first file we add a line referencing this traj with additional data
+        //in second file we write n 64bit floats representing the laterals of the traj
         try{
-            let fileName = experimentName + "_" + Date.now();
-            let buf = new ArrayBuffer(8*traj.laterals.length);
-            for(let i = 0; i < traj.laterals.length; i++){
-                (new Float64Array(buf)[i]) = traj.laterals[mod(i - this.engine.track.startOffset, this.engine.track.length)];
+            let fileName = prefix + "_" + Date.now();
+            data.fileName = fileName;
+            let buf = new ArrayBuffer(8*traj.n);
+            for(let i = 0; i < traj.n; i++){
+                (new Float64Array(buf)[i]) = traj.laterals[mod(i - this.engine.track.startOffset, this.engine.track.n)];
             }
-            if(saveLaterals){
-                fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
-                data.fileName = fileName;
-            }
-            fs.writeFileSync("./results/logs/"+ experimentName + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
+            console.log(buf);
+            console.log(traj.laterals.length);
+            fs.writeFileSync("./results/trajs/" + fileName + ".dat", new Uint8Array(buf));
+            fs.writeFileSync("./results/trajs/list.txt", JSON.stringify(data) + "\n", {flag:'a'});
         }catch(e){
             console.error(e);
             console.error("SaveSystem : SaveTraj failed and could be critical so exiting");
+            exit(1);
+        }
+    }
+    /**
+     * Logs experiment results or other in an experiment log file
+     * @param {Object} data to be saved
+     * @param {String} experiment to save in the correct file
+     */
+    SaveLog(data, experiment){
+        try{
+            fs.writeFileSync("./results/logs/" + experiment + ".txt", JSON.stringify(data) + "\n", {flag:'a'});
+        }catch(e){
+            console.error(e);
+            console.error("SaveSystem : SaveLog failed and could be critical so exiting");
             exit(1);
         }
     }
@@ -64,7 +77,7 @@ export class SaveSystem{
      * @returns the string containing all commands of the experiment
      */
     FetchExperiment(expName){
-        let commands = "wait 6;\n";
+        let commands = "wait 3;\n";
         try{
             commands = commands + fs.readFileSync("./results/experiments/" + expName + ".txt", { encoding: 'utf8', flag: 'r' });
         }catch(e){
