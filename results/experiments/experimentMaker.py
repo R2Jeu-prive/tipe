@@ -27,7 +27,7 @@ for i in range(3):
                     expString += "setParam mutationMedSemiLength " + str(mutationZones[m][1]) + ";\n"
                     expString += "setParam mutationMaxSemiLength " + str(mutationZones[m][2]) + ";\n"
                     expString += "addRandomConstantTrajs " + str(genSize) + ";\n"
-                    expString += "start delta;\nstop 15;\nwaitStopped;\nsaveBestTraj delta;\nclearTrajs;\n"
+                    expString += "start delta;\nstop 1500;\nwaitStopped;\nsaveBestTraj delta;\nclearTrajs;\n"
 expString += "runExp delta;\n"
 f.write(expString)
 f.close()
