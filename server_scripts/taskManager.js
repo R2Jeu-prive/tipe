@@ -48,15 +48,16 @@ export class TaskManager{
      * @returns {Boolean} true if all commands are valid and were added to tasks array, false if one failed and everything was aborted
      */
     ParseCheckAndAddTasks(str){
-        const commandListRegex = /^([a-zA-Z0-9 _\.\-]*;\n)+$/g;
+        const commandListRegex = /^([a-zA-Z0-9 _\.\-\[\]\,]*;\n)+$/g;
         const float01Regex = /^(1|(0(\.[0-9]+)?))$/g;
+        const float01ListRegex = /^\[((1|(0(\.[0-9]+)?))\,)+\]$/g;
+        const floatRegex = /^([1-9]?[0-9]*(\.[0-9]+)?)$/g;
+        const floatListRegex = /^\[(([1-9]?[0-9]*(\.[0-9]+)?)\,)+\]$/g;
         const strictPosIntRegex = /^[1-9][0-9]*$/g;
-        const posIntRegex = /^(0|([1-9][0-9]*))$/g;
-        const selectionModeRegex = /^(time)|(curvature)|(distance)$/g;
-        const boolRegex = /^(true|false)$/g;
+        const strictPosIntListRegex = /^\[([1-9][0-9]*\,)+\]$/g;
+        const evaluationModeRegex = /^(time)|(curvature)|(distance)$/g;
         const simpleStringRegex = /^[a-zA-Z0-9]+$/g;
         const trajNameRegex = /^[a-zA-Z0-9]+_[0-9]+$/g;
-        const twoOrMoreIntRegex = /^[2-9][0-9]*$/g;
         let validCommands = [];
 
         if(str.match(commandListRegex) == null){
@@ -99,17 +100,30 @@ export class TaskManager{
             }else if(nbWords == 3){
 
                 if(words[0] == "setParam"){
-                    if(words[1] == "parentCount" && words[2].match(twoOrMoreIntRegex) != null){validCommands.push(commands[i]);continue;}
-                    if(words[1] == "selectionMode" && words[2].match(selectionModeRegex) != null){validCommands.push(commands[i]);continue;}
-                    if(words[1] == "selectionPressure" && words[2].match(float01Regex) != null){validCommands.push(commands[i]);continue;}
-                    if(words[1] == "mutationShiftProbability" && words[2].match(float01Regex) != null){validCommands.push(commands[i]);continue;}
-                    if(words[1] == "mutationBumpProbability" && words[2].match(float01Regex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "evaluationMode" && words[2].match(evaluationModeRegex) != null){validCommands.push(commands[i]);continue;}
+
+                    if(words[1] == "parentCount" && words[2].match(strictPosIntRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "selectionPressure" && words[2].match(floatRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationShiftProbability" && words[2].match(floatRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationBumpProbability" && words[2].match(floatRegex) != null){validCommands.push(commands[i]);continue;}
                     if(words[1] == "mutationShiftForce" && words[2].match(float01Regex) != null){validCommands.push(commands[i]);continue;}
                     if(words[1] == "mutationBumpForce" && words[2].match(float01Regex) != null){validCommands.push(commands[i]);continue;}
                     if(words[1] == "elitismProportion" && words[2].match(float01Regex) != null){validCommands.push(commands[i]);continue;}
                     if(words[1] == "mutationMinSemiLength" && words[2].match(strictPosIntRegex) != null){validCommands.push(commands[i]);continue;}
                     if(words[1] == "mutationMedSemiLength" && words[2].match(strictPosIntRegex) != null){validCommands.push(commands[i]);continue;}
                     if(words[1] == "mutationMaxSemiLength" && words[2].match(strictPosIntRegex) != null){validCommands.push(commands[i]);continue;}
+                }
+                if(words[0] == "setRandomParam"){
+                    if(words[1] == "parentCount" && words[2].match(strictPosIntListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "selectionPressure" && words[2].match(floatListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationShiftProbability" && words[2].match(floatListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationBumpProbability" && words[2].match(floatListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationShiftForce" && words[2].match(float01ListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationBumpForce" && words[2].match(float01ListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "elitismProportion" && words[2].match(float01ListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationMinSemiLength" && words[2].match(strictPosIntListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationMedSemiLength" && words[2].match(strictPosIntListRegex) != null){validCommands.push(commands[i]);continue;}
+                    if(words[1] == "mutationMaxSemiLength" && words[2].match(strictPosIntListRegex) != null){validCommands.push(commands[i]);continue;}
                 }
             }
             return false;//this command is not correctly formated
@@ -230,7 +244,31 @@ export class TaskManager{
             }
             let param = command.split(" ")[1];
             let paramValue = command.split(" ")[2];
-            if(param == "parentCount"){this.engine.parentCount == parseInt(paramValue);}
+            if(param == "parentCount"){this.engine.parentCount = parseInt(paramValue);}
+            if(param == "evaluationMode"){this.engine.evaluationMode = paramValue;}
+            if(param == "selectionPressure"){this.engine.selectionPressure = parseFloat(paramValue);}
+            if(param == "mutationShiftProbability"){this.engine.mutationShiftProbability = parseFloat(paramValue);}
+            if(param == "mutationBumpProbability"){this.engine.mutationBumpProbability = parseFloat(paramValue);}
+            if(param == "mutationShiftForce"){this.engine.mutationShiftForce = parseFloat(paramValue);}
+            if(param == "mutationBumpForce"){this.engine.mutationBumpForce = parseFloat(paramValue);}
+            if(param == "elitismProportion"){this.engine.selectionPressure = parseFloat(paramValue);}
+            if(param == "mutationMinSemiLength"){this.engine.mutationMinSemiLength = parseInt(paramValue);}
+            if(param == "mutationMedSemiLength"){this.engine.mutationMedSemiLength = parseInt(paramValue);}
+            if(param == "mutationMaxSemiLength"){this.engine.mutationMaxSemiLength = parseInt(paramValue);}
+
+            console.log("TaskManager : Modified " + param + " to " + paramValue);
+            return true;
+        }
+        if(command.match(/^setRandomParam/)){
+            if(this.engine.running){
+                console.error("TaskManager : Failed to modify param because engine is running");
+                return false;
+            }
+            let param = command.split(" ")[1];
+            let paramValues = command.split(" ")[2].slice(1, -2).split(",");
+            let randomIndex = Math.floor(Math.random()*paramValues.length)
+            let paramValue = paramValues[randomIndex];
+            if(param == "parentCount"){this.engine.parentCount = parseInt(paramValue);}
             if(param == "selectionMode"){this.engine.selectionMode = paramValue;}
             if(param == "selectionPressure"){this.engine.selectionPressure = parseFloat(paramValue);}
             if(param == "mutationShiftProbability"){this.engine.mutationShiftProbability = parseFloat(paramValue);}
@@ -238,9 +276,9 @@ export class TaskManager{
             if(param == "mutationShiftForce"){this.engine.mutationShiftForce = parseFloat(paramValue);}
             if(param == "mutationBumpForce"){this.engine.mutationBumpForce = parseFloat(paramValue);}
             if(param == "elitismProportion"){this.engine.selectionPressure = parseFloat(paramValue);}
-            if(param == "mutationMinSemiLength"){this.engine.mutationMinSemiLength == parseInt(paramValue);}
-            if(param == "mutationMedSemiLength"){this.engine.mutationMedSemiLength == parseInt(paramValue);}
-            if(param == "mutationMaxSemiLength"){this.engine.mutationMaxSemiLength == parseInt(paramValue);}
+            if(param == "mutationMinSemiLength"){this.engine.mutationMinSemiLength = parseInt(paramValue);}
+            if(param == "mutationMedSemiLength"){this.engine.mutationMedSemiLength = parseInt(paramValue);}
+            if(param == "mutationMaxSemiLength"){this.engine.mutationMaxSemiLength = parseInt(paramValue);}
 
             console.log("TaskManager : Modified " + param + " to " + paramValue);
             return true;
