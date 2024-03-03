@@ -251,7 +251,7 @@ export class TaskManager{
             if(param == "mutationBumpProbability"){this.engine.mutationBumpProbability = parseFloat(paramValue);}
             if(param == "mutationShiftForce"){this.engine.mutationShiftForce = parseFloat(paramValue);}
             if(param == "mutationBumpForce"){this.engine.mutationBumpForce = parseFloat(paramValue);}
-            if(param == "elitismProportion"){this.engine.selectionPressure = parseFloat(paramValue);}
+            if(param == "elitismProportion"){this.engine.elitismProportion = parseFloat(paramValue);}
             if(param == "mutationMinSemiLength"){this.engine.mutationMinSemiLength = parseInt(paramValue);}
             if(param == "mutationMedSemiLength"){this.engine.mutationMedSemiLength = parseInt(paramValue);}
             if(param == "mutationMaxSemiLength"){this.engine.mutationMaxSemiLength = parseInt(paramValue);}
@@ -275,7 +275,7 @@ export class TaskManager{
             if(param == "mutationBumpProbability"){this.engine.mutationBumpProbability = parseFloat(paramValue);}
             if(param == "mutationShiftForce"){this.engine.mutationShiftForce = parseFloat(paramValue);}
             if(param == "mutationBumpForce"){this.engine.mutationBumpForce = parseFloat(paramValue);}
-            if(param == "elitismProportion"){this.engine.selectionPressure = parseFloat(paramValue);}
+            if(param == "elitismProportion"){this.engine.elitismProportion = parseFloat(paramValue);}
             if(param == "mutationMinSemiLength"){this.engine.mutationMinSemiLength = parseInt(paramValue);}
             if(param == "mutationMedSemiLength"){this.engine.mutationMedSemiLength = parseInt(paramValue);}
             if(param == "mutationMaxSemiLength"){this.engine.mutationMaxSemiLength = parseInt(paramValue);}
